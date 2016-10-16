@@ -1,0 +1,6 @@
+[user]
+	name = Simon Egersand
+	email = s.egersand@gmail.com
+[core]
+	excludesfile = ~/.gitignore
+	editor = vim

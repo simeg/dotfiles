@@ -1,0 +1,8 @@
+export PATH="$PATH:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+export PATH="$PATH:/Users/Simon/.rbenv/shims"
+export PATH="$PATH:/Users/Simon/.node/bin"
+export PATH="$PATH:/Users/Simon/.npm-packages/bin"
+export PATH="$PATH:/usr/local/git/bin"
+export PATH="$PATH:$HOME/.rvm/bin"
+export NVM_DIR="$HOME/.nvm"
+export COMPLETION_WAITING_DOTS="true"
