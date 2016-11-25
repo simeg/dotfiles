@@ -1,7 +1,7 @@
 export ZSH=/Users/Simon/.oh-my-zsh
 
 ZSH_THEME="robbyrussell" # Currently using some mix of zsh theme and iTerm theme
-plugins=(git up_and_back)
+plugins=(git up_and_back zsh-autosuggestions)
 
 source $(brew --prefix nvm)/nvm.sh
 source $ZSH/oh-my-zsh.sh
