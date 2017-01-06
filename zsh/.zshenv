@@ -6,3 +6,4 @@ export PATH="$PATH:/usr/local/git/bin"
 export PATH="$PATH:$HOME/.rvm/bin"
 export NVM_DIR="$HOME/.nvm"
 export COMPLETION_WAITING_DOTS="true"
+export skip_global_compinit=1 # Increase speed of opening zsh shell instance
