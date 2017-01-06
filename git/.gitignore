@@ -51,3 +51,7 @@ dump.rdb
 ehthumbs.db
 Thumbs.db
 
+# Temp generated files #
+########################
+vim-markdown-preview.html
+
