@@ -9,6 +9,7 @@ Plugin 'alessandroyorba/despacio'
 Plugin 'pangloss/vim-javascript'
 Plugin 'kien/rainbow_parentheses.vim'
 Plugin 'vim-airline/vim-airline'
+Plugin 'JamshedVesuna/vim-markdown-preview'
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
@@ -25,6 +26,10 @@ let g:airline#extensions#whitespace#mixed_indent_algo = 0
 let g:airline_left_sep=''
 let g:airline_powerline_fonts = 0
 let g:airline_right_sep=''
+
+" Markdown Preview configuration
+let vim_markdown_preview_github=1 " Use GitHub flavoured markdown
+let vim_markdown_preview_toggle=1 " Render images
 
 " Leave hidden buffers open
 set hidden
