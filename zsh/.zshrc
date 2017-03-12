@@ -5,8 +5,6 @@ ZSH_THEME="robbyrussell" # Currently using some mix of zsh theme and iTerm theme
 plugins=(git up_and_back zsh-autosuggestions)
 source $ZSH/oh-my-zsh.sh
 
-source $(brew --prefix nvm)/nvm.sh
-
 # Aliases
 alias h='heroku'
 alias del='rmtrash' # TODO: Handle dependency 'rmtrash'
