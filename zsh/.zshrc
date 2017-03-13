@@ -9,6 +9,9 @@ source $ZSH/oh-my-zsh.sh
 # Put yarn on the global path
 export PATH="$PATH:`yarn global bin`"
 
+# Enable plugins
+source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
 # What does this do? Commenting for now
 # test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
