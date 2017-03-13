@@ -64,3 +64,14 @@ ln -sfv `pwd`/vim $HOME/.vim
 # Run installation scripts
 #source ./install/zsh.sh
 #source ./install/vundle.sh
+
+#############################################
+# Etc
+#############################################
+
+# Do not display "Last logged in ..." when
+# creating new shell
+if ! file_exist "~/.hushlogin"; then
+  echo "~/.hushlogin already exist, will not create a new one";
+  touch ~/.hushlogin
+fi
