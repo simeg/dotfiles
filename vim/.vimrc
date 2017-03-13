@@ -101,6 +101,8 @@ set showmode
 set title
 " Show the (partial) command as it’s being typed
 set showcmd
+" Show vertical line at 80 characters
+set colorcolumn=80
 
 " Automatic commands
 if has("autocmd")
