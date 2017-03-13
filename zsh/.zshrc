@@ -1,19 +1,14 @@
+# Export oh-my-zsh folder
 export ZSH=$HOME/.oh-my-zsh
 
-# Oh My Zsh
-ZSH_THEME="robbyrussell" # Currently using some mix of zsh theme and iTerm theme
-plugins=(git up_and_back zsh-autosuggestions)
+# oh-my-zsh stuff
+ZSH_THEME="robbyrussell"
+plugins=(git z zsh-completions zsh-autosuggestions zsh-syntax-highlighting)
 source $ZSH/oh-my-zsh.sh
-
-# Aliases
-alias h='heroku'
-alias del='rmtrash' # TODO: Handle dependency 'rmtrash'
-
-# Removing duplicates in $PATH
-# typeset -U PATH
 
 # Put yarn on the global path
 export PATH="$PATH:`yarn global bin`"
 
-test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+# What does this do? Commenting for now
+# test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
