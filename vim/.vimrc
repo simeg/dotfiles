@@ -1,19 +1,49 @@
+" Configuration for vim editor
+"
+" Most of this file is taken from the Vundle github readme:
+" https://github.com/VundleVim/Vundle.vim
+
 set nocompatible              " be iMproved, required
 filetype off                  " required
+
+
+" #####################################################
+" ###################### PLUGINS ######################
+" #####################################################
 
 " set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
+" let Vundle manage Vundle, required
 Plugin 'VundleVim/Vundle.vim'
+
+" The colorscheme for vim
 Plugin 'alessandroyorba/despacio'
+
+" Vastly improve Javascript indentation and syntax support
 Plugin 'pangloss/vim-javascript'
+
+" Make parentheses into rainbows when nesting them
 Plugin 'kien/rainbow_parentheses.vim'
+
+" Status bar in bottom of vim
 Plugin 'vim-airline/vim-airline'
+
+" Preview markdown files in vim
 Plugin 'JamshedVesuna/vim-markdown-preview'
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
 filetype plugin indent on    " required
+
+
+" #####################################################
+" ################### CONFIGURATION ###################
+" #####################################################
+
+" Set colorscheme
+" https://github.com/AlessandroYorba/Despacio
+colorscheme despacio
 
 " Airline configuration
 let g:airline#extensions#branch#enabled = 1
@@ -27,19 +57,18 @@ let g:airline_left_sep=''
 let g:airline_powerline_fonts = 0
 let g:airline_right_sep=''
 
-" Markdown Preview configuration
-let vim_markdown_preview_github=1 " Use GitHub flavoured markdown
-let vim_markdown_preview_toggle=1 " Render images
+" ### Markdown Preview configuration ###
+" Use GitHub flavoured markdown
+let vim_markdown_preview_github=1
+" Render images
+let vim_markdown_preview_toggle=1
 
 " Leave hidden buffers open
 set hidden
 " By default Vim saves your last 8 commands, we can handle more
-set history=100 " by default Vim saves your last 8 commands. We can handle more
+set history=100
 " Enable mouse cursor
 set mouse=a
-
-colorscheme despacio
-
 " Use the OS clipboard by default (on versions compiled with `+clipboard`)
 set clipboard=unnamed
 " Enhance command-line completion
@@ -63,10 +92,8 @@ set directory=~/.vim/swaps
 if exists("&undodir")
   set undodir=~/.vim/undo
 endif
-
 " Don’t create backups when editing files in certain directories
 set backupskip=/tmp/*,/private/tmp/*
-
 " Respect modeline in files
 set modeline
 set modelines=4
@@ -104,7 +131,7 @@ set showcmd
 " Show vertical line at 80 characters
 set colorcolumn=80
 
-" Automatic commands
+" Automatic commands. Not sure what these do.
 if has("autocmd")
   " Enable file type detection
     filetype on
