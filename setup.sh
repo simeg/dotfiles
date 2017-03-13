@@ -62,7 +62,7 @@ done
 ln -sfv `pwd`/vim $HOME/.vim
 
 # Run installation scripts
-#source ./install/zsh.sh
+source ./install/zsh.sh
 #source ./install/vundle.sh
 
 #############################################
