@@ -40,6 +40,10 @@ Plugin 'JamshedVesuna/vim-markdown-preview'
 " Plugin for distraction free writing
 Plugin 'junegunn/goyo.vim'
 
+" Comment out a line using `gcc`, `gc` for selection.
+" https://github.com/tpope/vim-commentary
+Plugin 'tpope/vim-commentary'
+
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
 filetype plugin indent on    " required
