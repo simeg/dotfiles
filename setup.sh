@@ -44,10 +44,10 @@ function backup {
 }
 
 #############################################
-# Logic
+# Symlinks
 #############################################
 
-# Iterate over all dotfiles
+# Iterate over all dotfiles in this repo
 for dotfile in */.*; do
   # Ignore folders
   if [ -f "$dotfile" ]; then
@@ -61,7 +61,12 @@ done
 # Symlink folders
 ln -sfv `pwd`/vim $HOME/.vim
 
+#############################################
+# Plugins
+#############################################
+
 # Run installation scripts
+source ./install/other.sh
 source ./install/zsh.sh
 #source ./install/vundle.sh
 
