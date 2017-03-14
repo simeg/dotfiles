@@ -3,7 +3,8 @@
 # Creates symlinks from all dotfiles in this
 # folder to $HOME. If a dotfile already exists
 # then that is backed up before a symlink is
-# created.
+# created. Also runs all setup scripts to
+# install plugins.
 
 #############################################
 # Utility functions
@@ -59,15 +60,15 @@ for dotfile in */.*; do
 done
 
 # Symlink folders
-ln -sfv `pwd`/vim $HOME/.vim
+ln -sv `pwd`/vim $HOME/.vim
 
 #############################################
 # Plugins
 #############################################
 
-# Run installation scripts
 source ./install/other.sh
 source ./install/zsh.sh
+source ./install/vim.sh
 #source ./install/vundle.sh
 
 #############################################
