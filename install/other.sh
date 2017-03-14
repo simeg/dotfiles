@@ -12,4 +12,5 @@ brew install \
   git \
   node \
   ruby \
-  tree
+  tree \
+  yarn 
