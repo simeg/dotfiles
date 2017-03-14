@@ -17,8 +17,13 @@ call vundle#begin()
 " let Vundle manage Vundle, required
 Plugin 'VundleVim/Vundle.vim'
 
-" The colorscheme for vim
+" ### Colorschemes
+" https://github.com/AlessandroYorba/Despacio
 Plugin 'alessandroyorba/despacio'
+
+" https://github.com/junegunn/seoul256.vim
+Plugin 'junegunn/seoul256.vim'
+
 
 " Vastly improve Javascript indentation and syntax support
 Plugin 'pangloss/vim-javascript'
@@ -32,6 +37,9 @@ Plugin 'vim-airline/vim-airline'
 " Preview markdown files in vim
 Plugin 'JamshedVesuna/vim-markdown-preview'
 
+" Plugin for distraction free writing
+Plugin 'junegunn/goyo.vim'
+
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
 filetype plugin indent on    " required
@@ -41,9 +49,16 @@ filetype plugin indent on    " required
 " ################### CONFIGURATION ###################
 " #####################################################
 
-" Set colorscheme
-" https://github.com/AlessandroYorba/Despacio
+" Set colorscheme. There's a few colorschemes
+" that look good available, easy to switch.
 colorscheme despacio
+
+" seoul256 (dark):
+" "   Range:   233 (darkest) ~ 239 (lightest)
+" "   Default: 237
+"let g:seoul256_background = 236
+"colo seoul256
+
 
 " Airline configuration
 let g:airline#extensions#branch#enabled = 1
