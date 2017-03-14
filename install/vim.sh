@@ -24,4 +24,7 @@ mkdir_if_not_exist $SWAP_DIR
 mkdir_if_not_exist $BACKUP_DIR
 mkdir_if_not_exist $UNDO_DIR
 
+# Install all vim plugins specified in .vimrc
+vim +PluginInstall +qall
+
 echo "Vim setup script complete"
