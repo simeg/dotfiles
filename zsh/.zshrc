@@ -9,6 +9,7 @@ source $ZSH/oh-my-zsh.sh
 
 # Aliases
 alias tt="tree"
+alias v="vim"
 
 # Put yarn on the global path
 export PATH="$PATH:`yarn global bin`"
