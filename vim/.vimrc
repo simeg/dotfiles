@@ -44,6 +44,11 @@ Plugin 'junegunn/goyo.vim'
 " https://github.com/tpope/vim-commentary
 Plugin 'tpope/vim-commentary'
 
+" Let vim handle syntax checks
+" https://github.com/vim-syntastic/syntastic
+" NOTE: Could not get it to work, let's try again later
+" Plugin 'vim-syntastic/syntastic'
+
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
 filetype plugin indent on    " required
