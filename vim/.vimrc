@@ -6,7 +6,6 @@
 set nocompatible              " be iMproved, required
 filetype off                  " required
 
-
 " #####################################################
 " ###################### PLUGINS ######################
 " #####################################################
@@ -43,6 +42,10 @@ Plugin 'junegunn/goyo.vim'
 " Comment out a line using `gcc`, `gc` for selection.
 " https://github.com/tpope/vim-commentary
 Plugin 'tpope/vim-commentary'
+
+" Show what lines has been changed (git)
+" https://github.com/airblade/vim-gitgutter
+Plugin 'airblade/vim-gitgutter'
 
 " Let vim handle syntax checks
 " https://github.com/vim-syntastic/syntastic
