@@ -31,7 +31,9 @@ Plugin 'pangloss/vim-javascript'
 Plugin 'kien/rainbow_parentheses.vim'
 
 " Status bar in bottom of vim
+" https://github.com/vim-airline/vim-airline
 Plugin 'vim-airline/vim-airline'
+Plugin 'vim-airline/vim-airline-themes'
 
 " Preview markdown files in vim
 Plugin 'JamshedVesuna/vim-markdown-preview'
@@ -73,6 +75,7 @@ colorscheme despacio
 
 
 " Airline configuration
+let g:airline_theme='raven'
 let g:airline#extensions#branch#enabled = 1
 let g:airline#extensions#syntastic#enabled = 1
 let g:airline#extensions#tabline#enabled = 1
