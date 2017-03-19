@@ -77,7 +77,7 @@ source ./install/vim.sh
 
 # Do not display "Last logged in ..." when
 # creating new shell
-if ! file_exist "~/.hushlogin"; then
+if [ ! ~/.hushlogin ]; then
   echo "~/.hushlogin already exist, will not create a new one";
   touch ~/.hushlogin
 fi
