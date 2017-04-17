@@ -11,6 +11,7 @@ source $ZSH/oh-my-zsh.sh
 alias tt="tree"
 alias v="vim"
 alias vimrc="vim ~/.vimrc"
+alias zshrc="vim ~/.zshrc"
 
 # Put yarn on the global path
 export PATH="$PATH:`yarn global bin`"
