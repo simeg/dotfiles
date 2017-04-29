@@ -24,6 +24,9 @@ mkdir_if_not_exist $SWAP_DIR
 mkdir_if_not_exist $BACKUP_DIR
 mkdir_if_not_exist $UNDO_DIR
 
+# Install vundle
+git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+
 # Install all vim plugins specified in .vimrc
 vim +PluginInstall +qall
 
