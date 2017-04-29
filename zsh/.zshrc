@@ -18,6 +18,7 @@ export PATH="$PATH:`yarn global bin`"
 # Enable external plugins
 source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 git clone git://github.com/zsh-users/zsh-autosuggestions $ZSH_CUSTOM/plugins/zsh-autosuggestions
+git clone https://github.com/zsh-users/zsh-completions ~/.oh-my-zsh/custom/plugins/zsh-completions
 
 
 # Has something to do with enabling shell integration in iTerm,
