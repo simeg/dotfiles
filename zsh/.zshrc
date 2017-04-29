@@ -7,7 +7,6 @@ ZSH_THEME="robbyrussell"
 plugins=(git z zsh-completions zsh-autosuggestions zsh-syntax-highlighting)
 source $ZSH/oh-my-zsh.sh
 
-# Aliases
 alias tt="tree"
 alias v="vim"
 alias vimrc="vim ~/.vimrc"
@@ -16,8 +15,10 @@ alias zshrc="vim ~/.zshrc"
 # Put yarn on the global path
 export PATH="$PATH:`yarn global bin`"
 
-# Enable external plugins here
+# Enable external plugins
 source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+git clone git://github.com/zsh-users/zsh-autosuggestions $ZSH_CUSTOM/plugins/zsh-autosuggestions
+
 
 # Has something to do with enabling shell integration in iTerm,
 # causing some conflict with zsh.
