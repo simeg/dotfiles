@@ -10,6 +10,8 @@
 	<integer>0</integer>
 	<key>AppleSmoothFixedFontsSizeThreshold</key>
 	<integer>1</integer>
+	<key>AutoHideTmuxClientSession</key>
+	<false/>
 	<key>Custom Color Presets</key>
 	<dict>
 		<key>Arthur</key>
@@ -649,8 +651,12 @@
 	<false/>
 	<key>DisableFullscreenTransparency</key>
 	<false/>
+	<key>DoubleClickPerformsSmartSelection</key>
+	<true/>
 	<key>FlashTabBarInFullscreen</key>
 	<true/>
+	<key>FocusFollowsMouse</key>
+	<false/>
 	<key>GlobalKeyMap</key>
 	<dict>
 		<key>0x19-0x60000</key>
@@ -907,11 +913,11 @@
 	<key>NSWindow Frame SessionsPreferences</key>
 	<string>269 207 599 388 0 0 1680 1027 </string>
 	<key>NSWindow Frame SharedPreferences</key>
-	<string>247 164 1016 502 0 0 1440 878 </string>
+	<string>247 285 918 494 0 0 1440 878 </string>
 	<key>NSWindow Frame UKCrashReporter</key>
 	<string>99 294 592 584 0 0 1440 878 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
-	<string>3 86 1434 787 0 0 1440 878 </string>
+	<string>3 83 1434 787 0 0 1440 878 </string>
 	<key>NSWindow Frame iTerm Window 1</key>
 	<string>176 120 1011 758 0 0 1440 878 </string>
 	<key>NSWindow Frame iTerm Window 2</key>
@@ -1093,6 +1099,8 @@
 				<key>Red Component</key>
 				<real>1</real>
 			</dict>
+			<key>Blend</key>
+			<real>0.49931014623397435</real>
 			<key>Blinking Cursor</key>
 			<false/>
 			<key>Blur</key>
@@ -1172,6 +1180,8 @@
 			</dict>
 			<key>Guid</key>
 			<string>3F6CC3D0-D299-4F22-B904-DC7C89C5ADA6</string>
+			<key>Hide After Opening</key>
+			<false/>
 			<key>Horizontal Spacing</key>
 			<real>1</real>
 			<key>Idle Code</key>
@@ -1626,6 +1636,8 @@
 			<string>OperatorMono-Book 15</string>
 			<key>Only The Default BG Color Uses Transparency</key>
 			<false/>
+			<key>Open Toolbelt</key>
+			<false/>
 			<key>Option Key Sends</key>
 			<integer>2</integer>
 			<key>Prompt Before Closing 2</key>
@@ -1658,6 +1670,8 @@
 			</dict>
 			<key>Send Code When Idle</key>
 			<false/>
+			<key>Session Close Undo Timeout</key>
+			<integer>15</integer>
 			<key>Shortcut</key>
 			<string></string>
 			<key>Silence Bell</key>
@@ -1671,7 +1685,7 @@
 			<key>Terminal Type</key>
 			<string>xterm-256color</string>
 			<key>Transparency</key>
-			<real>0.0</real>
+			<real>0.055875554733727816</real>
 			<key>Unlimited Scrollback</key>
 			<true/>
 			<key>Use Bold Font</key>
@@ -2381,7 +2395,7 @@
 	<key>SUHasLaunchedBefore</key>
 	<true/>
 	<key>SULastCheckTime</key>
-	<date>2017-04-10T18:31:44Z</date>
+	<date>2017-04-27T17:59:21Z</date>
 	<key>SUSendProfileInfo</key>
 	<false/>
 	<key>SavePasteHistory</key>
@@ -2404,6 +2418,8 @@
 	<integer>2</integer>
 	<key>TabViewType</key>
 	<integer>2</integer>
+	<key>TripleClickSelectsFullWrappedLines</key>
+	<true/>
 	<key>UKCrashReporterLastCrashReportDate</key>
 	<real>1490740480</real>
 	<key>UseBorder</key>
