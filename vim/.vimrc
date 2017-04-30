@@ -62,12 +62,16 @@ call vundle#end()            " required
 filetype plugin indent on    " required
 
 
+" ####################################################
+" ################# KEY BINDINGS #####################
+" ####################################################
+map <C-n> :NERDTreeToggle<CR>
+map <C-g> :Goyo<CR>
+
 " #####################################################
 " ################### CONFIGURATION ###################
 " #####################################################
 
-" Set colorscheme. There's a few colorschemes
-" that look good available, easy to switch.
 colorscheme despacio
 
 " seoul256 (dark):
@@ -80,8 +84,8 @@ colorscheme despacio
 autocmd StdinReadPre * let s:std_in=1
 autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
 
-" Map NERDTree to key binding
-map <C-n> :NERDTreeToggle<CR>
+" Goyo
+let g:goyo_width = 100
 
 " Airline configuration
 let g:airline_theme='raven'
