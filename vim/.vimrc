@@ -80,6 +80,8 @@ colorscheme despacio
 autocmd StdinReadPre * let s:std_in=1
 autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
 
+" Map NERDTree to key binding
+map <C-n> :NERDTreeToggle<CR>
 
 " Airline configuration
 let g:airline_theme='raven'
