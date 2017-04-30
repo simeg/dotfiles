@@ -16,6 +16,9 @@ call vundle#begin()
 " let Vundle manage Vundle, required
 Plugin 'VundleVim/Vundle.vim'
 
+" https://github.com/scrooloose/nerdtree
+Plugin 'scrooloose/nerdtree'
+
 " ### Colorschemes
 " https://github.com/AlessandroYorba/Despacio
 Plugin 'alessandroyorba/despacio'
@@ -72,6 +75,10 @@ colorscheme despacio
 " "   Default: 237
 "let g:seoul256_background = 236
 "colo seoul256
+
+" Open NERDTree if no file was specified
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
 
 
 " Airline configuration
