@@ -11,6 +11,7 @@ alias tt="tree"
 alias v="vim"
 alias vimrc="vim ~/.vimrc"
 alias zshrc="vim ~/.zshrc"
+alias gitignore="vim ~/.gitignore"
 alias d="docker"
 alias new-idea="vim /Users/simon/repos/ideas/README.md"
 
