@@ -12,6 +12,7 @@ alias v="vim"
 alias vimrc="vim ~/.vimrc"
 alias zshrc="vim ~/.zshrc"
 alias d="docker"
+alias new-idea="vim /Users/simon/repos/ideas/README.md"
 
 # Put yarn on the global path
 export PATH="$PATH:`yarn global bin`"
