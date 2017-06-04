@@ -7,6 +7,8 @@ ZSH_THEME="robbyrussell"
 plugins=(git z zsh-completions zsh-autosuggestions zsh-syntax-highlighting)
 source $ZSH/oh-my-zsh.sh
 
+alias mv="mv -i"
+alias cp="cp -i"
 alias tt="tree"
 alias v="vim"
 alias vimrc="vim ~/.vimrc"
