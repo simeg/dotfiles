@@ -29,7 +29,7 @@ function file_exist {
   if [ -f "$HOME/$FILE" ]; then
     # 0 = true
     return 0
-   else
+  else
     # 1 = false
    return 1
   fi 
@@ -77,7 +77,8 @@ source ./install/vim.sh
 
 # Do not display "Last logged in ..." when
 # creating new shell
-if [ ! ~/.hushlogin ]; then
+if [ ~/.hushlogin ]; then
   echo "~/.hushlogin already exist, will not create a new one";
+else
   touch ~/.hushlogin
 fi
