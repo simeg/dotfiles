@@ -11,10 +11,13 @@ alias mv="mv -i -v"
 alias cp="cp -i -v"
 alias tt="tree"
 alias v="vim"
-alias vimrc="vim ~/.vimrc"
-alias zshrc="vim ~/.zshrc"
-alias gitignore="vim ~/.gitignore"
 alias d="docker"
+
+alias dotfiles="pushd ~/repos/dotfiles"
+alias reload="source ~/.zshrc"
+alias vimrc="vim ~/.vimrc"
+alias zshrc="vim ~/.zshrc ; reload"
+alias gitignore="vim ~/.gitignore"
 alias idea="vim ~/repos/ideas/README.md"
 
 # Put yarn on the global path
