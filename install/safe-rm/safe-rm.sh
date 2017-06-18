@@ -19,6 +19,7 @@ ln -sv $PWD/safe-rm /usr/local/bin/rm
 # but in case it doesn't it does not hurt to create it again
 mkdir ~/.config
 
-# Let's not add any safe folders for now
 touch ~/.config/safe-rm
-
+cat <<EOF > ~/.config/safe-rm 
+/
+EOF
