@@ -71,6 +71,7 @@ source ./install/zsh.sh
 source ./install/vim.sh
 #source ./install/vundle.sh
 source ./install/safe-rm/safe-rm.sh
+source ./install/macOS/macOS.sh
 
 #############################################
 # Etc
