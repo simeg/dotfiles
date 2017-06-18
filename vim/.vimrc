@@ -52,6 +52,10 @@ Plugin 'tpope/vim-commentary'
 " https://github.com/airblade/vim-gitgutter
 Plugin 'airblade/vim-gitgutter'
 
+" Wakatime
+" https://wakatime.com
+Plugin 'wakatime/vim-wakatime'
+
 " Let vim handle syntax checks
 " https://github.com/vim-syntastic/syntastic
 " NOTE: Could not get it to work, let's try again later
