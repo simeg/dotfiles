@@ -6,7 +6,7 @@
 # Creates folder if it does not already exist 
 function mkdir_if_not_exist {
   if [ ! -d $1 ]; then
-    mkdir -v $1
+    mkdir -v -p $1
   else
     echo "$1 already exist, will not create a new one";
   fi
@@ -14,7 +14,7 @@ function mkdir_if_not_exist {
 
 # This has to be hard coded for some reason,
 # does not work using ~/
-HOME="/Users/simon"
+HOME="~"
 
 SWAP_DIR="$HOME/.vim/swaps"
 BACKUP_DIR="$HOME/.vim/backups"
