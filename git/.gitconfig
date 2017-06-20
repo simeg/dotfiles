@@ -1,6 +1,6 @@
 [user]
 	name = Simon Egersand
-	email = s.egersand@gmail.com
+	email = segersand@spotify.com
 [core]
 	excludesfile = ~/.gitignore
 	editor = vim
