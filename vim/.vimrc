@@ -56,6 +56,9 @@ Plugin 'airblade/vim-gitgutter'
 " https://wakatime.com
 Plugin 'wakatime/vim-wakatime'
 
+" https://github.com/hdima/python-syntax
+Plugin 'hdima/python-syntax'
+
 " Let vim handle syntax checks
 " https://github.com/vim-syntastic/syntastic
 " NOTE: Could not get it to work, let's try again later
@@ -180,6 +183,10 @@ set title
 set showcmd
 " Show vertical line at 80 characters
 set colorcolumn=80
+
+autocmd BufNewFile,BufRead *.html.twig   set syntax=html
+autocmd BufNewFile,BufRead *.js   set syntax=javascript
+autocmd BufNewFile,BufRead *.py   set syntax=python
 
 " Automatic commands. Not sure what these do.
 if has("autocmd")
