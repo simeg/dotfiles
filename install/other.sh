@@ -15,4 +15,6 @@ brew install \
   node \
   ruby \
   tree \
-  yarn 
+  yarn \
+  python \
+  python3
