@@ -184,6 +184,9 @@ set showcmd
 " Show vertical line at 80 characters
 set colorcolumn=80
 
+" Exit visual mode (and save file) with `jk`
+inoremap jk <esc><esc>:w<cr>
+
 autocmd BufNewFile,BufRead *.html.twig   set syntax=html
 autocmd BufNewFile,BufRead *.js   set syntax=javascript
 autocmd BufNewFile,BufRead *.py   set syntax=python
