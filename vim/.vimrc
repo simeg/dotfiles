@@ -68,13 +68,6 @@ Plugin 'hdima/python-syntax'
 call vundle#end()            " required
 filetype plugin indent on    " required
 
-
-" ####################################################
-" ################# KEY BINDINGS #####################
-" ####################################################
-map <C-n> :NERDTreeToggle<CR>
-map <C-g> :Goyo<CR>
-
 " #####################################################
 " ################### CONFIGURATION ###################
 " #####################################################
@@ -90,7 +83,6 @@ colorscheme despacio
 " Open NERDTree if no file was specified
 autocmd StdinReadPre * let s:std_in=1
 autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
-
 " Show hidden files in NERDTree by default
 let NERDTreeShowHidden=1
 
@@ -183,9 +175,25 @@ set title
 set showcmd
 " Show vertical line at 80 characters
 set colorcolumn=80
+" Disable sounds
+set visualbell
 
-" Exit visual mode (and save file) with `jk`
+
+" ####################################################
+" ################# KEY BINDINGS #####################
+" ####################################################
+nnoremap <leader>g :Goyo<cr>
+nnoremap <leader>n :NERDTreeToggle<cr>
+" Exit visual mode and save file with `jk`
 inoremap jk <esc><esc>:w<cr>
+" never go into Ex mode
+noremap Q <Nop>
+
+" Disable arrow keys
+noremap <Up> <NOP>
+noremap <Down> <NOP>
+noremap <Left> <NOP>
+noremap <Right> <NOP>
 
 autocmd BufNewFile,BufRead *.html.twig   set syntax=html
 autocmd BufNewFile,BufRead *.js   set syntax=javascript
