@@ -177,6 +177,9 @@ set showcmd
 set colorcolumn=80
 " Disable sounds
 set visualbell
+" Set spell checking language to English
+set spelllang=en
+
 
 
 " ####################################################
@@ -186,6 +189,8 @@ nnoremap <leader>g :Goyo<cr>
 nnoremap <leader>n :NERDTreeToggle<cr>
 " Exit visual mode and save file with `jk`
 inoremap jk <esc><esc>:w<cr>
+" Toggle spelling
+nnoremap <leader>s :set spell!<cr>
 " never go into Ex mode
 noremap Q <Nop>
 
