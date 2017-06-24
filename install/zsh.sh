@@ -12,5 +12,6 @@ brew install \
   zsh \
   zsh-completions \
   zsh-autosuggestions \
-  zsh-syntax-highlighting
+  zsh-syntax-highlighting \
+  jq
 
