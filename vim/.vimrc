@@ -1,112 +1,5 @@
-" Configuration for vim editor
-"
-" Most of this file is taken from the Vundle github readme:
-" https://github.com/VundleVim/Vundle.vim
-
-set nocompatible              " be iMproved, required
-filetype off                  " required
-
-" #####################################################
-" ###################### PLUGINS ######################
-" #####################################################
-
-" set the runtime path to include Vundle and initialize
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
-" let Vundle manage Vundle, required
-Plugin 'VundleVim/Vundle.vim'
-
-" https://github.com/scrooloose/nerdtree
-Plugin 'scrooloose/nerdtree'
-
-" ### Colorschemes
-" https://github.com/AlessandroYorba/Despacio
-Plugin 'alessandroyorba/despacio'
-
-" https://github.com/junegunn/seoul256.vim
-Plugin 'junegunn/seoul256.vim'
-
-
-" Vastly improve Javascript indentation and syntax support
-Plugin 'pangloss/vim-javascript'
-
-" Make parentheses into rainbows when nesting them
-Plugin 'kien/rainbow_parentheses.vim'
-
-" Status bar in bottom of vim
-" https://github.com/vim-airline/vim-airline
-Plugin 'vim-airline/vim-airline'
-Plugin 'vim-airline/vim-airline-themes'
-
-" Preview markdown files in vim
-Plugin 'JamshedVesuna/vim-markdown-preview'
-
-" Plugin for distraction free writing
-Plugin 'junegunn/goyo.vim'
-
-" Comment out a line using `gcc`, `gc` for selection.
-" https://github.com/tpope/vim-commentary
-Plugin 'tpope/vim-commentary'
-
-" Show what lines has been changed (git)
-" https://github.com/airblade/vim-gitgutter
-Plugin 'airblade/vim-gitgutter'
-
-" Wakatime
-" https://wakatime.com
-Plugin 'wakatime/vim-wakatime'
-
-" https://github.com/hdima/python-syntax
-Plugin 'hdima/python-syntax'
-
-" Let vim handle syntax checks
-" https://github.com/vim-syntastic/syntastic
-" NOTE: Could not get it to work, let's try again later
-" Plugin 'vim-syntastic/syntastic'
-
-" All of your Plugins must be added before the following line
-call vundle#end()            " required
-filetype plugin indent on    " required
-
-" #####################################################
-" ################### CONFIGURATION ###################
-" #####################################################
-
-colorscheme despacio
-
-" seoul256 (dark):
-" "   Range:   233 (darkest) ~ 239 (lightest)
-" "   Default: 237
-"let g:seoul256_background = 236
-"colo seoul256
-
-" Open NERDTree if no file was specified
-autocmd StdinReadPre * let s:std_in=1
-autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
-" Show hidden files in NERDTree by default
-let NERDTreeShowHidden=1
-
-" Goyo
-let g:goyo_width = 100
-
-" Airline configuration
-let g:airline_theme='raven'
-let g:airline#extensions#branch#enabled = 1
-let g:airline#extensions#syntastic#enabled = 1
-let g:airline#extensions#tabline#enabled = 1
-let g:airline#extensions#taboo#enabled = 1
-let g:airline#extensions#tagbar#enabled = 1
-let g:airline#extensions#whitespace#enabled = 1
-let g:airline#extensions#whitespace#mixed_indent_algo = 0
-let g:airline_left_sep=''
-let g:airline_powerline_fonts = 0
-let g:airline_right_sep=''
-
-" ### Markdown Preview configuration ###
-" Use GitHub flavoured markdown
-let vim_markdown_preview_github=1
-" Render images
-let vim_markdown_preview_toggle=1
+set nocompatible
+filetype off
 
 " Leave hidden buffers open
 set hidden
@@ -180,7 +73,10 @@ set visualbell
 " Set spell checking language to English
 set spelllang=en
 
-
+" Load Plugins
+if filereadable(expand("$HOME/.vim/vundle.vim"))
+  source $HOME/.vim/vundle.vim
+endif
 
 " ####################################################
 " ################# KEY BINDINGS #####################
@@ -191,6 +87,8 @@ nnoremap <leader>n :NERDTreeToggle<cr>
 inoremap jk <esc><esc>:w<cr>
 " Toggle spelling
 nnoremap <leader>s :set spell!<cr>
+" Toggle comment on single line
+nnoremap <leader>i :Commentary<cr>
 " never go into Ex mode
 noremap Q <Nop>
 
@@ -200,22 +98,22 @@ noremap <Down> <NOP>
 noremap <Left> <NOP>
 noremap <Right> <NOP>
 
+" Indentation
+set autoindent
+set smartindent
+set smarttab
+set tabstop=2
+set expandtab
+set shiftwidth=2
+set softtabstop=2
+
+filetype plugin indent on
+
+filetype on
 autocmd BufNewFile,BufRead *.html.twig   set syntax=html
 autocmd BufNewFile,BufRead *.js   set syntax=javascript
 autocmd BufNewFile,BufRead *.py   set syntax=python
-
-" Automatic commands. Not sure what these do.
-if has("autocmd")
-  " Enable file type detection
-    filetype on
-  " Treat .json files as .js
-    autocmd BufNewFile,BufRead *.json setfiletype json syntax=javascript
-  " Treat .md files as Markdown
-    autocmd BufNewFile,BufRead *.md setlocal filetype=markdown
-
-    au VimEnter * RainbowParenthesesActivate
-    au Syntax * RainbowParenthesesLoadRound
-    au Syntax * RainbowParenthesesLoadSquare
-    au Syntax * RainbowParenthesesLoadBraces
-endif
-
+autocmd BufNewFile,BufRead *.md setlocal filetype=markdown
+autocmd BufNewFile,BufRead *.json setfiletype json syntax=javascript
+" Format JSON using jq every time a .json file is opened
+autocmd FileType json :% ! jq .
