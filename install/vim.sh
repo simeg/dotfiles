@@ -1,9 +1,9 @@
 #!/bin/bash
-#
+
 # Creates necessary folders for vim if they
 # do not already exist.
 
-# Creates folder if it does not already exist 
+# Creates folder if it does not already exist
 function mkdir_if_not_exist {
   if [ ! -d $1 ]; then
     mkdir -v -p $1
