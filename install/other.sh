@@ -19,4 +19,5 @@ type brew >/dev/null 2>&1 || {
   tree \
   yarn \
   python \
-  python3
+  python3 \
+  maven
