@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 # Installs brew packages that does not belong to any
 # application, hence the name 'other'.
 

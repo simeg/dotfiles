@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # Creates necessary folders for vim if they
 # do not already exist.
 

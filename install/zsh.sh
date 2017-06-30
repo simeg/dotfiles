@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 # Installs zsh with plugins using brew.
 
 # Sanity check. Is brew installed on the system? If not - install it
