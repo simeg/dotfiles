@@ -27,11 +27,6 @@ export PATH="$PATH:`yarn global bin`"
 # Enable external plugins
 source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
-# Has something to do with enabling shell integration in iTerm,
-# causing some conflict with zsh.
-# http://stackoverflow.com/questions/36518973/iterm2-shell-integration-and-oh-my-zsh-conflicts
-# test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
-
 # Bashhub installation
 if [ -f ~/.bashhub/bashhub.zsh ]; then
     source ~/.bashhub/bashhub.zsh
