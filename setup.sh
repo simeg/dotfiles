@@ -66,6 +66,8 @@ ln -sv `pwd`/vim $HOME/.vim
 # Plugins
 #############################################
 
+source ./install/package-managers.sh
+source ./install/brew-cask.sh
 source ./install/other.sh
 source ./install/zsh.sh
 source ./install/vim.sh
