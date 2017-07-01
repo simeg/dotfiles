@@ -10,7 +10,7 @@
 # Utility functions
 #############################################
 
-# Symlink absolute path from this folder 
+# Symlink absolute path from this folder
 # to $HOME
 function symlink {
   ln -sv "`pwd`/$1" $HOME
@@ -25,14 +25,14 @@ function get_file_name {
 # Checks if file exists in root
 function file_exist {
   FILE=$(get_file_name $1);
-  
+
   if [ -f "$HOME/$FILE" ]; then
     # 0 = true
     return 0
   else
     # 1 = false
    return 1
-  fi 
+  fi
 }
 
 # Moves file to root with ".bak" suffix
@@ -70,6 +70,7 @@ source ./install/package-managers.sh
 source ./install/brew-cask.sh
 source ./install/other.sh
 source ./install/zsh.sh
+source ./install/oh-my-zsh.sh
 source ./install/vim.sh
 #source ./install/vundle.sh
 source ./install/safe-rm/safe-rm.sh
