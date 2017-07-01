@@ -14,6 +14,7 @@ set -e
   qlvideo \
   google-chrome \
   atom \
+  docker-toolbox \
 &&
 echo "Brew cask setup complete, a reboot is needed"
 
