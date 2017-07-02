@@ -13,4 +13,5 @@ set -e
   yarn \
   python \
   python3 \
-  maven
+  maven \
+  ack
