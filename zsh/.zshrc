@@ -21,6 +21,9 @@ alias zshrc="vim ~/.zshrc ; reload"
 alias gitignore="vim ~/.gitignore"
 alias idea="vim ~/repos/ideas/README.md"
 
+alias gcom="git checkout master"
+alias gforbm="git fetch origin && git rebase origin/master"
+
 # Put yarn on the global path
 export PATH="$PATH:`yarn global bin`"
 
