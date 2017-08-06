@@ -4,7 +4,7 @@ export ZSH=$HOME/.oh-my-zsh
 # oh-my-zsh stuff
 ZSH_THEME="robbyrussell"
 # All zsh plugins are installed by default, this is where they are enabled
-plugins=(git z zsh-completions zsh-autosuggestions zsh-syntax-highlighting)
+plugins=(git z zsh-completions zsh-autosuggestions zsh-syntax-highlighting zsh-history-substring-search)
 source $ZSH/oh-my-zsh.sh
 
 alias mv="mv -i -v"
