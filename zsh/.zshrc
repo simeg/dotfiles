@@ -7,6 +7,10 @@ ZSH_THEME="robbyrussell"
 plugins=(git z zsh-completions zsh-autosuggestions zsh-syntax-highlighting zsh-history-substring-search)
 source $ZSH/oh-my-zsh.sh
 
+# Use brew's version of vim because it's compiled with +clipboard which means
+# I can share clipboard between OS X and vim
+alias vim="/usr/local/bin/vim"
+
 alias mv="mv -i -v"
 alias cp="cp -i -v"
 alias tt="tree"

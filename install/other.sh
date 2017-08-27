@@ -14,4 +14,5 @@ set -e
   python \
   python3 \
   maven \
-  ack
+  ack \
+  vim
