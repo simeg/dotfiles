@@ -35,6 +35,9 @@ export PATH="$PATH:`yarn global bin`"
 # Enable external plugins
 source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
+# Make 'workon' command globally available
+source /usr/local/bin/virtualenvwrapper.sh
+
 # Bashhub installation
 if [ -f ~/.bashhub/bashhub.zsh ]; then
     source ~/.bashhub/bashhub.zsh
