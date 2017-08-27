@@ -94,3 +94,6 @@ let vim_markdown_preview_github=1
 " Render images
 let vim_markdown_preview_toggle=1"
 
+" Strip all trailing whitespace everytime a file is saved,
+" applies to all file types
+autocmd BufEnter * EnableStripWhitespaceOnSave
