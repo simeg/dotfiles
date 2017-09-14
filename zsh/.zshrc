@@ -25,6 +25,7 @@ alias vundle="vim ~/.vim/vundle.vim"
 alias zshrc="vim ~/.zshrc ; reload"
 alias gitignore="vim ~/.gitignore"
 alias idea="vim ~/repos/ideas/README.md"
+alias vm="vim ./Makefile"
 
 alias gcom="git checkout master"
 alias gforbm="git fetch origin && git rebase origin/master"
