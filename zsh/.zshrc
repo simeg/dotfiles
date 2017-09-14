@@ -30,6 +30,11 @@ alias vm="vim ./Makefile"
 alias gcom="git checkout master"
 alias gforbm="git fetch origin && git rebase origin/master"
 
+function cdl {
+  cd $1
+  ll
+}
+
 # Put yarn on the global path
 export PATH="$PATH:`yarn global bin`"
 
