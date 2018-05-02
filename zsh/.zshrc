@@ -35,8 +35,12 @@ function ss {
   eval $(bh | fzf)
 }
 
+export GOPATH="$HOME/repos/go"
+export GOBIN="$HOME/repos/go/bin"
+
 # Put yarn on the global path
 export PATH="$PATH:`yarn global bin`"
+export PATH="$PATH:$GOPATH/bin"
 
 # Enable external plugins
 source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
