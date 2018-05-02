@@ -15,4 +15,6 @@ set -e
   python3 \
   maven \
   ack \
-  vim
+  vim \
+  ccat
+
