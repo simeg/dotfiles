@@ -17,6 +17,7 @@ alias tt="tree"
 alias v="vim"
 alias d="docker"
 alias h="heroku"
+alias cat="ccat"
 
 alias dotfiles="pushd ~/repos/dotfiles"
 alias reload="source ~/.zshrc"
