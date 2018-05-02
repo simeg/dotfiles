@@ -30,6 +30,7 @@ alias vm="vim ./Makefile"
 
 alias gcom="git checkout master"
 alias gforbm="git fetch origin && git rebase origin/master"
+alias gap="git add --patch"
 
 function ss {
   eval $(bh | fzf)
