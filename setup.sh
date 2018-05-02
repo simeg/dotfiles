@@ -61,6 +61,7 @@ done
 
 # Symlink folders
 ln -sv `pwd`/vim $HOME/.vim
+ln -sv `pwd`/bin $HOME/.bin
 
 #############################################
 # Plugins
