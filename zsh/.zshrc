@@ -54,3 +54,14 @@ if [ -f ~/.bashhub/bashhub.zsh ]; then
     source ~/.bashhub/bashhub.zsh
 fi
 
+source "/Users/simon/.oh-my-zsh/custom/themes/spaceship.zsh-theme"
+
+SPACESHIP_BATTERY_SHOW=false
+SPACESHIP_PROMPT_SYMBOL=→
+SPACESHIP_PROMPT_SEPARATE_LINE=false
+SPACESHIP_NODE_SHOW=false
+SPACESHIP_PACKAGE_SHOW=false
+SPACESHIP_GOLANG_SHOW=false
+SPACESHIP_PHP_SHOW=false
+SPACESHIP_RUST_SHOW=false
+
