@@ -1,11 +1,41 @@
-# Export oh-my-zsh folder
+# Load zsh
 export ZSH=$HOME/.oh-my-zsh
-
-# oh-my-zsh stuff
-ZSH_THEME="robbyrussell"
-# All zsh plugins are installed by default, this is where they are enabled
-plugins=(git z zsh-completions zsh-autosuggestions zsh-syntax-highlighting zsh-history-substring-search docker osx)
 source $ZSH/oh-my-zsh.sh
+
+# Load zgen
+source "${HOME}/.zgen/zgen.zsh"
+
+if ! zgen saved; then
+
+  zgen oh-my-zsh
+
+  # This order matters
+  zgen load zsh-users/zsh-syntax-highlighting
+  zgen load zsh-users/zsh-history-substring-search
+
+  zgen load zsh-users/zsh-completions
+  zgen load zsh-users/zsh-autosuggestions
+  zgen load djui/alias-tips
+  zgen load chrissicool/zsh-256color
+
+  zgen oh-my-zsh plugins/git
+  zgen oh-my-zsh plugins/brew
+  zgen oh-my-zsh plugins/z
+  zgen oh-my-zsh plugins/docker
+  zgen oh-my-zsh plugins/osx
+  zgen oh-my-zsh plugins/sudo
+  zgen oh-my-zsh plugins/vi-mode
+  zgen oh-my-zsh plugins/colored-man-pages
+  zgen oh-my-zsh plugins/command-not-found
+  zgen oh-my-zsh plugins/copydir
+  zgen oh-my-zsh plugins/copyfile
+  zgen oh-my-zsh plugins/cp
+
+  # Automatically run zgen update and zgen selfupdate every 7 days
+  zgen load unixorn/autoupdate-zgen
+
+  zgen save
+fi
 
 # Use brew's version of vim because it's compiled with +clipboard which means
 # I can share clipboard between OS X and vim
@@ -46,9 +76,6 @@ export PATH="$PATH:$GOPATH/bin"
 
 export PATH="$PATH:$HOME/.bin"
 
-# Enable external plugins
-source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-
 # Make 'workon' command globally available
 source /usr/local/bin/virtualenvwrapper.sh
 
@@ -57,6 +84,8 @@ if [ -f ~/.bashhub/bashhub.zsh ]; then
     source ~/.bashhub/bashhub.zsh
 fi
 
+#ZSH_THEME="robbyrussell"
+ZSH_THEME="spaceship"
 source "/Users/simon/.oh-my-zsh/custom/themes/spaceship.zsh-theme"
 
 SPACESHIP_BATTERY_SHOW=false
