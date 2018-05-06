@@ -18,6 +18,7 @@ alias v="vim"
 alias d="docker"
 alias h="heroku"
 alias cat="ccat"
+alias dir="dirs -v | head -10"
 
 alias dotfiles="pushd ~/repos/dotfiles"
 alias vimrc="vim ~/.vimrc"
