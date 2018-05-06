@@ -12,3 +12,6 @@ set -e
   zsh-syntax-highlighting \
   jq
 
+# Install zgen, plugin manager
+git clone https://github.com/tarjoilija/zgen.git "${HOME}/.zgen"
+
