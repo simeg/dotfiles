@@ -1,0 +1,34 @@
+# Use brew's version of vim because it's compiled with +clipboard which
+# enables clipboard sharing between macOS and vim
+alias vim="/usr/local/bin/vim"
+
+alias mv="mv -i -v"
+alias cp="cp -i -v"
+alias rm="~/.safe-rm/safe-rm"
+alias tt="tree"
+alias v="vim"
+alias d="docker"
+alias h="heroku"
+alias cat="ccat"
+alias dir="dirs -v | head -10"
+alias ha="history | ack"
+alias vm="vim ./Makefile"
+
+alias dotfiles="pushd ~/repos/dotfiles"
+alias vimrc="vim ~/.vimrc"
+alias vundle="vim ~/.vim/vundle.vim"
+alias reload="source ~/.zshrc"
+alias zshrc="vim ~/.zshrc ; reload"
+alias gitignore="vim ~/.gitignore"
+alias ali="vim ~/repos/dotfiles/shell/.alias"
+
+alias idea="eureka"
+
+alias gcom="git checkout master"
+alias gforbm="git fetch origin && git rebase origin/master"
+alias gap="git add --patch"
+
+# Because I'm runnig GNU flavored utils `ls` gets remapped to `gls` which
+# doesn't use color with oh-my-zsh so have to manually set it up here
+alias ls="gls --color=always"
+

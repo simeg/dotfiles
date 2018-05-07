@@ -1,0 +1,5 @@
+#!/bin/bash
+
+function ss {
+  eval $(bh | fzf)
+}
