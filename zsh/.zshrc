@@ -14,5 +14,6 @@ source "${HOME}/.path"
 source "${HOME}/.other"
 source "${HOME}/.theme"
 source "${HOME}/.env"
+source "${HOME}/.prompt"
 #source "${HOME}/.symlinks"
 
