@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Make 'workon' command globally available
+source /usr/local/bin/virtualenvwrapper.sh
+
+# Bashhub installation
+if [ -f ~/.bashhub/bashhub.zsh ]; then
+  source "${HOME}/.bashhub/bashhub.zsh"
+fi
+

@@ -1,4 +1,4 @@
-# Load zsh
+# Load oh-my-zsh
 export ZSH=$HOME/.oh-my-zsh
 source "${ZSH}/oh-my-zsh.sh"
 
@@ -37,14 +37,6 @@ if ! zgen saved; then
   zgen save
 fi
 
-# Make 'workon' command globally available
-source /usr/local/bin/virtualenvwrapper.sh
-
-# Bashhub installation
-if [ -f ~/.bashhub/bashhub.zsh ]; then
-  source "${HOME}/.bashhub/bashhub.zsh"
-fi
-
 # SPACESHIP_BATTERY_SHOW=false
 # SPACESHIP_CHAR_SYMBOL="❯ "
 # SPACESHIP_PROMPT_SEPARATE_LINE=true
@@ -60,5 +52,6 @@ fi
 source "${HOME}/.alias"
 source "${HOME}/.functions"
 source "${HOME}/.path"
+source "${HOME}/.other"
 #source "${HOME}/.symlinks"
 
