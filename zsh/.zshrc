@@ -13,5 +13,6 @@ source "${HOME}/.functions"
 source "${HOME}/.path"
 source "${HOME}/.other"
 source "${HOME}/.theme"
+source "${HOME}/.env"
 #source "${HOME}/.symlinks"
 
