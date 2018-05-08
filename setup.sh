@@ -10,12 +10,6 @@
 # Utility functions
 #############################################
 
-# Symlink absolute path from this folder
-# to $HOME
-function symlink {
-  ln -sv "`pwd`/$1" $HOME
-}
-
 # Returns file name from path.
 # Assumes input looks like: "folder/file"
 function get_file_name {
@@ -35,33 +29,11 @@ function file_exist {
   fi
 }
 
-# Moves file to root with ".bak" suffix
-function backup {
-  FILE=$(get_file_name $1);
-  echo "####################################";
-  echo "--- Backing up $FILE to $HOME/$FILE.bak ---";
-  mv -v "$HOME/$FILE" "$HOME/$FILE.bak";
-  echo "####################################";
-}
-
 #############################################
 # Symlinks
 #############################################
 
-# Iterate over all dotfiles in this repo
-for dotfile in */.*; do
-  # Ignore folders
-  if [ -f "$dotfile" ]; then
-    if file_exist $dotfile; then
-      backup $dotfile;
-    fi
-    symlink $dotfile;
-  fi
-done
-
-# Symlink folders
-ln -sv `pwd`/vim $HOME/.vim
-ln -sv `pwd`/bin $HOME/.bin
+source ./symlink.sh
 
 #############################################
 # Plugins
