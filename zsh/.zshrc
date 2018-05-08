@@ -37,21 +37,10 @@ if ! zgen saved; then
   zgen save
 fi
 
-# SPACESHIP_BATTERY_SHOW=false
-# SPACESHIP_CHAR_SYMBOL="❯ "
-# SPACESHIP_PROMPT_SEPARATE_LINE=true
-# SPACESHIP_EXEC_TIME_PREFIX="("
-# SPACESHIP_EXEC_TIME_SUFFIX=")"
-
-# SPACESHIP_NODE_SHOW=false
-# SPACESHIP_PACKAGE_SHOW=false
-# SPACESHIP_GOLANG_SHOW=false
-# SPACESHIP_PHP_SHOW=false
-# SPACESHIP_RUST_SHOW=false
-
 source "${HOME}/.alias"
 source "${HOME}/.functions"
 source "${HOME}/.path"
 source "${HOME}/.other"
+source "${HOME}/.theme"
 #source "${HOME}/.symlinks"
 
