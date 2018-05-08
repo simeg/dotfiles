@@ -1,6 +1,6 @@
 # Load zsh
 export ZSH=$HOME/.oh-my-zsh
-source $ZSH/oh-my-zsh.sh
+source "${ZSH}/oh-my-zsh.sh"
 
 # Load zgen
 source "${HOME}/.zgen/zgen.zsh"
@@ -42,7 +42,7 @@ source /usr/local/bin/virtualenvwrapper.sh
 
 # Bashhub installation
 if [ -f ~/.bashhub/bashhub.zsh ]; then
-  source ~/.bashhub/bashhub.zsh
+  source "${HOME}/.bashhub/bashhub.zsh"
 fi
 
 # SPACESHIP_BATTERY_SHOW=false
