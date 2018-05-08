@@ -1,6 +1,6 @@
-.PHONY: all symlink full-install
+.PHONY: all setup symlink
 
-full-install:
+setup:
 	sh ./setup.sh
 
 symlink:
