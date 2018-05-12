@@ -13,6 +13,8 @@ alias cat="bat"
 alias dir="dirs -v | head -10"
 alias ha="history | ack"
 alias vm="vim ./Makefile"
+alias cpd="copydir"
+alias cpf="copyfile"
 
 alias dotfiles="pushd ~/repos/dotfiles"
 alias vimrc="vim ~/.vimrc"
