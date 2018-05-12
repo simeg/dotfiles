@@ -7,15 +7,9 @@ source "${HOME}/.zgen/zgen.zsh"
 # Load zgen plugins
 source "${HOME}/.zgen-plugins"
 
-# Load everything else
-source "${HOME}/.alias"
-source "${HOME}/.functions"
-source "${HOME}/.path"
-source "${HOME}/.other"
-source "${HOME}/.theme"
-source "${HOME}/.env"
-source "${HOME}/.prompt"
-#source "${HOME}/.symlinks"
-
-# iTerm2 Shell Integration
-test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+# Load everything from the shell folder
+if [ -d "${HOME}/repos/dotfiles/shell" ]; then
+  for FILE in ${HOME}/repos/dotfiles/shell/.*; do
+    source $(printf %s.%s "${HOME}/repos/dotfiles/shell/" "$(echo ${FILE} | cut -d. -f2)")
+  done
+fi
