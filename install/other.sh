@@ -16,6 +16,6 @@ set -e
   maven \
   ack \
   vim \
-  ccat \
+  bat \
   shellcheck
 
