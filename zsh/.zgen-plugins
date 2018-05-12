@@ -13,6 +13,7 @@ if ! zgen saved; then
   zgen load djui/alias-tips
 
   zgen load chrissicool/zsh-256color
+  zgen load zdharma/zsh-diff-so-fancy
 
   zgen oh-my-zsh plugins/git
   zgen oh-my-zsh plugins/z
