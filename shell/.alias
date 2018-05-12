@@ -16,6 +16,11 @@ alias vm="vim ./Makefile"
 alias cpd="copydir"
 alias cpf="copyfile"
 
+# forgit (git + fzf)
+alias ga_="forgit::add"
+alias glo_="forgit::log"
+alias gd_="forgit::diff"
+
 alias dotfiles="pushd ~/repos/dotfiles"
 alias vimrc="vim ~/.vimrc"
 alias vundle="vim ~/.vim/vundle.vim"

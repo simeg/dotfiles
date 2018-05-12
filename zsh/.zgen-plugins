@@ -11,7 +11,7 @@ if ! zgen saved; then
   zgen load zsh-users/zsh-completions
   zgen load zsh-users/zsh-autosuggestions
   zgen load djui/alias-tips
-
+  zgen load wfxr/forgit
   zgen load chrissicool/zsh-256color
   zgen load zdharma/zsh-diff-so-fancy
 
