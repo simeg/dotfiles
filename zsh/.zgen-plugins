@@ -17,6 +17,7 @@ if ! zgen saved; then
   zgen load wfxr/forgit
   zgen load chrissicool/zsh-256color
   zgen load zdharma/zsh-diff-so-fancy
+  zgen load zdharma/history-search-multi-word
 
   zgen oh-my-zsh plugins/git
   zgen oh-my-zsh plugins/z
