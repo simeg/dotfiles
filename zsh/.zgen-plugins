@@ -2,6 +2,9 @@
 
 if ! zgen saved; then
 
+  # Plugin used to speed up shell start
+  zgen load seletskiy/zsh-zgen-compinit-tweak
+
   zgen oh-my-zsh
 
   # This order matters
