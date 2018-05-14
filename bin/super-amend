@@ -1,0 +1,7 @@
+#!/usr/local/bin/zsh
+
+readonly HASH=$(git log --oneline --decorate --graph | fzf | awk -F' ' '{ print $2 }')
+
+git commit --fixup ${HASH}
+GIT_SEQUENCE_EDITOR=true git rebase -i --autosquash ${HASH}\~1
+
