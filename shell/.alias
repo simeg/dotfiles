@@ -16,11 +16,6 @@ alias vm="vim ./Makefile"
 alias cpd="copydir"
 alias cpf="copyfile"
 
-# forgit (git + fzf)
-alias ga_="forgit::add"
-alias glo_="forgit::log"
-alias gd_="forgit::diff"
-
 alias dotfiles="pushd ~/repos/dotfiles"
 alias vimrc="vim ~/.vimrc"
 alias vundle="vim ~/.vim/vundle.vim"
@@ -31,9 +26,15 @@ alias ali="vim ~/repos/dotfiles/shell/.alias"
 
 alias idea="eureka"
 
+### Git
 alias gcom="git checkout master"
 alias gforbm="git fetch origin && git rebase origin/master"
 alias gap="git add --patch"
+
+# forgit (git + fzf)
+alias ga_="forgit::add"
+alias glo_="forgit::log"
+alias gd_="forgit::diff"
 
 # Because I'm runnig GNU flavored utils `ls` gets remapped to `gls` which
 # doesn't use color with oh-my-zsh so have to manually set it up here
