@@ -15,6 +15,7 @@ alias ha="history | ack"
 alias vm="vim ./Makefile"
 alias cpd="copydir"
 alias cpf="copyfile"
+alias du="ncdu"
 
 alias dotfiles="pushd ~/repos/dotfiles"
 alias vimrc="vim ~/.vimrc"
