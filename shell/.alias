@@ -33,6 +33,7 @@ alias idea="eureka"
 alias gcom="git checkout master"
 alias gforbm="git fetch origin && git rebase origin/master"
 alias gap="git add --patch"
+alias gs="git show"
 alias fixup!="super-amend"
 
 # forgit (git + fzf)
