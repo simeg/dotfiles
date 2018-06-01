@@ -29,6 +29,7 @@ alias ali="vim ~/repos/dotfiles/shell/.alias"
 alias urlencode='python -c "import sys, urllib as ul; print ul.quote_plus(sys.argv[1]);"'
 
 alias idea="eureka"
+alias videa="view ~/repos/ideas/README.md"
 
 ### Git
 alias gcom="git checkout master"
