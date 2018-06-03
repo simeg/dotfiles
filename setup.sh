@@ -4,7 +4,6 @@ source ./symlink.sh
 
 source ./install/package-managers.sh
 source ./install/brew.sh
-source ./install/brew-cask.sh
 source ./install/zsh.sh
 source ./install/oh-my-zsh.sh
 source ./install/vim.sh
