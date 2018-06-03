@@ -13,7 +13,7 @@ fi
 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)";
 
 install_result=$?
-if [ install_result -eq 0 ]; then
+if [ "$install_result" -eq 0 ]; then
   echo "Sucessfully installed brew";
   exit 0;
 else
