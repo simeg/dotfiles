@@ -3,12 +3,11 @@
 source ./symlink.sh
 
 source ./install/package-managers.sh
+source ./install/brew.sh
 source ./install/brew-cask.sh
-source ./install/other.sh
 source ./install/zsh.sh
 source ./install/oh-my-zsh.sh
 source ./install/vim.sh
-#source ./install/vundle.sh
 source ./install/safe-rm/safe-rm.sh
 source ./install/macOS/macOS.sh
 
