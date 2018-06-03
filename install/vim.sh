@@ -10,8 +10,8 @@ set -e
 
 # Creates folder if it does not already exist
 function mkdir_if_not_exist {
-  if [ ! -d $1 ]; then
-    mkdir -v -p $1
+  if [ ! -d "$1" ]; then
+    mkdir -v -p "$1"
   else
     echo "$1 already exist, will not create a new one";
   fi
