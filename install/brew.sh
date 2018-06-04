@@ -17,6 +17,8 @@ readonly BREW_DEPS=(
   ack                       # grep but faster
   bat                       # cat but better
   shellcheck                # Check bash scripts for problems
+  coreutils                 # GNU flavored utils
+  ncdu                      # Disk usage analyzer with an ncurses interface
 )
 
 readonly CASK_DEPS=(
