@@ -1,24 +1,34 @@
 #!/bin/sh
 
-source ./symlink.sh
+readonly SCRIPTS=(
+  symlink.sh
+  install/my-test.sh
+  install/package-managers.sh
+  install/brew.sh
+  install/zsh.sh
+  install/oh-my-zsh.sh
+  install/vim.sh
+  install/rust.sh
+  install/safe-rm/safe-rm.sh
+  install/macOS/macOS.sh
+)
 
-source ./install/package-managers.sh
-source ./install/brew.sh
-source ./install/zsh.sh
-source ./install/oh-my-zsh.sh
-source ./install/vim.sh
-source ./install/safe-rm/safe-rm.sh
-source ./install/macOS/macOS.sh
+for script in "${SCRIPTS[@]}"; do
+  source "$script"
+done
+
+echo "All install scripts run"
 
 # Do not display "Last logged in ..." when creating new shell
-if [ ~/.hushlogin ]; then
-  echo "~/.hushlogin already exist, will not create a new one";
+readonly HUSH_LOGIN_FILE=$HOME/.hushlogin
+if [ -f "$HUSH_LOGIN_FILE" ]; then
+  echo "$HUSH_LOGIN_FILE already exist, will not create a new one";
 else
-  touch ~/.hushlogin
-  cat <<EOF > ~/.hushlogin
-  # The mere presence of this file in the home directory disables the system
-  # copyright notice, the date and time of the last login, the message of the
-  # day as well as other information that may otherwise appear on login.
-  # See `man login`.
-  EOF
+  touch "$HUSH_LOGIN_FILE"
+  cat <<EOF > "$HUSH_LOGIN_FILE"
+# The mere presence of this file in the home directory disables the system
+# copyright notice, the date and time of the last login, the message of the
+# day as well as other information that may otherwise appear on login.
+# See "man login".
+EOF
 fi

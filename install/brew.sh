@@ -4,7 +4,7 @@
 
 set -e
 
-brew_deps=(
+readonly BREW_DEPS=(
   git
   node
   ruby
@@ -19,7 +19,7 @@ brew_deps=(
   shellcheck                # Check bash scripts for problems
 )
 
-cask_deps=(
+readonly CASK_DEPS=(
   qlmarkdown                        # Quick look Finder plugin
   quicklook-json                    # Quick-look Finder plugin
   qlcolorcode                       # Quick-look Finder plugin
@@ -48,9 +48,9 @@ cask_deps=(
 )
 
 
-brew install "${brew_deps[@]}" &&
+brew install "${BREW_DEPS[@]}" &&
   echo "Brew setup complete"
 
-brew cask install "${cask_deps[@]}" &&
+brew cask install "${CASK_DEPS[@]}" &&
   echo "Brew cask setup complete, a reboot is needed"
 
