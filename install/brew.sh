@@ -10,15 +10,15 @@ readonly BREW_DEPS=(
   ruby
   tree
   yarn
-  python                    # Python 3
-  python@2                  # Python 2.7
+  python                            # Python 3
+  python@2                          # Python 2.7
   maven
   vim
-  ack                       # grep but faster
-  bat                       # cat but better
-  shellcheck                # Check bash scripts for problems
-  coreutils                 # GNU flavored utils
-  ncdu                      # Disk usage analyzer with an ncurses interface
+  ack                               # grep but faster
+  bat                               # cat but better
+  shellcheck                        # Check bash scripts for problems
+  coreutils                         # GNU flavored utils
+  ncdu                              # Disk usage analyzer with an ncurses interface
 )
 
 readonly CASK_DEPS=(
@@ -47,6 +47,7 @@ readonly CASK_DEPS=(
   unrarx                            # Decompression tool
   the-unarchiver                    # Decompression tool
   windscribe                        # VPN
+  istat-menus                       # Menu bar stats
 )
 
 
