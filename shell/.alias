@@ -34,7 +34,7 @@ alias videa="view ~/repos/ideas/README.md"
 
 ### Git
 alias gcom="git checkout master"
-alias gforbm="git fetch origin && git --autostash rebase origin/master"
+alias gforbm="git fetch origin && git rebase --autostash origin/master"
 alias gap="git add --patch"
 alias gs="git show"
 alias fixup!="super-amend"
