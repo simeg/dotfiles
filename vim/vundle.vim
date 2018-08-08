@@ -13,8 +13,8 @@ set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 
 " Color Schemes
-" https://github.com/AlessandroYorba/Despacio
-Plugin 'alessandroyorba/despacio'
+" https://github.com/morhetz/gruvbox/wiki/Installation
+Plugin 'morhetz/gruvbox'
 " https://github.com/junegunn/seoul256.vim
 Plugin 'junegunn/seoul256.vim'
 
@@ -59,13 +59,8 @@ au Syntax * RainbowParenthesesLoadRound
 au Syntax * RainbowParenthesesLoadSquare
 au Syntax * RainbowParenthesesLoadBraces
 
-colorscheme despacio
-
-" seoul256 (dark):
-"   Range:   233 (darkest) ~ 239 (lightest)
-" "   Default: 237
-"let g:seoul256_background = 236
-"colo seoul256
+set background=dark    " Setting dark mode
+colorscheme gruvbox
 
 " Open NERDTree if no file was specified
 autocmd StdinReadPre * let s:std_in=1
@@ -76,17 +71,18 @@ let NERDTreeShowHidden=1
 let g:goyo_width = 100
 
 " Airline configuration
-let g:airline_theme='raven'
-let g:airline#extensions#branch#enabled = 1
-let g:airline#extensions#syntastic#enabled = 1
-let g:airline#extensions#tabline#enabled = 1
-let g:airline#extensions#taboo#enabled = 1
-let g:airline#extensions#tagbar#enabled = 1
-let g:airline#extensions#whitespace#enabled = 1
-let g:airline#extensions#whitespace#mixed_indent_algo = 0
-let g:airline_left_sep=''
-let g:airline_powerline_fonts = 0
-let g:airline_right_sep=''
+let g:airline_theme='wombat'
+let g:airline_powerline_fonts = 1
+" let g:airline#extensions#branch#enabled = 1
+" let g:airline#extensions#syntastic#enabled = 1
+" let g:airline#extensions#tabline#enabled = 1
+" let g:airline#extensions#taboo#enabled = 1
+" let g:airline#extensions#tagbar#enabled = 1
+" let g:airline#extensions#whitespace#enabled = 1
+" let g:airline#extensions#whitespace#mixed_indent_algo = 0
+" let g:airline_left_sep=''
+" let g:airline_powerline_fonts = 0
+" let g:airline_right_sep=''
 
 " ### Markdown Preview configuration ###
 " Use GitHub flavoured markdown
