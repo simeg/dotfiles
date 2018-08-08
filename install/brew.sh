@@ -31,6 +31,9 @@ readonly CASK_DEPS=(
   qlvideo                           # Quick-look Finder plugin
   google-chrome                     # Browser
   atom                              # Editor
+  pycharm                           # IDEA
+  intellij-idea                     # IDEA
+  webstorm                          # IDEA
   docker                            # Virtual environment
   docker-toolbox                    # Docker utilities
   alfred                            # Spotlight with workflows
