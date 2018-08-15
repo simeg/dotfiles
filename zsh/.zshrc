@@ -49,8 +49,9 @@ if [ -f '/Users/segersand/google-cloud-sdk/path.zsh.inc' ]; then source '/Users/
 # The next line enables shell command completion for gcloud.
 if [ -f '/Users/segersand/google-cloud-sdk/completion.zsh.inc' ]; then source '/Users/segersand/google-cloud-sdk/completion.zsh.inc'; fi
 
-# Enable for debugging slow session startup
-# zprof
-
 export NVM_DIR="$HOME/.nvm"
 . "$(brew --prefix nvm)/nvm.sh" --no-use
+export PATH="/usr/local/opt/ruby/bin:$PATH"
+
+# Enable for debugging slow session startup
+# zprof
