@@ -22,6 +22,7 @@ readonly BREW_DEPS=(
   coreutils                         # GNU flavored utils
   ncdu                              # Disk usage analyzer with an ncurses interface
   grip                              # GitHub Markdown file previewer (dep. of vim plugin "vim-markdown-preview")
+  httpie                            # HTTP client
 )
 
 readonly CASK_DEPS=(
