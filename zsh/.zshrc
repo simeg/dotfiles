@@ -29,3 +29,12 @@ pastefinish() {
 }
 zstyle :bracketed-paste-magic paste-init pasteinit
 zstyle :bracketed-paste-magic paste-finish pastefinish
+
+export GCLOUD_CREDENTIALS=/Users/segersand/.config/gcloud/credentials
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/Users/segersand/google-cloud-sdk/path.zsh.inc' ]; then source '/Users/segersand/google-cloud-sdk/path.zsh.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/Users/segersand/google-cloud-sdk/completion.zsh.inc' ]; then source '/Users/segersand/google-cloud-sdk/completion.zsh.inc'; fi
+
