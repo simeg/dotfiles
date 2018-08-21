@@ -18,6 +18,7 @@ alias cpf="copyfile"
 alias du="ncdu"
 alias path='echo -e ${PATH//:/\\n}'
 alias fali="alias | fzf"
+alias ssh="sshrc"
 
 alias rm="/usr/local/opt/coreutils/libexec/gnubin/rm"
 
