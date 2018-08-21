@@ -18,11 +18,9 @@ alias cpd="copydir"
 alias cpf="copyfile"
 alias path='echo -e ${PATH//:/\\n}'
 alias fali="alias | fzf"
-#alias ssh="sshrc"
 
-alias rm="/usr/local/opt/coreutils/libexec/gnubin/rm"
-
-alias rm="~/.safe-rm/safe-rm/safe-rm"
+#alias rm="/usr/local/opt/coreutils/libexec/gnubin/rm"
+alias ssh="sshrc"
 
 alias rm="/usr/local/opt/coreutils/libexec/gnubin/rm"
 
