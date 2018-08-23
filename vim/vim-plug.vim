@@ -1,54 +1,43 @@
+let PLUGINS_DIR = '$HOME/.vim/plugins'
+
 set nocompatible
-filetype off
-
-function! InstallVundlePlugins ()
-  :source ~/.vimrc
-  :PluginInstall
-endfunction
-
-" Automatically run InstallVundlePlugins when this file is being opened
-autocmd! BufWritePost vundle.vim :call InstallVundlePlugins()
-
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
+call plug#begin(fnameescape(expand(PLUGINS_DIR)))
 
 " Color Schemes
 " https://github.com/morhetz/gruvbox/wiki/Installation
-Plugin 'morhetz/gruvbox'
+Plug 'morhetz/gruvbox'
+
 " https://github.com/junegunn/seoul256.vim
-Plugin 'junegunn/seoul256.vim'
+Plug 'junegunn/seoul256.vim'
 
-Plugin 'VundleVim/Vundle.vim'
-Plugin 'scrooloose/nerdtree'
-Plugin 'JamshedVesuna/vim-markdown-preview'
-Plugin 'junegunn/goyo.vim'
-Plugin 'airblade/vim-gitgutter'
-Plugin 'wakatime/vim-wakatime'
-Plugin 'vim-airline/vim-airline'
-Plugin 'vim-airline/vim-airline-themes'
-
-" Comment out a line using `gcc`, `gc` for selection.
-Plugin 'tpope/vim-commentary'
+" Plug 'VundleVim/Vundle.vim'
+Plug 'scrooloose/nerdtree'
+Plug 'JamshedVesuna/vim-markdown-preview'
+Plug 'junegunn/goyo.vim'
+Plug 'airblade/vim-gitgutter'
+Plug 'wakatime/vim-wakatime'
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+Plug 'tpope/vim-commentary'
 
 " Languages {
 
-    Plugin 'pangloss/vim-javascript'
-    Plugin 'tpope/vim-markdown'
-    Plugin 'python-mode/python-mode'
+    Plug 'pangloss/vim-javascript'
+    Plug 'tpope/vim-markdown'
+    Plug 'python-mode/python-mode'
 
-    " HTML
-    Plugin 'hail2u/vim-css3-syntax'
-    Plugin 'othree/html5.vim'
+    " HTML + CSS
+    Plug 'hail2u/vim-css3-syntax'
+    Plug 'othree/html5.vim'
 " }
 
 " Editing
-Plugin 'Raimondi/delimitMate'
-Plugin 'kien/rainbow_parentheses.vim'
-Plugin 'ntpeters/vim-better-whitespace'
+Plug 'Raimondi/delimitMate'
+Plug 'kien/rainbow_parentheses.vim'
+Plug 'ntpeters/vim-better-whitespace'
 
-" All plugins must be added before the following line
-call vundle#end()
-filetype plugin indent on
+call plug#end()
+
 
 " #############################################
 " ############### CONFIGURATION ###############
@@ -59,7 +48,7 @@ au Syntax * RainbowParenthesesLoadRound
 au Syntax * RainbowParenthesesLoadSquare
 au Syntax * RainbowParenthesesLoadBraces
 
-set background=dark    " Setting dark mode
+set background=dark
 colorscheme gruvbox
 
 " Open NERDTree if no file was specified

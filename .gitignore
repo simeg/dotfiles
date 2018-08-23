@@ -1,5 +1,6 @@
+vim/.netrwhist
 vim/bundle
 vim/swaps
 vim/vim
-vim/.netrwhist
-
+vim/_plugins
+vim/autoload

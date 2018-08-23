@@ -1,4 +1,4 @@
-let PLUGINS_FILE = '$HOME/.vim/vundle.vim'
+let PLUGINS_FILE = '$HOME/.vim/vim-plug.vim'
 
 set nocompatible
 filetype off
