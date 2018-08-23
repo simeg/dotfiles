@@ -23,7 +23,7 @@ set backspace=indent,eol,start
 set ttyfast
 " Use UTF-8 without BOM
 set encoding=utf-8 nobomb
-" Change mapleader
+" Set mapleader key
 let mapleader=","
 let maplocalleader=","
 " Centralize backups, swapfiles and undo history
@@ -37,8 +37,7 @@ set backupskip=/tmp/*,/private/tmp/*
 " Respect modeline in files
 set modeline
 set modelines=4
-" Enable per-directory .vimrc files and disable unsafe commands in them
-set exrc
+" Disable unsafe commands in .vimrc files
 set secure
 " Enable line numbers
 set number
@@ -95,7 +94,7 @@ nnoremap <leader>s :set spell!<cr>
 " Toggle comment on single line
 nnoremap <leader>i :Commentary<cr>
 " never go into Ex mode
-noremap Q <Nop>
+noremap Q <NOP>
 " Clear highlighted search results
 nnoremap <leader>c :nohlsearch<cr>
 
@@ -116,22 +115,13 @@ set softtabstop=2
 
 filetype plugin indent on
 
-filetype on
-autocmd BufNewFile,BufRead *.html.twig   set syntax=html
-autocmd BufNewFile,BufRead *.js   set syntax=javascript
-autocmd BufNewFile,BufRead *.py   set syntax=python
-autocmd BufNewFile,BufRead *.md setlocal filetype=markdown
-autocmd BufNewFile,BufRead *.json setfiletype json syntax=javascript
-" Format JSON using jq every time a .json file is opened
-autocmd FileType json :% ! jq .
+" Force syntax
+autocmd BufNewFile,BufRead *.html.twig  set syntax=html
+autocmd BufNewFile,BufRead *.js         set syntax=javascript
+autocmd BufNewFile,BufRead *.py         set syntax=python
+autocmd BufNewFile,BufRead *.md         set filetype=markdown
+autocmd BufNewFile,BufRead *.json       setfiletype json syntax=javascript
 
-" Have Vim jump to the last position when reopening a file
-if has("autocmd")
-  au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")
-    \| exe "normal! g'\"" | endif
-endif" Have Vim jump to the last position when reopening a file
-if has("autocmd")
-  au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")
-    \| exe "normal! g'\"" | endif
-endif
+" Format .json files when opening them
+autocmd FileType json :% ! jq .
 
