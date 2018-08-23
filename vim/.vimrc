@@ -1,3 +1,5 @@
+let PLUGINS_FILE = '$HOME/.vim/vundle.vim'
+
 set nocompatible
 filetype off
 
@@ -74,8 +76,11 @@ set visualbell
 set spelllang=en
 
 " Load Plugins
-if filereadable(expand("$HOME/.vim/vundle.vim"))
-  source $HOME/.vim/vundle.vim
+if filereadable(expand(PLUGINS_FILE))
+  " Just doing `source` doesn't work
+  execute 'source' fnameescape(PLUGINS_FILE)
+else
+  echom "Unable to find plugins dir"
 endif
 
 " ####################################################
