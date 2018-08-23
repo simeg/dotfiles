@@ -91,6 +91,8 @@ nnoremap <leader>s :set spell!<cr>
 nnoremap <leader>i :Commentary<cr>
 " never go into Ex mode
 noremap Q <Nop>
+" Clear highlighted search results
+nnoremap <leader>c :nohlsearch<cr>
 
 " Disable arrow keys
 noremap <Up> <NOP>
