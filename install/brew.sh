@@ -19,6 +19,7 @@ readonly BREW_DEPS=(
   shellcheck                        # Check bash scripts for problems
   coreutils                         # GNU flavored utils
   ncdu                              # Disk usage analyzer with an ncurses interface
+  grip                              # GitHub Markdown file previewer (dep. of vim plugin "vim-markdown-preview")
 )
 
 readonly CASK_DEPS=(
