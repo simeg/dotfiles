@@ -29,10 +29,8 @@ mkdir_if_not_exist $SWAP_DIR
 mkdir_if_not_exist $BACKUP_DIR
 mkdir_if_not_exist $UNDO_DIR
 
-# Install vundle
-git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
-
-# Install all vim plugins specified in .vimrc
-vim +PluginInstall +qall
+# Install vim-plug
+curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 
 echo "Vim setup script complete"
