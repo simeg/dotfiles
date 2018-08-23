@@ -2,8 +2,9 @@
 
 set -e
 
-# Creates necessary folders for vim if they
-# do not already exist.
+echo "Starting vim setup..."
+
+# Creates necessary folders for vim if they do not already exist.
 
 # Install vim, assumes brew is installed
 /usr/local/bin/brew install vim
@@ -13,7 +14,7 @@ function mkdir_if_not_exist {
   if [ ! -d "$1" ]; then
     mkdir -v -p "$1"
   else
-    echo "$1 already exist, will not create a new one";
+    echo "$1 already exist, doing nothing";
   fi
 }
 
