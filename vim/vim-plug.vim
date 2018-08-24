@@ -1,4 +1,4 @@
-let PLUGINS_DIR = '$HOME/.vim/plugins'
+let PLUGINS_DIR = '$HOME/.vim/_plugins'
 
 set nocompatible
 call plug#begin(fnameescape(expand(PLUGINS_DIR)))
