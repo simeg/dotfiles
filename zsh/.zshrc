@@ -15,4 +15,4 @@ if [ -d "${HOME}/repos/dotfiles/shell" ]; then
 fi
 
 # Load gruvbox color palette
-source ${PLUGIN_DIR}"/gruvbox/gruvbox_256palette.sh"
+source ${VIM_PLUGIN_DIR}"/gruvbox/gruvbox_256palette.sh"
