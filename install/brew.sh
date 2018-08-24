@@ -16,6 +16,8 @@ readonly BREW_DEPS=(
   vim
   ack                               # grep but faster
   bat                               # cat but better
+  ripgrep                           # grep written in rust, very fast
+  fd                                # 'find' replacement in rust
   shellcheck                        # Check bash scripts for problems
   coreutils                         # GNU flavored utils
   ncdu                              # Disk usage analyzer with an ncurses interface
