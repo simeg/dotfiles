@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# custom bins
 export PATH="$HOME/.bin:$PATH"
 
 # golang
@@ -7,6 +8,12 @@ export GOPATH="$HOME/repos/go"
 export GOBIN="$HOME/repos/go/bin"
 export PATH="$GOPATH/bin:$PATH"
 
+# rust
+export PATH="$HOME/.cargo/bin:$PATH"
+
+# node.js
 export PATH="`yarn global bin`:$PATH"
-export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH" # gnu flavoured utils
+
+# gnu flavored utils
+export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
 

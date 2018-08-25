@@ -3,76 +3,48 @@ let PLUGINS_FILE = '$HOME/.vim/vim-plug.vim'
 set nocompatible
 filetype off
 
-" Leave hidden buffers open
-set hidden
-" By default Vim saves your last 8 commands, we can handle more
-set history=100
-" Enable mouse cursor
-set mouse=a
-" Use the OS clipboard by default (on versions compiled with `+clipboard`)
-set clipboard=unnamed
-" Enhance command-line completion
-set wildmenu
-" Allow cursor keys in insert mode
-set esckeys
-" Set number of undo levels
+set hidden                      " Leave hidden buffers open
+set history=100                 " Command history cap
 set undolevels=200
-" Allow backspace in insert mode
-set backspace=indent,eol,start
-" Optimize for fast terminal connections
+set mouse=a                     " Enable mouse cursor
+set clipboard=unnamed           " Use the OS clipboard by default
+set wildmenu                    " Enhance cli completion
+set esckeys                     " Allow cursor keys in insert mode
+set backspace=indent,eol,start  " Allow backspace in insert mode
 set ttyfast
-" Use UTF-8 without BOM
 set encoding=utf-8 nobomb
-" Set mapleader key
+
 let mapleader=","
 let maplocalleader=","
-" Centralize backups, swapfiles and undo history
+
 set backupdir=~/.vim/backups
 set directory=~/.vim/swaps
 if exists("&undodir")
   set undodir=~/.vim/undo
 endif
-" Don’t create backups when editing files in certain directories
+"
+" Skip backups editing files here
 set backupskip=/tmp/*,/private/tmp/*
-" Respect modeline in files
-set modeline
+set modeline        " Respect modeline in files
 set modelines=4
-" Disable unsafe commands in .vimrc files
-set secure
-" Enable line numbers
-set number
-" Enable syntax highlighting
-syntax on
-" Highlight current line
-set cursorline
-" Highlight searches
-set hlsearch
-" Ignore case of searches
-set ignorecase
-" Highlight dynamically as pattern is typed
-set incsearch
-" Always show status line
-set laststatus=2
-" Disable error bells
-set noerrorbells
-" Don’t reset cursor to start of line when moving around.
-set nostartofline
-" Show the cursor position
-set ruler
-" Don’t show the intro message when starting Vim
-set shortmess=atI
-" Show the current mode
-set showmode
-" Show the filename in the window titlebar
-set title
-" Show the (partial) command as it’s being typed
-set showcmd
-" Show vertical line at 80 characters
-set colorcolumn=80
-" Disable sounds
-set visualbell
-" Set spell checking language to English
-set spelllang=en
+set secure          " Disable unsafe commands in .vimrc files
+set number          " Enable line numbers
+syntax on           " Enable syntax highlighting
+set cursorline      " Highlight current line
+set hlsearch        " Highlight searches
+set ignorecase      " Ignore case of searches
+set incsearch       " Highlight dynamically as pattern is typed
+set laststatus=2    " Always show status line
+set noerrorbells    " Disable error bells
+set nostartofline   " Don’t reset cursor to start of line when moving around
+set ruler           " Show the cursor position
+set shortmess=atI   " Don’t show the intro message when starting Vim
+set showmode        " Show the current mode
+set title           " Show the filename in the window titlebar
+set showcmd         " Show the (partial) command as it’s being typed
+set colorcolumn=80  " Show vertical line at 80 characters
+set visualbell      " Disable sounds
+set spelllang=en    " Set spell checking language to English
 
 " Load Plugins
 if filereadable(expand(PLUGINS_FILE))
