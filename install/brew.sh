@@ -37,6 +37,8 @@ readonly CASK_DEPS=(
   pycharm                           # IDEA
   intellij-idea                     # IDEA
   webstorm                          # IDEA
+  goland                            # IDEA
+  jetbrains-toolbox                 # JetBrains utilities
   docker                            # Virtual environment
   docker-toolbox                    # Docker utilities
   alfred                            # Spotlight with workflows
