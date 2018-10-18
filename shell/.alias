@@ -39,6 +39,8 @@ alias gforbm="git fetch origin && git rebase --autostash origin/master"
 alias gap="git add --patch"
 alias gs="git show"
 alias gf!="super-amend"
+alias gs="git-show"
+alias fixup!="super-amend"
 
 # forgit (git + fzf)
 alias ga_="forgit::add"
