@@ -1,0 +1,7 @@
+#!/usr/local/bin/zsh
+
+COUNT=$1
+COUNT=${COUNT:-0} # Fallback to 0 if no arg
+
+git show HEAD~${COUNT}
+
