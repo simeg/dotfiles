@@ -22,10 +22,6 @@ alias fali="alias | fzf"
 
 alias rm="/usr/local/opt/coreutils/libexec/gnubin/rm"
 
-alias rm="~/.safe-rm/safe-rm/safe-rm"
-
-alias rm="/usr/local/opt/coreutils/libexec/gnubin/rm"
-
 alias dotfiles="pushd ~/repos/dotfiles"
 alias vimrc="vim ~/.vimrc"
 alias vplug="vim ~/.vim/vim-plug.vim"
