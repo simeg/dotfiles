@@ -51,6 +51,7 @@ if [ -f '/Users/segersand/google-cloud-sdk/completion.zsh.inc' ]; then source '/
 
 export NVM_DIR="$HOME/.nvm"
 . "$(brew --prefix nvm)/nvm.sh" --no-use
+
 export PATH="/usr/local/opt/ruby/bin:$PATH"
 
 # Enable for debugging slow session startup
