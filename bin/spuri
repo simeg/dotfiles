@@ -1,0 +1,47 @@
+#!/usr/bin/env python
+import sys
+import uuid
+
+BASE62 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+
+def encode(num, base):
+    """Return num as a string in the supplied base."""
+    stack = []
+    while num:
+        stack.append(base[num % len(base)])
+        num = num // len(base)
+    stack.reverse()
+    return "".join(stack)
+
+
+def decode(num, base):
+    """Return num (encoded in the supplied base) as a number."""
+    r = 0
+    b = 1
+    for char in reversed(num):
+        r += base.index(char) * b
+        b *= len(base)
+    return r
+
+
+for arg in sys.argv[1:]:
+    if arg.startswith("spotify"):
+        base62id = arg.split(":")[2]
+        uri = "spotify:track:" + base62id
+        url = "https://open.spotify.com/track/" + base62id
+        gid = str(uuid.UUID(int=decode(base62id, BASE62)))
+        hexgid = gid.replace("-", "")
+    elif arg.startswith("http"):
+        base62id = arg.split("/")[4]
+        gid = str(uuid.UUID(int=decode(base62id, BASE62)))
+        hexgid = gid.replace("-", "")
+        uri = "spotify:track:" + base62id
+        url = "https://open.spotify.com/track/" + base62id
+    else:
+        hexgid = arg.replace("-", "")
+        base62id = encode(int(hexgid, 16), BASE62).rjust(22, "0")
+        gid = str(uuid.UUID(int=decode(base62id, BASE62)))
+        uri = "spotify:track:" + base62id
+        url = "https://open.spotify.com/track/" + base62id
+    print(gid, hexgid, base62id, uri, url)
