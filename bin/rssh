@@ -1,0 +1,9 @@
+#!/usr/local/bin/zsh
+
+if [ $# -eq 0 ]; then
+  echo "You need to specify a role"
+fi
+
+role=$1
+shift 1
+pssh -O StrictHostKeyChecking=no --inline -H "`disco role $role | sed -e 's/\.$//'`" $*
