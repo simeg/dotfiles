@@ -39,4 +39,4 @@ if [ -f '/Users/segersand/google-cloud-sdk/path.zsh.inc' ]; then source '/Users/
 if [ -f '/Users/segersand/google-cloud-sdk/completion.zsh.inc' ]; then source '/Users/segersand/google-cloud-sdk/completion.zsh.inc'; fi
 
 export NVM_DIR="$HOME/.nvm"
-. "$(brew --prefix nvm)/nvm.sh"
+. "$(brew --prefix nvm)/nvm.sh" --no-use
