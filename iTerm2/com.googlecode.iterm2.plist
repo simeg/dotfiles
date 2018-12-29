@@ -48057,8 +48057,7 @@
 			<key>Non-ASCII Anti Aliased</key>
 			<true/>
 			<key>Normal Font</key>
-			<string>OperatorMono-Book 17</string>
->>>>>>> Configuration for work
+			<string>FiraMono-Regular 14</string>
 			<key>Only The Default BG Color Uses Transparency</key>
 			<false/>
 			<key>Open Toolbelt</key>
