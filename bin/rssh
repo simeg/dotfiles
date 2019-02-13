@@ -6,4 +6,4 @@ fi
 
 role=$1
 shift 1
-pssh -O StrictHostKeyChecking=no --inline -H "`disco role $role | sed -e 's/\.$//'`" $*
+pssh -O StrictHostKeyChecking=no --inline -H "`reveal role $role | sed -e 's/\.$//'`" $*
