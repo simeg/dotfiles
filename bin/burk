@@ -1,0 +1,4 @@
+#!/bin/bash
+
+host=$(burklee | fzf)
+[[ ! -z "$host" ]] && ssh -A "$host.spotify.net"
