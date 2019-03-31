@@ -20,6 +20,10 @@ sudo nvram SystemAudioVolume=" "
 # Check for software updates daily, not just once per week
 defaults write com.apple.SoftwareUpdate ScheduleFrequency -int 1
 
+# Use light theme in Chrome
+# NOTE: Should only be used until Chrome supports changing it
+defaults write com.google.Chrome NSRequiresAquaSystemAppearance -bool YES
+
 
 #############
 ### Input ###
