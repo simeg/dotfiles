@@ -10,11 +10,14 @@ readonly BREW_DEPS=(
   ruby
   tree
   yarn
+  perl
+  fzf                               # Fuzzy finder
+  heroku
+  jq                                # JSON parser
   python                            # Python 3
   python@2                          # Python 2.7
   maven
   vim
-  ack                               # grep but faster
   bat                               # cat but better
   ripgrep                           # grep written in rust, very fast
   fd                                # 'find' replacement in rust
@@ -23,6 +26,7 @@ readonly BREW_DEPS=(
   ncdu                              # Disk usage analyzer with an ncurses interface
   grip                              # GitHub Markdown file previewer (dep. of vim plugin "vim-markdown-preview")
   httpie                            # HTTP client
+  wifi-password                     # Find out the wifi password
 )
 
 readonly CASK_DEPS=(
