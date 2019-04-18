@@ -29,6 +29,7 @@ alias zshrc="vim ~/.zshrc ; reload"
 alias gitignore="vim ~/.gitignore"
 alias ali="vim ~/repos/dotfiles/shell/.alias"
 alias urlencode='python -c "import sys, urllib as ul; print ul.quote_plus(sys.argv[1]);"'
+alias j="z"
 
 alias idea="eureka"
 alias videa="eureka --view"
