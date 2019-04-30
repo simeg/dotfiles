@@ -47075,6 +47075,8 @@
 	<true/>
 	<key>DoubleClickPerformsSmartSelection</key>
 	<true/>
+	<key>EnableDivisionView</key>
+	<true/>
 	<key>EnableProxyIcon</key>
 	<false/>
 	<key>FlashTabBarInFullscreen</key>
@@ -47331,7 +47333,7 @@
 	<key>NSWindow Frame SUUpdateAlert</key>
 	<string>490 324 700 622 0 0 1680 1028 </string>
 	<key>NSWindow Frame SessionsPreferences</key>
-	<string>489 258 606 469 0 0 2560 1418 </string>
+	<string>269 152 606 469 0 0 1680 1028 </string>
 	<key>NSWindow Frame SharedPreferences</key>
 	<string>882 887 796 486 0 0 2560 1418 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
@@ -49585,7 +49587,7 @@
 	<key>findRegex_iTerm</key>
 	<false/>
 	<key>iTerm Version</key>
-	<string>3.2.0</string>
+	<string>3.2.7</string>
 	<key>kCPKSelectionViewPreferredModeKey</key>
 	<integer>0</integer>
 	<key>kCPKSelectionViewShowHSBTextFieldsKey</key>
