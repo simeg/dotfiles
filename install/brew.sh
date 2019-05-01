@@ -11,6 +11,8 @@ readonly BREW_DEPS=(
   tree
   yarn
   perl
+  scala
+  sbt
   fzf                               # Fuzzy finder
   heroku
   jq                                # JSON parser
