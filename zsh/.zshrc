@@ -56,3 +56,4 @@ export PATH="/usr/local/opt/ruby/bin:$PATH"
 
 # Enable for debugging slow session startup
 # zprof
+
