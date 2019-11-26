@@ -13,6 +13,7 @@ set esckeys                     " Allow cursor keys in insert mode
 set backspace=indent,eol,start  " Allow backspace in insert mode
 set ttyfast
 set encoding=utf-8 nobomb
+set scrolloff=5                 " Keep N lines visible above/below the cursor
 
 let mapleader=","
 let maplocalleader=","
