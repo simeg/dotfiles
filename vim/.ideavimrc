@@ -1,0 +1,5 @@
+" Use system level clipboard
+set clipboard+=unnamed
+"
+" Keep N lines visible above/below the cursor
+set scrolloff=5

@@ -37,4 +37,7 @@ curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
 # Install plugins
 vim +PlugInstall +qall
 
+# Symlink .ideavimrc to $HOME
+ln -s ./vim/.ideavimrc $HOME
+
 echo "Vim setup completed!"
