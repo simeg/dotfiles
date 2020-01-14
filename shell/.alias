@@ -55,5 +55,3 @@ alias gd_="forgit::diff"
 # doesn't use color with oh-my-zsh so have to manually set it up here
 alias ls="gls --color=always"
 
-# Work
-alias role="reveal role"

@@ -54,6 +54,8 @@ export NVM_DIR="$HOME/.nvm"
 
 export PATH="/usr/local/opt/ruby/bin:$PATH"
 
+# Auto-completion for kubectl
+if [ /usr/local/bin/kubectl ]; then source <(kubectl completion zsh); fi
+
 # Enable for debugging slow session startup
 # zprof
-
