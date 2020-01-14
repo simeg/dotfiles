@@ -41,3 +41,6 @@ if [ -f '/Users/segersand/google-cloud-sdk/completion.zsh.inc' ]; then source '/
 export NVM_DIR="$HOME/.nvm"
 . "$(brew --prefix nvm)/nvm.sh" --no-use
 export PATH="/usr/local/opt/ruby/bin:$PATH"
+
+# Auto-completion for kubectl
+if [ /usr/local/bin/kubectl ]; then source <(kubectl completion zsh); fi
