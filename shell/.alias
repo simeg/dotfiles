@@ -4,7 +4,6 @@ alias vim="/usr/local/bin/vim"
 
 alias mv="mv -i -v"
 alias cp="cp -i -v"
-alias rm="~/.safe-rm/safe-rm"
 alias tt="tree -C"
 alias v="vim"
 alias d="docker"

@@ -17,3 +17,4 @@ export PATH="/usr/local/bin:$PATH"
 # gnu flavored utils
 export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
 
+export PATH="/Users/segersand/Library/Python/2.7/bin:$PATH"

@@ -13,7 +13,7 @@
 #
 # [1] https://www.gnu.org/licenses/quick-guide-gplv3.html
 
-ln -sv $PWD/safe-rm /usr/local/bin/rm
+# ln -sv $PWD/safe-rm /usr/local/bin/rm
 
 # This folder should exist,
 # but in case it doesn't it does not hurt to create it again
