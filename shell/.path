@@ -18,3 +18,7 @@ export PATH="/usr/local/bin:$PATH"
 export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
 
 export PATH="/Users/segersand/Library/Python/2.7/bin:$PATH"
+
+# ruby gems
+export PATH="/Users/simon/.gem/ruby/2.6.0/bin:$PATH"
+
