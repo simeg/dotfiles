@@ -30,17 +30,10 @@ pastefinish() {
 zstyle :bracketed-paste-magic paste-init pasteinit
 zstyle :bracketed-paste-magic paste-finish pastefinish
 
-export GCLOUD_CREDENTIALS=/Users/segersand/.config/gcloud/credentials
+# Enable bash-completion
+[[ -r "/usr/local/etc/profile.d/bash_completion.sh" ]] && . "/usr/local/etc/profile.d/bash_completion.sh"
 
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f '/Users/segersand/google-cloud-sdk/path.zsh.inc' ]; then source '/Users/segersand/google-cloud-sdk/path.zsh.inc'; fi
-
-# The next line enables shell command completion for gcloud.
-if [ -f '/Users/segersand/google-cloud-sdk/completion.zsh.inc' ]; then source '/Users/segersand/google-cloud-sdk/completion.zsh.inc'; fi
-
+# Setup nvm
 export NVM_DIR="$HOME/.nvm"
-. "$(brew --prefix nvm)/nvm.sh" --no-use
-export PATH="/usr/local/opt/ruby/bin:$PATH"
-
-# Auto-completion for kubectl
-if [ /usr/local/bin/kubectl ]; then source <(kubectl completion zsh); fi
+  [ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"  # This loads nvm
+  [ -s "/usr/local/opt/nvm/etc/bash_completion.d/nvm" ] && . "/usr/local/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion

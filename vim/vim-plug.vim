@@ -23,7 +23,7 @@ Plug 'tpope/vim-commentary'
 
     Plug 'pangloss/vim-javascript'
     Plug 'tpope/vim-markdown'
-    Plug 'python-mode/python-mode'
+    Plug 'python-mode/python-mode', { 'for': 'python', 'branch': 'develop' }
 
     " HTML + CSS
     Plug 'hail2u/vim-css3-syntax'

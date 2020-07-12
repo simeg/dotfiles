@@ -29,6 +29,7 @@ readonly BREW_DEPS=(
   grip                              # GitHub Markdown file previewer (dep. of vim plugin "vim-markdown-preview")
   httpie                            # HTTP client
   wifi-password                     # Find out the wifi password
+  aspell                            # Spelling correction
 )
 
 readonly CASK_DEPS=(
