@@ -1,0 +1,5 @@
+#!/usr/local/bin/zsh
+
+# Echo pwd and put it in clipboard
+pwd | tee >(pbcopy) | xargs echo
+
