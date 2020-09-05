@@ -1,4 +1,9 @@
-.PHONY: all remote setup symlink
+.PHONY: all lint remote setup symlink
+
+ci: lint
+
+lint:
+	./shellcheck.sh
 
 remote:
 	./remote-setup.sh
