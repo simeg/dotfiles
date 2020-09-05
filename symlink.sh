@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 symlink_file_to_home() {
   ln -sv "`pwd`/$1" $HOME
