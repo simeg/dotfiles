@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 # Installs brew and brew cask packages, assumes brew is installed
 
