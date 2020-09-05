@@ -9,7 +9,6 @@ readonly SCRIPTS=(
   install/oh-my-zsh.sh
   install/vim.sh
   install/rust.sh
-  install/safe-rm/safe-rm.sh
   install/macOS/macOS.sh
 )
 
