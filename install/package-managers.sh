@@ -2,9 +2,7 @@
 
 # Installs brew, assumes Ruby is installed
 
-# Is Brew already installed? Then don't install it again
-which -s brew
-if [[ $? -eq 0 ]]; then
+if command -v brew; then
   echo "Brew is already installed, will not install again";
   exit 0;
 fi
