@@ -1,7 +1,18 @@
 #!/usr/local/bin/zsh
 
-COUNT=$1
-COUNT=${COUNT:-0} # Fallback to 0 if no arg
+# Usage:
+#
+#   gs          # git show latest commit
+#   gs 1        # git show HEAD~1 commit
+#   gs <hash>   # git show provided commit
 
-git show HEAD~${COUNT}
+readonly input=$1
+readonly count_or_hash=${input:-0} # Fallback to 0 if no arg
 
+# If hash
+if [ "${#count_or_hash}" -ge 7 ]; then
+  git show "${count_or_hash}"
+else
+  echo count: ${count_or_hash}
+  git show HEAD~${count_or_hash}
+fi
