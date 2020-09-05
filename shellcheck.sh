@@ -2,4 +2,4 @@
 
 # Run shellcheck on all bash files
 
-fd -e "sh" -E "shellcheck.sh" | xargs shellcheck
+find . -name '*.sh' ! -path '*/vim/*' -exec shellcheck {} \;
