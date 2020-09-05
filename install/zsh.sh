@@ -9,8 +9,7 @@ set -e
   zsh \
   zsh-completions \
   zsh-autosuggestions \
-  zsh-syntax-highlighting \
-  jq
+  zsh-syntax-highlighting
 
 # Install zgen, plugin manager
 git clone https://github.com/tarjoilija/zgen.git "${HOME}/.zgen"
