@@ -1,8 +1,11 @@
-.PHONY: all setup symlink
+.PHONY: all remote setup symlink
+
+remote:
+	./remote-setup.sh
 
 setup:
-	sh ./setup.sh
+	./setup.sh
 
 symlink:
-	sh ./symlink.sh
+	./symlink.sh
 
