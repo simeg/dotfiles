@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # custom bins
 export PATH="$HOME/.bin:$PATH"
@@ -17,6 +17,7 @@ export PATH="/usr/local/bin:$PATH"
 # gnu flavored utils
 export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
 
+# Python 2.7
 export PATH="/Users/segersand/Library/Python/2.7/bin:$PATH"
 
 # ruby gems

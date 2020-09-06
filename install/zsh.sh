@@ -12,5 +12,7 @@ set -e
   zsh-syntax-highlighting
 
 # Install zgen, plugin manager
+echo "Installing zgen..."
 git clone https://github.com/tarjoilija/zgen.git "${HOME}/.zgen"
+echo "Done installing zgen!"
 

@@ -1,3 +1,0 @@
-#!/bin/bash
-
-#ln -sv "${HOME}/repos/dotfiles/install/safe-rm" $HOME/.safe-rm

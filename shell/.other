@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Make 'workon' command globally available
 source /usr/local/bin/virtualenvwrapper.sh

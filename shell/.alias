@@ -13,9 +13,9 @@ alias dir="dirs -v | head -10"
 alias ha="history | ack"
 alias vm="vim ./Makefile"
 alias vp="vim ./package.json"
+alias vt="vim ./.travis.*"
 alias cpd="copydir"
 alias cpf="copyfile"
-alias du="ncdu"
 alias path='echo -e ${PATH//:/\\n}'
 alias fali="alias | fzf"
 

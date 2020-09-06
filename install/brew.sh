@@ -1,28 +1,43 @@
 #!/usr/bin/env bash
 
-# Installs brew and brew cask packages, assumes brew is installed
+# Installs brew, brew formulaes and casks
 
 set -e
 
-readonly BREW_DEPS=(
-  git
-  node
-  ruby
-  tree
-  yarn
-  perl
-  scala
-  sbt
+if ! command -v brew; then
+  echo "Installing brew.."
+
+  # Install brew
+  /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
+  install_result=$?
+  if [ "$install_result" -eq 0 ]; then
+    echo "Sucessfully installed brew!"
+  else
+    echo "Error installing brew"
+    exit 1
+  fi
+fi
+
+readonly brew_deps=(
+  git                               # git
+  node                              # NodeJS
+  ruby                              # Ruby (this comes with macOS, why is it needed?)
+  tree                              # Display tree output
+  yarn                              # JS dependency mananger
+  perl                              # Perl
+  scala                             # Scala
+  sbt                               # Scala build tool
   fzf                               # Fuzzy finder
-  heroku
+  heroku                            # Platform tool
   jq                                # JSON parser
   python                            # Python 3
   python@2                          # Python 2.7
-  maven
-  vim
-  bat                               # cat but better
-  ripgrep                           # grep written in rust, very fast
-  fd                                # 'find' replacement in rust
+  maven                             # Java build tool
+  vim                               # Text editor
+  bat                               # Improved `cat`
+  ripgrep                           # Faster `grep
+  fd                                # More useable `find`
   shellcheck                        # Check bash scripts for problems
   coreutils                         # GNU flavored utils
   grip                              # GitHub Markdown file previewer (dep. of vim plugin "vim-markdown-preview")
@@ -30,7 +45,7 @@ readonly BREW_DEPS=(
   wifi-password                     # Find out the wifi password
 )
 
-readonly CASK_DEPS=(
+readonly cask_deps=(
   betterzipql                       # Quick-look Finder plugin
   google-chrome                     # Browser
   pycharm                           # IDEA
@@ -54,9 +69,9 @@ readonly CASK_DEPS=(
   istat-menus                       # Menu bar stats
 )
 
-brew install "${BREW_DEPS[@]}" &&
+brew install "${brew_deps[@]}" &&
   echo "Brew setup complete"
 
-brew cask install "${CASK_DEPS[@]}" &&
+brew cask install "${cask_deps[@]}" &&
   echo "Brew cask setup complete, a reboot is needed"
 
