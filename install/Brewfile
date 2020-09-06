@@ -1,0 +1,103 @@
+tap "homebrew/cask"
+
+# git
+brew "git"
+# NodeJS
+brew "node"
+# Ruby (this comes with macOS, why is it needed?)
+brew "ruby"
+# Display tree output
+brew "tree"
+# JS dependency mananger
+brew "yarn"
+# Perl
+brew "perl"
+# Scala
+brew "scala"
+# Scala build tool
+brew "sbt"
+# Fuzzy finder
+brew "fzf"
+# Platform tool
+brew "heroku"
+# JSON parser
+brew "jq"
+# Python 3
+brew "python"
+# Python 2.7
+brew "python@2"
+# Java build tool
+brew "maven"
+# Text editor
+brew "vim"
+# Improved `cat`
+brew "bat"
+# Faster `grep
+brew "ripgrep"
+# More useable `find`
+brew "fd"
+# Check bash scripts for problems
+brew "shellcheck"
+# GNU flavored utils
+brew "coreutils"
+# GitHub Markdown file previewer (dep. of vim plugin "vim-markdown-preview")
+brew "grip"
+# HTTP client
+brew "httpie"
+# Find out the wifi password
+brew "wifi-password"
+# CLI for Mac App Store
+brew "mas"
+
+# Quick-look Finder plugin
+cask "betterzipql"
+# Browser
+cask "google-chrome"
+# IDEA
+cask "pycharm"
+# IDEA
+cask "intellij-idea"
+# IDEA
+cask "webstorm"
+# Virtual environment
+cask "docker"
+# Docker utilities
+cask "docker-toolbox"
+# Spotlight with workflows
+cask "alfred"
+# Media streamer
+cask "vlc"
+# Window management
+cask "spectacle"
+# Menu bar item controller
+cask "bartender"
+# Audio enhancer
+cask "boom"
+# Password manager
+cask "dashlane"
+# Alternative to Terminal
+cask "iterm2"
+# Communication platform
+cask "slack"
+# Gaming platform
+cask "steam"
+# Decompression tool
+cask "unrarx"
+# Decompression tool
+cask "the-unarchiver"
+# VPN
+cask "windscribe"
+# Menu bar stats
+cask "istat-menus"
+
+# Mac App Store apps
+mas "AdBlock", id: 1402042596
+mas "Xcode", id: 497799835
+mas "EpocCamViewer", id: 736008948
+mas "Monosnap", id: 540348655
+mas "iMovie", id: 408981434
+mas "Airmail", id: 918858936
+mas "Bear", id: 1091189122
+mas "Vimari", id: 1480933944
+mas "Adblock Plus", id: 1432731683
+mas "Amphetamine", id: 937984704

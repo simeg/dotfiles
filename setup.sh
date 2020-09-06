@@ -16,6 +16,9 @@ for script in "${scripts[@]}"; do
   source "$script"
 done
 
+# Install brew formulaes, casks and Mac App store apps
+brew bundle --file=./install/Brewfile
+
 echo "All install scripts run"
 
 # Do not display "Last logged in ..." when creating new shell
