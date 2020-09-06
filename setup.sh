@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC1090
 
-readonly SCRIPTS=(
+readonly scripts=(
   symlink.sh
-  install/my-test.sh
-  install/package-managers.sh
+  #install/my-test.sh
   install/brew.sh
   install/zsh.sh
   install/oh-my-zsh.sh
@@ -13,7 +12,7 @@ readonly SCRIPTS=(
   install/macOS/macOS.sh
 )
 
-for script in "${SCRIPTS[@]}"; do
+for script in "${scripts[@]}"; do
   source "$script"
 done
 
