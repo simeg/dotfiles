@@ -43,12 +43,6 @@ export NVM_DIR="$HOME/.nvm"
 
 export GCLOUD_CREDENTIALS=/Users/segersand/.config/gcloud/credentials
 
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f '/Users/segersand/google-cloud-sdk/path.zsh.inc' ]; then source '/Users/segersand/google-cloud-sdk/path.zsh.inc'; fi
-
-# The next line enables shell command completion for gcloud.
-if [ -f '/Users/segersand/google-cloud-sdk/completion.zsh.inc' ]; then source '/Users/segersand/google-cloud-sdk/completion.zsh.inc'; fi
-
 export NVM_DIR="$HOME/.nvm"
 . "$(brew --prefix nvm)/nvm.sh" --no-use
 
@@ -56,6 +50,17 @@ export PATH="/usr/local/opt/ruby/bin:$PATH"
 
 # Auto-completion for kubectl
 if [ /usr/local/bin/kubectl ]; then source <(kubectl completion zsh); fi
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/Users/segersand/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/segersand/google-cloud-sdk/path.zsh.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/Users/segersand/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/segersand/google-cloud-sdk/completion.zsh.inc'; fi
+
+# Use jEnv
+export PATH="$HOME/.jenv/bin:$PATH"
+
+export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)
 
 # Enable for debugging slow session startup
 # zprof

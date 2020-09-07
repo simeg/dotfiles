@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
 # Make 'workon' command globally available
-source /usr/local/bin/virtualenvwrapper.sh
+#source /usr/local/bin/virtualenvwrapper.sh
 
 # Bashhub installation
-if [ -f ~/.bashhub/bashhub.zsh ]; then
-  source "${HOME}/.bashhub/bashhub.zsh"
-fi
+# if [ -f ~/.bashhub/bashhub.zsh ]; then
+#   source "${HOME}/.bashhub/bashhub.zsh"
+# fi
 
 # The next line enables shell command completion for gcloud.
 if [ -f '/Users/segersand/google-cloud-sdk/completion.zsh.inc' ]; then source '/Users/segersand/google-cloud-sdk/completion.zsh.inc'; fi

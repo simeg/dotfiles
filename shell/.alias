@@ -21,8 +21,6 @@ alias fali="alias | fzf"
 alias ssh="sshrc"
 alias rm="/usr/local/opt/coreutils/libexec/gnubin/rm"
 
-alias rm="~/.safe-rm/safe-rm/safe-rm"
-
 alias dotfiles="pushd ~/repos/dotfiles"
 alias vimrc="vim ~/.vimrc"
 alias vplug="vim ~/.vim/vim-plug.vim"
@@ -54,4 +52,3 @@ alias gd_="forgit::diff"
 # Because I'm runnig GNU flavored utils `ls` gets remapped to `gls` which
 # doesn't use color with oh-my-zsh so have to manually set it up here
 alias ls="gls --color=always"
-
