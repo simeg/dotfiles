@@ -28,8 +28,8 @@ if ! zgen saved; then
   zgen oh-my-zsh plugins/cp
 
   # zgen load denysdovhan/spaceship-prompt spaceship
-  zgen load mafredri/zsh-async
-  zgen load simeg/lambda-pure
+  # zgen load mafredri/zsh-async
+  # zgen load simeg/lambda-pure
 
   # Automatically run zgen update and zgen selfupdate every 7 days
   # zgen load unixorn/autoupdate-zgen

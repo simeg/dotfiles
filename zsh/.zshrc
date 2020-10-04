@@ -1,6 +1,8 @@
 # Enable for debugging slow session startup
 # zmodload zsh/zprof
 
+autoload -Uz compinit && compinit
+
 # Load oh-my-zsh
 export ZSH=$HOME/.oh-my-zsh
 source "${ZSH}/oh-my-zsh.sh"
@@ -43,3 +45,5 @@ export NVM_DIR="$HOME/.nvm"
 
 # Enable for debugging slow session startup
 # zprof
+
+eval "$(starship init zsh)"
