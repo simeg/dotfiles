@@ -46,4 +46,7 @@ export NVM_DIR="$HOME/.nvm"
 # Enable for debugging slow session startup
 # zprof
 
+# Enable shell integrations with iTerm2
+test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh" || true
+
 eval "$(starship init zsh)"
