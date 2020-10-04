@@ -13,6 +13,6 @@ readonly count_or_hash=${input:-0} # Fallback to 0 if no arg
 if [ "${#count_or_hash}" -ge 7 ]; then
   git show "${count_or_hash}"
 else
-  echo count: ${count_or_hash}
-  git show HEAD~${count_or_hash}
+  echo count: "${count_or_hash}"
+  git show HEAD~"${count_or_hash}"
 fi

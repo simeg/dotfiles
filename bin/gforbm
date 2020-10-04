@@ -3,4 +3,4 @@
 # Get the default branch, don't assume it's "master"
 readonly default_branch=$(git symbolic-ref --short HEAD)
 
-git fetch origin && git rebase --autostash origin/${default_branch}
+git fetch origin && git rebase --autostash origin/"${default_branch}"
