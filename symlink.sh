@@ -16,3 +16,7 @@ done
 ln -sv "$(pwd)"/vim "$HOME"/.vim
 ln -sv "$(pwd)"/bin "$HOME"/.bin
 
+echo "Creating ~/.config"
+mkdir -p "$HOME"/.config
+echo "Symlinking starship config"
+ln -sv "$(pwd)"/starship.toml "$HOME"/.config/
