@@ -1,4 +1,4 @@
-#!/usr/local/bin/zsh
+#!/usr/bin/env bash
 
 # Echo pwd and put it in clipboard
 pwd | tee >(pbcopy) | xargs echo

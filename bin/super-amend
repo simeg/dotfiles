@@ -1,4 +1,4 @@
-#!/usr/local/bin/zsh
+#!/usr/bin/env bash
 
 readonly HASH=$(git log --oneline --decorate --graph | fzf | awk -F' ' '{ print $2 }')
 
