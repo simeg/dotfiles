@@ -62,5 +62,7 @@ export PATH="$HOME/.jenv/bin:$PATH"
 
 export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)
 
+eval "$(starship init zsh)"
+
 # Enable for debugging slow session startup
 # zprof
