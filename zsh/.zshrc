@@ -61,6 +61,7 @@ if [ -f '/Users/segersand/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users
 export PATH="$HOME/.jenv/bin:$PATH"
 
 export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)
+export PATH="/usr/local/opt/python@3.7/bin:$PATH"
 
 eval "$(starship init zsh)"
 
