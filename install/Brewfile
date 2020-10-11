@@ -48,6 +48,8 @@ brew "httpie"
 brew "wifi-password"
 # CLI for Mac App Store
 brew "mas"
+# Starship.rs
+brew "starship"
 
 # Quick-look Finder plugin
 cask "betterzipql"
