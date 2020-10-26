@@ -1,3 +1,7 @@
 # Disable package icon
 [package]
 disabled = true
+
+# Disable gcloud stuff
+[gcloud]
+disabled = true
