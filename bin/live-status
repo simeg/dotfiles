@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+
+# A script to call the Live Status service
+#
+# Usage
+#
+#   live-status spotify:episode:6v49WroqPRvc0m4J5dRtPj SE
+#
+
+set -eo pipefail
+
+# Check if grpcurl is installed
+command -v grpcurl >/dev/null 2>&1 || {
+  echo >&2 "grpcurl not installed. Aborting"
+  exit 1
+}
+
+if [ "$#" -ne 2 ]; then
+  echo "You must provide URI followed by the country code"
+  exit 1
+fi
+
+readonly uri=$1
+readonly country_code=$2
+
+# Parse kind from URI
+readonly kind=$(cut -d':' -f2 <<< "$uri")
+
+if [[ ! ${kind} =~ ^(show|episode)$ ]]; then
+  echo "${kind} kind not allowed, only show and episode"
+  exit 1
+fi
+
+if [[ ${#country_code} -ne 2 ]]; then
+  echo "Country code must be exactly two letters long"
+  exit 1
+fi
+
+# kind 1 = show
+# kind 2 = episode
+
+kind_num=0
+if [ "$kind" == "show" ]; then
+  kind_num=1
+elif [ "$kind" == "episode" ]; then
+  kind_num=2
+fi
+
+readonly ls_ip=$(
+dig +short -t SRV _spotify-statements-live-status._grpc.services.gew1.spotify.net | \
+  head -n 1 | \
+  cut -d' ' -f4
+)
+
+readonly payload='{
+  "uri": "'"$uri"'",
+  "country_code": "SE",
+  "kind": "'"$kind_num"'",
+  "options": {
+    "fix": true }
+  }'
+
+grpcurl \
+  -plaintext \
+  -max-time 10 \
+  -d "$payload" \
+  "$ls_ip":5990 \
+  spotify.statements.livestatus.LiveStatus/GetLiveStatus
