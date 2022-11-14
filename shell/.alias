@@ -52,3 +52,5 @@ alias gd_="forgit::diff"
 # Because I'm runnig GNU flavored utils `ls` gets remapped to `gls` which
 # doesn't use color with oh-my-zsh so have to manually set it up here
 alias ls="gls --color=always"
+
+alias statementz="java -jar ./bazel-bin/cli/statements_deploy.jar"

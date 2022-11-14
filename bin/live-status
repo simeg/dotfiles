@@ -11,12 +11,12 @@ set -eo pipefail
 
 # Check if grpcurl is installed
 command -v grpcurl >/dev/null 2>&1 || {
-  echo >&2 "grpcurl not installed. Aborting"
+  echo >&2 "grpcurl not installed. Install: brew install grpcurl"
   exit 1
 }
 
 if [ "$#" -ne 2 ]; then
-  echo "You must provide URI followed by the country code"
+  echo "You must provide URI followed by the two letter country code"
   exit 1
 fi
 
@@ -24,10 +24,11 @@ readonly uri=$1
 readonly country_code=$2
 
 # Parse kind from URI
-readonly kind=$(cut -d':' -f2 <<< "$uri")
+declare kind
+kind=$(cut -d':' -f2 <<< "$uri")
 
-if [[ ! ${kind} =~ ^(show|episode)$ ]]; then
-  echo "${kind} kind not allowed, only show and episode"
+if [[ ! ${kind} =~ ^(show|episode|creatorchannel|podcastshort)$ ]]; then
+  echo "${kind} kind not allowed, only show, episode, creatorchannel or podcastshort"
   exit 1
 fi
 
@@ -46,23 +47,25 @@ elif [ "$kind" == "episode" ]; then
   kind_num=2
 fi
 
-readonly ls_ip=$(
-dig +short -t SRV _spotify-statements-live-status._grpc.services.gew1.spotify.net | \
+declare ls_ip
+ls_ip=$(
+dig +short -t SRV _spotify-podcast-live-status._grpc.services.gew1.spotify.net | \
   head -n 1 | \
   cut -d' ' -f4
 )
 
 readonly payload='{
   "uri": "'"$uri"'",
-  "country_code": "SE",
-  "kind": "'"$kind_num"'",
-  "options": {
-    "fix": true }
-  }'
+  "country_code": "'"$country_code"'",
+  "kind": "'"$kind_num"'"
+}'
+
+echo "Checking ${uri}"
 
 grpcurl \
   -plaintext \
-  -max-time 10 \
+  -max-time 30 \
   -d "$payload" \
   "$ls_ip":5990 \
-  spotify.statements.livestatus.LiveStatus/GetLiveStatus
+  spotify.podcastlivestatus.PodcastLiveStatus/GetLiveStatus
+

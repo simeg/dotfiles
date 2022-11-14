@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 readonly host=$(burklee | fzf)
-[[ ! -z "$host" ]] && ssh -A "$host.spotify.net"
+[[ ! -z "$host" ]] && ssh -A "$host"

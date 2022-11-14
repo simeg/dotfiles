@@ -5,3 +5,6 @@ disabled = true
 # Disable gcloud stuff
 [gcloud]
 disabled = true
+
+[git_status]
+disabled = true

@@ -14,16 +14,15 @@ if ! zgen saved; then
   zgen load zsh-users/zsh-completions
   zgen load zsh-users/zsh-autosuggestions
   zgen load djui/alias-tips
-  zgen load wfxr/forgit
   zgen load chrissicool/zsh-256color
   zgen load zdharma/zsh-diff-so-fancy
   zgen load zdharma/history-search-multi-word
 
   zgen oh-my-zsh plugins/git
   zgen oh-my-zsh plugins/z
-  zgen oh-my-zsh plugins/osx
+  zgen oh-my-zsh plugins/macos
   zgen oh-my-zsh plugins/colored-man-pages
-  zgen oh-my-zsh plugins/copydir
+  zgen oh-my-zsh plugins/copypath
   zgen oh-my-zsh plugins/copyfile
   zgen oh-my-zsh plugins/cp
 

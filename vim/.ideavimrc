@@ -4,3 +4,8 @@ set clipboard+=unnamed
 " Keep N lines visible above/below the cursor
 set scrolloff=5
 set surround
+
+" Enable which-key plugin
+" https://plugins.jetbrains.com/plugin/15976-which-key/
+set which-key
+

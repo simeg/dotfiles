@@ -34,6 +34,7 @@ Plug 'tpope/vim-commentary'
 Plug 'Raimondi/delimitMate'
 Plug 'kien/rainbow_parentheses.vim'
 Plug 'ntpeters/vim-better-whitespace'
+Plug 'maralla/completor.vim'
 
 call plug#end()
 
