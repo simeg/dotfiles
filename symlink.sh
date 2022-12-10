@@ -3,7 +3,7 @@
 set -e
 
 symlink_file_to_home() {
-  ln -sv "$(pwd)/$1" "$HOME"
+  ln -sfv "$(pwd)/$1" "$HOME"
 }
 
 for dotfile in */.*; do

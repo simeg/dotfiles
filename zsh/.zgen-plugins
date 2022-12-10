@@ -15,8 +15,8 @@ if ! zgen saved; then
   zgen load zsh-users/zsh-autosuggestions
   zgen load djui/alias-tips
   zgen load chrissicool/zsh-256color
-  zgen load zdharma/zsh-diff-so-fancy
-  zgen load zdharma/history-search-multi-word
+  zgen load z-shell/zsh-diff-so-fancy
+  zgen load zdharma-continuum/history-search-multi-word
 
   zgen oh-my-zsh plugins/git
   zgen oh-my-zsh plugins/z

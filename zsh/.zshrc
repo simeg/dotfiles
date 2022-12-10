@@ -96,5 +96,12 @@ eval "$(starship init zsh)"
 # if [ -f ~/.bashhub/bashhub.zsh ]; then
 #     source ~/.bashhub/bashhub.zsh
 # fi
+#
+
+# pyenv
+export PYENV_ROOT="$HOME/.pyenv"
+eval "$(pyenv init -)"
+
+export JAVA_HOME=$(/usr/libexec/java_home -v 11)
 
 DISABLE_UNTRACKED_FILES_DIRTY="true"
