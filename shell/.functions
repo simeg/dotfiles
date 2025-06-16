@@ -1,20 +1,40 @@
 #!/usr/bin/env bash
 
-# Bashhub + fzf
-function ss {
-  eval $(bh | fzf)
-}
-
 # Determine size of file or folder
 function fs() {
-	if du -b /dev/null > /dev/null 2>&1; then
-		local arg=-sbh
-	else
-		local arg=-sh
-	fi
-	if [[ -n "$@" ]]; then
-		du $arg -- "$@"
-	else
-		du $arg .[^.]* *
-	fi
+    if du -b /dev/null > /dev/null 2>&1; then
+        local arg="-sbh"
+    else
+        local arg="-sh"
+    fi
+
+    if [ "$#" -gt 0 ]; then
+        du $arg -- "$@"
+    else
+        # Using .[^.]* * as fallback is fine, but quote to protect from globbing issues
+        # shellcheck disable=SC2086
+        du $arg -- .[^.]* *
+    fi
+}
+
+# Check for maven dependencies without running tests
+function check_maven_deps() {
+    help_section() {
+    echo "Usage: check_maven_deps <module>"
+    echo
+    echo "Runs 'mvn package' which can be used to check for dependency issues."
+    echo
+    echo "Options:"
+    echo "  -h, --help    Show this help section"
+    echo
+    echo "Example:"
+    echo "  check_maven_deps my-module"
+  }
+
+  if [[ "$1" == "-h" || "$1" == "--help" || -z "$1" ]]; then
+    help_section
+    return 0
+  fi
+
+  mvn package -DskipTests=true -am -pl "$1"
 }
