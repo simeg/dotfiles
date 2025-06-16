@@ -9,3 +9,4 @@ set surround
 " https://plugins.jetbrains.com/plugin/15976-which-key/
 set which-key
 
+set ideajoin

@@ -53,4 +53,6 @@ alias gd_="forgit::diff"
 # doesn't use color with oh-my-zsh so have to manually set it up here
 alias ls="gls --color=always"
 
-alias statementz="java -jar ./bazel-bin/cli/statements_deploy.jar"
+alias mvn="mvnd"
+alias fmt="mvn com.spotify.fmt:fmt-maven-plugin:format"
+alias kubectl="kubecolor"

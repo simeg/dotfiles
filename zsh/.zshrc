@@ -42,30 +42,21 @@ zstyle :bracketed-paste-magic paste-finish pastefinish
 # Enable bash-completion
 [[ -r "/usr/local/etc/profile.d/bash_completion.sh" ]] && . "/usr/local/etc/profile.d/bash_completion.sh"
 
-# Setup nvm
-#export NVM_DIR="$HOME/.nvm"
-#  [ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"  # This loads nvm
-#  [ -s "/usr/local/opt/nvm/etc/bash_completion.d/nvm" ] && . "/usr/local/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
-
-#export NVM_DIR="$HOME/.nvm"
-#. "$(brew --prefix nvm)/nvm.sh" --no-use
-
 export GCLOUD_CREDENTIALS=/Users/segersand/.config/gcloud/credentials
 
-export PATH="/usr/local/opt/ruby/bin:$PATH"
+export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
 
 # Auto-completion for kubectl
 if [ /usr/local/bin/kubectl ]; then source <(kubectl completion zsh); fi
 
 # The next line updates PATH for the Google Cloud SDK.
-if [ -f '/Users/segersand/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/segersand/google-cloud-sdk/path.zsh.inc'; fi
+source "$(brew --prefix)/share/google-cloud-sdk/path.zsh.inc"
+source "$(brew --prefix)/share/google-cloud-sdk/completion.zsh.inc"
 
-# The next line enables shell command completion for gcloud.
-if [ -f '/Users/segersand/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/segersand/google-cloud-sdk/completion.zsh.inc'; fi
+# if [ -f '/Users/segersand/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/segersand/google-cloud-sdk/path.zsh.inc'; fi
 
-# Use jEnv
-export PATH="$HOME/.jenv/bin:$PATH"
-eval "$(jenv init -)"
+# # The next line enables shell command completion for gcloud.
+# if [ -f '/Users/segersand/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/segersand/google-cloud-sdk/completion.zsh.inc'; fi
 
 export PATH="/usr/local/opt/python@3.7/bin:$PATH"
 
@@ -79,29 +70,20 @@ export PROJECT_HOME=$HOME/Devel
 eval "$(starship init zsh)"
 
 # Enable for debugging slow session startup
-#
-
-# export JAVA_HOME=$(/usr/libexec/java_home -v 11)
-
-# Garmin SDK
-#export PATH=$PATH:`cat $HOME/Library/Application\ Support/Garmin/ConnectIQ/current-sdk.cfg`/bin
-
-### Development of shs
-#source /Users/segersand/repos/shell-history/shell-history
-#alias shs='shell-history'
-
 # zprof
-
-### Bashhub.com Installation
-# if [ -f ~/.bashhub/bashhub.zsh ]; then
-#     source ~/.bashhub/bashhub.zsh
-# fi
-#
 
 # pyenv
 export PYENV_ROOT="$HOME/.pyenv"
 eval "$(pyenv init -)"
 
-export JAVA_HOME=$(/usr/libexec/java_home -v 11)
+export JAVA_HOME=$(/usr/libexec/java_home -v 17)
 
 DISABLE_UNTRACKED_FILES_DIRTY="true"
+
+# Created by `pipx` on 2023-01-26 14:07:12
+export PATH="$PATH:/Users/segersand/.local/bin"
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+export PATH=/opt/spotify-devex/bin:$PATH
