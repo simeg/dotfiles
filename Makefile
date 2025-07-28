@@ -112,7 +112,7 @@ validate:
 clean:
 	@echo "🧹 Cleaning up broken symlinks and temporary files..."
 	@echo "Removing broken symlinks..."
-	@find ~ -maxdepth 1 -type l ! -exec test -e {} \; -delete 2>/dev/null || true
+	@find $$HOME -maxdepth 1 -type l ! -exec test -e {} \; -delete 2>/dev/null || true
 	@echo "Removing dotfiles symlinks..."
 	@rm -f ~/.zshrc ~/.znap-plugins.zsh ~/.gitconfig ~/.gitignore ~/.ideavimrc ~/.bin ~/.config/starship.toml ~/.config/nvim
 	@echo "Cleanup completed. If things broke, run 'make symlink'"
