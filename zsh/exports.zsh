@@ -4,7 +4,7 @@
 # 🧠 General Environment
 ########################################
 
-export EDITOR="vim"
+export EDITOR="nvim"
 export LANG="en_US.UTF-8"
 export LC_CTYPE="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
@@ -26,5 +26,5 @@ export SAVEHIST=10000000
 # 🎨 Plugins & Theme Config
 ########################################
 
-export VIM_PLUGIN_DIR="$HOME/.vim/_plugins"
+# VIM_PLUGIN_DIR removed - using Neovim with Lazy.nvim instead
 export ZSH_PLUGIN_DIR="$HOME/.zsh"

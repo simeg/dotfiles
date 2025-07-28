@@ -51,7 +51,7 @@ run_test() {
 
 # Get script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DOTFILES_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+DOTFILES_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # Test source file syntax
 test_source_zsh_syntax() {
@@ -135,7 +135,7 @@ test_shell_scripts_syntax() {
 
 # Test essential directories exist
 test_directory_structure() {
-    local required_dirs=("zsh" "vim" "git" "bin" "install" "scripts" "tests")
+    local required_dirs=("zsh" "nvim" "git" "install" "scripts")
     
     for dir in "${required_dirs[@]}"; do
         if [[ ! -d "$DOTFILES_DIR/$dir" ]]; then
@@ -154,11 +154,12 @@ test_essential_files() {
         "zsh/.znap-plugins.zsh"
         "git/.gitconfig"
         "git/.gitignore"
+        "nvim/.ideavimrc"
         "README.md"
         "Makefile"
-        "setup.sh"
-        "symlink.sh"
-        "validate.sh"
+        "scripts/setup.sh"
+        "scripts/symlink.sh"
+        "scripts/validate.sh"
     )
     
     for file in "${required_files[@]}"; do

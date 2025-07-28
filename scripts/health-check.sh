@@ -232,7 +232,7 @@ check_maintenance_health() {
 
     # Check for large log files
     local large_logs
-    large_logs=$(find "$HOME/.zsh" "$HOME/.vim" -name "*.log" -size +10M 2>/dev/null | wc -l)
+    large_logs=$(find "$HOME/.zsh" -name "*.log" -size +10M 2>/dev/null | wc -l)
     if [[ $large_logs -gt 0 ]]; then
         log_warning "$large_logs large log files found"
         echo "    Consider cleaning up log files"
@@ -272,7 +272,7 @@ check_maintenance_health() {
 # Dependency health check
 check_dependency_health() {
     local missing_deps=()
-    local essential_tools=("git" "zsh" "vim")
+    local essential_tools=("git" "zsh")
 
     for tool in "${essential_tools[@]}"; do
         if ! command -v "$tool" &> /dev/null; then

@@ -92,9 +92,6 @@ source "$(brew --prefix)/share/google-cloud-sdk/completion.zsh.inc"
 # ⚡ Quality-of-Life Tweaks
 ########################################
 
-# Gruvbox terminal palette
-source "${VIM_PLUGIN_DIR}/gruvbox/gruvbox_256palette.sh"
-
 # Speed up Git prompt by ignoring untracked files
 DISABLE_UNTRACKED_FILES_DIRTY="true"
 

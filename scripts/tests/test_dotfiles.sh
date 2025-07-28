@@ -162,7 +162,7 @@ test_private_config_setup() {
 }
 
 test_essential_commands() {
-    local commands=("git" "vim" "zsh")
+    local commands=("git" "nvim" "zsh")
 
     for cmd in "${commands[@]}"; do
         if ! command -v "$cmd" &> /dev/null; then
@@ -219,20 +219,27 @@ test_starship_config() {
     return 0
 }
 
-test_vim_config() {
-    local vimrc="$HOME/.vimrc"
+test_neovim_config() {
+    local ideavimrc="$HOME/.ideavimrc"
+    local nvim_config="$HOME/.config/nvim"
 
-    # Check if vim config exists
-    if [[ ! -f "$vimrc" ]] && [[ ! -f "$HOME/.vim/vimrc" ]]; then
-        echo "No vim configuration found"
+    # Check if Neovim config directory exists
+    if [[ ! -d "$nvim_config" ]]; then
+        echo "Neovim config directory not found at $nvim_config"
         return 1
     fi
 
-    # Basic vim syntax check (if vimrc exists)
-    if [[ -f "$vimrc" ]]; then
+    # Check if .ideavimrc exists (for JetBrains IDEs)
+    if [[ ! -f "$ideavimrc" ]]; then
+        echo "IdeaVim config not found at $ideavimrc"
+        return 1
+    fi
+
+    # Basic ideavimrc syntax check
+    if [[ -f "$ideavimrc" ]]; then
         # Check for basic syntax by looking for vim-specific patterns
-        if ! grep -q "set\|let\|map\|autocmd" "$vimrc"; then
-            echo "vimrc appears to be empty or invalid"
+        if ! grep -q "set\|let\|map\|source" "$ideavimrc"; then
+            echo "ideavimrc appears to be empty or invalid"
             return 1
         fi
     fi
@@ -315,7 +322,7 @@ run_all_tests() {
     run_test "Essential commands available" test_essential_commands
     run_test "Zsh plugins configuration" test_zsh_plugins
     run_test "Starship prompt configuration" test_starship_config
-    run_test "Vim configuration" test_vim_config
+    run_test "Neovim configuration" test_neovim_config
     run_test "Git configuration" test_git_config
     run_test "Homebrew integration" test_homebrew_integration
     run_test "PATH configuration" test_path_configuration

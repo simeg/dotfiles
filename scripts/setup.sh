@@ -34,7 +34,7 @@ INTERACTIVE_MODE=true
 INSTALL_HOMEBREW=true
 INSTALL_PACKAGES=true
 INSTALL_ZSH=true
-INSTALL_VIM=true
+# INSTALL_VIM removed - using Neovim instead
 SETUP_GIT=true
 CREATE_SYMLINKS=true
 BACKUP_EXISTING=true
@@ -119,12 +119,7 @@ configure_interactive_setup() {
         INSTALL_ZSH=false
     fi
 
-    # Vim setup
-    if ask_yes_no "📝 Set up Vim editor with plugins and configuration?"; then
-        INSTALL_VIM=true
-    else
-        INSTALL_VIM=false
-    fi
+    # Neovim is now set up automatically via symlinks
 
     # Git configuration
     if ask_yes_no "🔧 Configure Git settings (user name, email, aliases)?"; then
@@ -154,7 +149,7 @@ show_setup_summary() {
     echo "Install Homebrew: $([ "$INSTALL_HOMEBREW" == true ] && echo "✅ Yes" || echo "❌ No")"
     echo "Install packages: $([ "$INSTALL_PACKAGES" == true ] && echo "✅ Yes" || echo "❌ No")"
     echo "Setup Zsh: $([ "$INSTALL_ZSH" == true ] && echo "✅ Yes" || echo "❌ No")"
-    echo "Setup Vim: $([ "$INSTALL_VIM" == true ] && echo "✅ Yes" || echo "❌ No")"
+    echo "Setup Neovim: ✅ Yes (automatic via symlinks)"
     echo "Configure Git: $([ "$SETUP_GIT" == true ] && echo "✅ Yes" || echo "❌ No")"
     echo "Create symlinks: $([ "$CREATE_SYMLINKS" == true ] && echo "✅ Yes" || echo "❌ No")"
     echo "========================================="
@@ -178,7 +173,7 @@ backup_existing() {
     mkdir -p "$BACKUP_DIR"
 
     # List of files to backup
-    local files_to_backup=(".zshrc" ".gitconfig" ".gitignore" ".vim" ".ideavimrc")
+    local files_to_backup=(".zshrc" ".gitconfig" ".gitignore" ".ideavimrc")
 
     for file in "${files_to_backup[@]}"; do
         if [[ -e "$HOME/$file" ]]; then
@@ -239,15 +234,6 @@ install_oh_my_zsh() {
     fi
 }
 
-# Install Vim configuration
-install_vim() {
-    log_info "Setting up Vim..."
-    if ! ./scripts/install/vim.sh; then
-        log_error "Failed to install Vim configuration"
-        exit 1
-    fi
-    log_success "Vim setup completed"
-}
 
 # Install Rust (if script exists)
 install_rust() {
@@ -345,9 +331,7 @@ main() {
         install_oh_my_zsh
     fi
 
-    if [[ "$INSTALL_VIM" == true ]]; then
-        install_vim
-    fi
+    # Neovim configuration is now handled automatically via symlinks
 
     # Always try rust and macOS settings (they check internally)
     install_rust
@@ -436,7 +420,7 @@ while [[ $# -gt 0 ]]; do
         --minimal)
             # Set minimal configuration
             INSTALL_PACKAGES=false
-            INSTALL_VIM=false
+            # INSTALL_VIM removed - using Neovim instead
             shift
             ;;
         *)

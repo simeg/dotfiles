@@ -41,16 +41,16 @@ vim.g.maplocalleader = ','
 
 -- Backup and undo
 opt.backup = true
-opt.backupdir = vim.fn.expand('~/.config/nvim/backups')
-opt.directory = vim.fn.expand('~/.config/nvim/swaps')
+opt.backupdir = vim.fn.stdpath('cache') .. '/nvim/backups'
+opt.directory = vim.fn.stdpath('cache') .. '/nvim/swaps'
 opt.undofile = true
-opt.undodir = vim.fn.expand('~/.config/nvim/undo')
+opt.undodir = vim.fn.stdpath('cache') .. '/nvim/undo'
 
 -- Create backup directories if they don't exist
 local backup_dirs = {
-  vim.fn.expand('~/.config/nvim/backups'),
-  vim.fn.expand('~/.config/nvim/swaps'),
-  vim.fn.expand('~/.config/nvim/undo')
+  vim.fn.stdpath('cache') .. '/nvim/backups',
+  vim.fn.stdpath('cache') .. '/nvim/swaps',
+  vim.fn.stdpath('cache') .. '/nvim/undo'
 }
 
 for _, dir in ipairs(backup_dirs) do

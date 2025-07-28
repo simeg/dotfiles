@@ -110,9 +110,6 @@ check_command() {
     if command -v "$command_name" >/dev/null 2>&1; then
         local version
         case "$command_name" in
-            vim)
-                version=$(vim --version | head -1)
-                ;;
             git)
                 version=$(git --version)
                 ;;
@@ -139,7 +136,7 @@ check_zsh_config() {
     log_info "Checking Zsh configuration..."
 
     local dotfiles_dir
-    dotfiles_dir="$(cd "$(dirname "$0")" && pwd)"
+    dotfiles_dir="$(cd "$(dirname "$0")/.." && pwd)"
 
     # Check main zsh files
     check_symlink "$HOME/.zshrc" "$dotfiles_dir/zsh/.zshrc" "Zsh main config"
@@ -165,7 +162,7 @@ check_git_config() {
     log_info "Checking Git configuration..."
 
     local dotfiles_dir
-    dotfiles_dir="$(cd "$(dirname "$0")" && pwd)"
+    dotfiles_dir="$(cd "$(dirname "$0")/.." && pwd)"
 
     # Check git config files
     check_symlink "$HOME/.gitconfig" "$dotfiles_dir/git/.gitconfig" "Git config"
@@ -196,31 +193,10 @@ check_vim_config() {
     log_info "Checking Vim configuration..."
 
     local dotfiles_dir
-    dotfiles_dir="$(cd "$(dirname "$0")" && pwd)"
-
-    # Check vim directory symlink
-    check_symlink "$HOME/.vim" "$dotfiles_dir/vim" "Vim config directory"
+    dotfiles_dir="$(cd "$(dirname "$0")/.." && pwd)"
 
     # Check ideavim config
-    check_symlink "$HOME/.ideavimrc" "$dotfiles_dir/vim/.ideavimrc" "IdeaVim config"
-
-    # Check vim-plug
-    check_file_exists "$HOME/.vim/autoload/plug.vim" "Vim-plug plugin manager"
-
-    # Check vim directories
-    check_directory_exists "$HOME/.vim/swaps" "Vim swaps directory"
-    check_directory_exists "$HOME/.vim/backups" "Vim backups directory"
-    check_directory_exists "$HOME/.vim/undo" "Vim undo directory"
-
-    # Check if plugins are installed
-    check
-    if [[ -d "$HOME/.vim/_plugins" ]] && [[ -n "$(ls -A "$HOME/.vim/_plugins" 2>/dev/null)" ]]; then
-        local plugin_count
-        plugin_count=$(find "$HOME/.vim/_plugins" -maxdepth 1 -type d | wc -l)
-        log_success "Vim plugins: $((plugin_count - 1)) plugins installed"
-    else
-        log_warning "Vim plugins: No plugins found in _plugins directory"
-    fi
+    check_symlink "$HOME/.ideavimrc" "$dotfiles_dir/nvim/.ideavimrc" "IdeaVim config"
 }
 
 # Check Homebrew and packages
@@ -233,7 +209,7 @@ check_homebrew() {
     if command -v brew >/dev/null 2>&1; then
         # Check if Brewfile exists and packages are installed
         local dotfiles_dir
-        dotfiles_dir="$(cd "$(dirname "$0")" && pwd)"
+        dotfiles_dir="$(cd "$(dirname "$0")/.." && pwd)"
 
         if [[ -f "$dotfiles_dir/install/Brewfile" ]]; then
             check
@@ -245,7 +221,7 @@ check_homebrew() {
         fi
 
         # Check for common packages
-        local common_packages=("git" "vim" "zsh")
+        local common_packages=("git" "zsh")
         for package in "${common_packages[@]}"; do
             check_command "$package" "Package: $package"
         done
@@ -257,10 +233,10 @@ check_bin_directory() {
     log_info "Checking bin directory..."
 
     local dotfiles_dir
-    dotfiles_dir="$(cd "$(dirname "$0")" && pwd)"
+    dotfiles_dir="$(cd "$(dirname "$0")/.." && pwd)"
 
     # Check bin symlink
-    check_symlink "$HOME/.bin" "$dotfiles_dir/bin" "Bin directory"
+    check_symlink "$HOME/.bin" "$dotfiles_dir/scripts/bin" "Bin directory"
 
     # Check if bin is in PATH
     check
@@ -271,13 +247,13 @@ check_bin_directory() {
     fi
 
     # Check if bin scripts are executable
-    if [[ -d "$dotfiles_dir/bin" ]]; then
+    if [[ -d "$dotfiles_dir/scripts/bin" ]]; then
         local non_executable=()
         while IFS= read -r -d '' file; do
             if [[ ! -x "$file" ]]; then
                 non_executable+=("$(basename "$file")")
             fi
-        done < <(find "$dotfiles_dir/bin" -type f -print0)
+        done < <(find "$dotfiles_dir/scripts/bin" -type f -print0)
 
         check
         if [[ ${#non_executable[@]} -eq 0 ]]; then
@@ -494,7 +470,6 @@ show_usage() {
     echo "  --zsh          Only check Zsh configuration"
     echo "  --modular      Only check modular configuration"
     echo "  --git          Only check Git configuration"
-    echo "  --vim          Only check Vim configuration"
     echo "  --brew         Only check Homebrew"
     echo "  --bin          Only check bin directory"
     echo "  --shell        Only check shell functionality"
@@ -511,7 +486,7 @@ while [[ $# -gt 0 ]]; do
             show_usage
             exit 0
             ;;
-        --zsh|--modular|--git|--vim|--brew|--bin|--shell|--perf)
+        --zsh|--modular|--git|--brew|--bin|--shell|--perf)
             CHECK_ALL=false
             break
             ;;
@@ -535,9 +510,6 @@ if [[ "$CHECK_ALL" == false ]]; then
                 ;;
             --git)
                 check_git_config
-                ;;
-            --vim)
-                check_vim_config
                 ;;
             --brew)
                 check_homebrew

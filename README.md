@@ -26,7 +26,7 @@ make setup
 ## 📋 What's Included
 
 - **Zsh Configuration** - Modern shell setup with znap plugin manager
-- **Vim Setup** - Complete Vim configuration with plugins
+- **Neovim Setup** - Modern Neovim configuration with Lazy.nvim
 - **Git Configuration** - Optimized Git settings and aliases
 - **Starship Prompt** - Fast and customizable shell prompt
 - **Custom Scripts** - Useful bin scripts for development workflow
@@ -41,7 +41,7 @@ make setup                    # Complete initial setup
 ./scripts/setup.sh --help    # See all setup options
 ```
 
-### Updates & Maintenance  
+### Updates & Maintenance
 ```bash
 ./scripts/update.sh          # Update everything (git, packages, plugins)
 ./scripts/update.sh --help   # See all update options
@@ -63,7 +63,7 @@ make lint                    # Run shellcheck on all scripts
 ├── zsh/                    # Zsh configuration files
 │   ├── .zshrc             # Main Zsh configuration
 │   └── .znap-plugins.zsh  # Plugin definitions
-├── vim/                   # Vim configuration and plugins
+├── nvim/                  # Neovim configuration with Lazy.nvim
 ├── git/                   # Git configuration files
 ├── starship/              # Starship prompt themes
 │   └── themes/           # Available starship themes
@@ -72,7 +72,6 @@ make lint                    # Run shellcheck on all scripts
 │   ├── install/          # Installation scripts
 │   │   ├── Brewfile      # Homebrew packages
 │   │   ├── brew.sh       # Homebrew installer
-│   │   ├── vim.sh        # Vim setup
 │   │   └── zsh.sh        # Zsh setup
 │   ├── setup.sh          # Main setup script
 │   ├── update.sh         # Update script
@@ -85,7 +84,7 @@ make lint                    # Run shellcheck on all scripts
 Located in `scripts/bin/` directory, these scripts enhance your development workflow:
 
 - **`backup`** - Backup utility
-- **`cpwd`** - Copy current working directory to clipboard  
+- **`cpwd`** - Copy current working directory to clipboard
 - **`fixup`** - Interactive Git fixup commits
 - **`gforbm`** - Git fetch and rebase from main branch
 - **`git-show`** - Enhanced git show with formatting
@@ -106,7 +105,7 @@ This repository includes comprehensive analytics and performance monitoring:
 make analytics-packages        # Analyze which packages you actually use
 ./scripts/analyze-package-usage.sh analyze
 
-# Performance monitoring  
+# Performance monitoring
 make perf-dashboard           # Interactive performance dashboard
 make analytics-performance   # Comprehensive performance analysis
 
@@ -188,7 +187,7 @@ The `validate.sh` script checks:
 - ✅ Required tools are installed
 - ✅ Zsh plugins are loaded
 - ✅ Git configuration is set
-- ✅ Vim plugins are installed
+- ✅ Neovim configuration is working
 - ✅ PATH includes custom bin directory
 
 ### Common Issues
@@ -235,7 +234,7 @@ echo 'export API_KEY="your-api-key"' >> ~/.config/zsh/private.zsh
 ```
 
 The `.zshrc` automatically sources `~/.config/zsh/private.zsh` if it exists. This file should:
-- **Never be committed** to version control  
+- **Never be committed** to version control
 - Contain only sensitive environment variables
 - Be created manually on each new machine during setup
 - Be secured with proper file permissions: `chmod 600 ~/.config/zsh/private.zsh`

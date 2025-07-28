@@ -43,6 +43,6 @@ curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
 vim +PlugInstall +qall
 
 # Symlink .ideavimrc to $HOME
-ln -s "$(pwd)/vim/.ideavimrc" "$HOME/.ideavimrc"
+ln -s "$(pwd)/nvim/.ideavimrc" "$HOME/.ideavimrc"
 
 echo "Vim setup completed!"

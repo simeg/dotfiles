@@ -104,3 +104,9 @@ vim/swaps
 vim/vim
 vim/_plugins
 vim/autoload
+
+# Neovim backup/undo files #
+#############################
+nvim/backups/
+nvim/swaps/
+nvim/undo/

@@ -40,9 +40,9 @@ check_command() {
     local cmd="$1"
     local description="$2"
     local install_cmd="$3"
-    
+
     DEPS_CHECKED=$((DEPS_CHECKED + 1))
-    
+
     if command -v "$cmd" &> /dev/null; then
         local version=""
         case "$cmd" in
@@ -67,104 +67,103 @@ check_command() {
 # Check essential dependencies
 check_essential_deps() {
     log_info "Checking essential dependencies..."
-    
+
     check_command "git" "Git version control" "brew install git"
     check_command "zsh" "Zsh shell" "brew install zsh"
     check_command "vim" "Vim editor" "brew install vim"
-    
+
     echo
 }
 
 # Check core dependencies (CI-friendly, no znap)
 check_core_deps() {
     log_info "Checking core dependencies..."
-    
+
     check_command "git" "Git version control" "brew install git"
     check_command "zsh" "Zsh shell" "brew install zsh"
     check_command "vim" "Vim editor" "brew install vim"
     check_command "bash" "Bash shell" "Should be available by default"
-    
+
     echo
 }
 
 # Check shell enhancements
 check_shell_deps() {
     log_info "Checking shell enhancement dependencies..."
-    
+
     check_command "starship" "Starship prompt" "brew install starship"
     check_command "eza" "Modern ls replacement" "brew install eza"
     check_command "bat" "Modern cat replacement" "brew install bat"
     check_command "fzf" "Fuzzy finder" "brew install fzf"
     check_command "tree" "Directory tree viewer" "brew install tree"
     check_command "zoxide" "Smart cd command" "brew install zoxide"
-    
+
     echo
 }
 
 # Check development tools
 check_dev_deps() {
     log_info "Checking development tool dependencies..."
-    
+
     check_command "brew" "Homebrew package manager" "/bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
     check_command "curl" "HTTP client" "brew install curl"
     check_command "wget" "File downloader" "brew install wget"
     check_command "jq" "JSON processor" "brew install jq"
     check_command "rg" "Ripgrep search" "brew install ripgrep"
-    
+
     echo
 }
 
 # Check language-specific tools
 check_language_deps() {
     log_info "Checking language-specific dependencies..."
-    
+
     # Python tools
     check_command "python3" "Python 3" "brew install python"
     check_command "pyenv" "Python version manager" "brew install pyenv"
-    
+
     # Node.js tools
     check_command "node" "Node.js" "brew install node"
     check_command "npm" "Node package manager" "Comes with Node.js"
-    
+
     # Java tools
     check_command "java" "Java runtime" "brew install openjdk"
     check_command "mvn" "Maven build tool" "brew install maven"
-    
+
     echo
 }
 
 # Check optional tools
 check_optional_deps() {
     log_info "Checking optional dependencies..."
-    
+
     check_command "kubectl" "Kubernetes CLI" "brew install kubectl"
     check_command "docker" "Docker container runtime" "brew install docker"
     check_command "gh" "GitHub CLI" "brew install gh"
-    check_command "code" "VS Code editor" "brew install --cask visual-studio-code"
-    
+
     echo
 }
 
 # Check Homebrew packages from Brewfile
 check_brewfile() {
     log_info "Checking Brewfile packages..."
-    
+
     local dotfiles_dir
     dotfiles_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
     local brewfile="$dotfiles_dir/install/Brewfile"
-    
+
     if [[ ! -f "$brewfile" ]]; then
         log_warning "Brewfile not found at $brewfile"
         return
     fi
-    
+
     if ! command -v brew &> /dev/null; then
         log_error "Homebrew not installed, cannot check Brewfile"
         return
     fi
-    
+
     local missing_packages=()
-    
+
     # Check each package in Brewfile
     while IFS= read -r line; do
         if [[ "$line" =~ ^brew[[:space:]]+\"([^\"]+)\" ]]; then
@@ -179,28 +178,28 @@ check_brewfile() {
             fi
         fi
     done < "$brewfile"
-    
+
     if [[ ${#missing_packages[@]} -eq 0 ]]; then
         log_success "All Brewfile packages are installed"
     else
         log_warning "Missing Brewfile packages: ${missing_packages[*]}"
         echo "    Install with: brew bundle --file=$brewfile"
     fi
-    
+
     echo
 }
 
 # Check for znap plugin manager
 check_znap() {
     log_info "Checking znap plugin manager..."
-    
+
     if [[ -d "$HOME/.zsh/znap" ]]; then
         log_success "znap plugin manager is installed"
     else
         log_error "znap plugin manager not found"
         echo "    Install with: git clone --depth 1 -- https://github.com/marlonrichert/zsh-snap.git ~/.zsh/znap"
     fi
-    
+
     # Check znap plugins file
     if [[ -f "$HOME/.znap-plugins.zsh" ]]; then
         log_success "znap plugins configuration found"
@@ -208,19 +207,19 @@ check_znap() {
         log_error "znap plugins configuration missing"
         echo "    Should be symlinked from dotfiles/zsh/.znap-plugins.zsh"
     fi
-    
+
     echo
 }
 
 # Install missing essential dependencies
 install_essentials() {
     log_info "Installing essential missing dependencies..."
-    
+
     # Install Homebrew first if missing
     if ! command -v brew &> /dev/null; then
         log_info "Installing Homebrew..."
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        
+
         # Add Homebrew to PATH for this session
         if [[ -f "/opt/homebrew/bin/brew" ]]; then
             eval "$(/opt/homebrew/bin/brew shellenv)"
@@ -228,7 +227,7 @@ install_essentials() {
             eval "$(/usr/local/bin/brew shellenv)"
         fi
     fi
-    
+
     # Install essential tools
     local essentials=("git" "zsh" "vim" "starship")
     for tool in "${essentials[@]}"; do
@@ -237,36 +236,36 @@ install_essentials() {
             brew install "$tool" || log_error "Failed to install $tool"
         fi
     done
-    
+
     # Install znap if missing
     if [[ ! -d "$HOME/.zsh/znap" ]]; then
         log_info "Installing znap plugin manager..."
         git clone --depth 1 -- https://github.com/marlonrichert/zsh-snap.git ~/.zsh/znap
     fi
-    
+
     log_success "Essential dependencies installation complete!"
 }
 
 # Show installation suggestions
 show_suggestions() {
     log_info "Installation suggestions:"
-    
+
     echo "1. 🏠 Essential setup:"
     echo "   ./scripts/check-deps.sh --install-essentials"
     echo
-    
+
     echo "2. 📦 Homebrew packages:"
     echo "   brew bundle --file=install/Brewfile"
     echo
-    
+
     echo "3. 🔗 Symlink dotfiles:"
     echo "   ./symlink.sh"
     echo
-    
+
     echo "4. ✅ Validate setup:"
     echo "   ./validate.sh"
     echo
-    
+
     echo "5. 🚀 Performance check:"
     echo "   ./scripts/profile-shell.sh --startup"
     echo
@@ -279,7 +278,7 @@ show_summary() {
     echo -e "${GREEN}Found: $DEPS_FOUND${NC}"
     echo -e "${RED}Missing: $DEPS_MISSING${NC}"
     echo "=============================================================="
-    
+
     if [[ $DEPS_MISSING -gt 0 ]]; then
         echo
         log_warning "Some dependencies are missing. Consider running:"
@@ -372,7 +371,7 @@ main() {
             exit 1
             ;;
     esac
-    
+
     show_summary
 }
 
