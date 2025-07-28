@@ -3,7 +3,7 @@
 	email = segersand@spotify.com
 [core]
 	excludesfile = ~/.gitignore
-	editor = vim
+	editor = nvim
 	pager = delta
 [interactive]
 	diffFilter = delta --color-only

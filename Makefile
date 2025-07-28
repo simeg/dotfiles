@@ -115,7 +115,7 @@ clean:
 	@find ~ -maxdepth 1 -type l ! -exec test -e {} \; -delete 2>/dev/null || true
 	@echo "Removing dotfiles symlinks..."
 	@rm -f ~/.zshrc ~/.znap-plugins.zsh ~/.gitconfig ~/.gitignore ~/.vim ~/.ideavimrc ~/.bin ~/.config/starship.toml
-	@echo "Cleanup completed"
+	@echo "Cleanup completed. If things broke, run 'make symlink'"
 
 # =============================================================================
 # QUALITY ASSURANCE

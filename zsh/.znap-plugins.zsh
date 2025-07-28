@@ -13,7 +13,7 @@ znap source zsh-users/zsh-autosuggestions
 
 # Adds many useful command completions from third-party tools
 znap source ohmyzsh/ohmyzsh lib/directories        # Common directory-related aliases
-znap source ohmyzsh/ohmyzsh plugins/common-aliases # Widely used, memorable aliases (like ll, l, la, etc.)
+# znap source ohmyzsh/ohmyzsh plugins/common-aliases # Widely used, memorable aliases (like ll, l, la, etc.) - DISABLED: conflicts with neovim aliases
 
 # To speed up shell start
 znap source marlonrichert/zsh-autocomplete

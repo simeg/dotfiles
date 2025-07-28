@@ -2,19 +2,20 @@
 # 📝 Editor / Dotfile / Dev Tools
 ########################################
 
-# Use Homebrew's Vim for clipboard support
-alias vim="/opt/homebrew/bin/vim"
-alias v="vim"
+# Use Neovim as default editor
+alias vim="nvim"
+alias v="nvim"
+alias vi="nvim"
 
-alias vm="vim ./Makefile"
-alias vp="vim ./package.json"
-alias vt="vim ./.travis.*"
+alias vm="nvim ./Makefile"
+alias vp="nvim ./package.json"
+alias vt="nvim ./.travis.*"
 
-alias vimrc="vim ~/.vimrc"
-alias vplug="vim ~/.vim/vim-plug.vim"
-alias zshrc="vim ~/.zshrc ; reload"
-alias gitignore="vim ~/.gitignore"
-alias ali="vim ~/repos/dotfiles/shell/.alias"
+alias vimrc="nvim ~/.config/nvim/init.lua"
+alias nvimrc="nvim ~/.config/nvim/init.lua"
+alias zshrc="nvim ~/.zshrc ; reload"
+alias gitignore="nvim ~/.gitignore"
+alias ali="nvim ~/repos/dotfiles/zsh/aliases.zsh"
 
 alias dotfiles="pushd ~/repos/dotfiles"
 alias reload="source ~/.zshrc"

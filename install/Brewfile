@@ -77,7 +77,8 @@ brew "pssh"                   # Parallel SSH
 # ============================================================================
 
 # Editors & IDEs
-brew "vim"                    # Text editor
+brew "neovim"                 # Modern vim replacement
+brew "vim"                    # Text editor (legacy, for compatibility)
 cask "intellij-idea"          # Java/Kotlin IDE
 cask "pycharm"                # Python IDE
 

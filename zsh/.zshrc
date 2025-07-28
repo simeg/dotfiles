@@ -15,10 +15,12 @@ source "${HOME}/.znap-plugins.zsh"
 # Load modular configuration files (only if they exist)
 [[ -f "${HOME}/.config/zsh/exports.zsh" ]] && source "${HOME}/.config/zsh/exports.zsh"
 [[ -f "${HOME}/.config/zsh/path.zsh" ]] && source "${HOME}/.config/zsh/path.zsh"
-[[ -f "${HOME}/.config/zsh/aliases.zsh" ]] && source "${HOME}/.config/zsh/aliases.zsh"
 [[ -f "${HOME}/.config/zsh/functions.zsh" ]] && source "${HOME}/.config/zsh/functions.zsh"
 [[ -f "${HOME}/.config/zsh/misc.zsh" ]] && source "${HOME}/.config/zsh/misc.zsh"
 [[ -f "${HOME}/.config/zsh/private.zsh" ]] && source "${HOME}/.config/zsh/private.zsh"
+
+# Load aliases AFTER plugins to override any conflicting aliases
+[[ -f "${HOME}/.config/zsh/aliases.zsh" ]] && source "${HOME}/.config/zsh/aliases.zsh"
 
 fpath=(~/.local/share/zsh/completions $fpath)
 autoload -U compinit && compinit
@@ -138,4 +140,10 @@ fi
 if [[ -f ~/.config/dotfiles/usage-analytics.sh ]]; then
     source ~/.config/dotfiles/usage-analytics.sh
 fi
+
+# Override any plugin aliases - ensure neovim is used
+# Use functions instead of aliases to prevent override
+vim() { nvim "$@"; }
+v() { nvim "$@"; }
+vi() { nvim "$@"; }
 

@@ -16,6 +16,7 @@ for dotfile in */.*; do
 done
 
 ln -sv "$(pwd)"/vim "$HOME"/.vim
+ln -sv "$(pwd)"/nvim "$HOME"/.config/nvim
 ln -sv "$(pwd)"/bin "$HOME"/.bin
 
 echo "Creating ~/.config directories"
