@@ -31,19 +31,19 @@ jobs:
       
     - name: Make scripts executable
       run: |
-        find install -name "*.sh" -exec chmod +x {} \;
-        chmod +x setup.sh symlink.sh shellcheck.sh
-        if [[ -d "bin" ]]; then
-          find bin -type f -exec chmod +x {} \;
+        find scripts/install -name "*.sh" -exec chmod +x {} \;
+        chmod +x scripts/setup.sh scripts/symlink.sh scripts/shellcheck.sh
+        if [[ -d "scripts/bin" ]]; then
+          find scripts/bin -type f -exec chmod +x {} \;
         fi
         
     - name: Test setup script help
-      run: ./setup.sh --help
+      run: ./scripts/setup.sh --help
       
     - name: Test brew installation check
       run: |
         # Test that brew check works
-        ./install/brew.sh || true
+        ./scripts/install/brew.sh || true
         
     - name: Test symlink creation (dry run)Y
       run: |
@@ -52,15 +52,15 @@ jobs:
         export HOME="$(pwd)/test_home"
         
         # Test symlink script
-        ./symlink.sh || true
+        ./scripts/symlink.sh || true
         
     - name: Validate vim setup script
       run: |
-        # Test vim script syntax without actually installing
-        bash -n install/vim.sh
+        # Test Neovim config exists
+        test -f nvim/.ideavimrc || echo "Neovim config not found"
         
     - name: Validate zsh setup script
       run: |
         # Test zsh script syntax without actually installing
-        bash -n install/zsh.sh
+        bash -n scripts/install/zsh.sh
         

@@ -30,11 +30,14 @@ jobs:
     - name: Make scripts executable
       run: |
         chmod +x scripts/*.sh
-        chmod +x *.sh
+        find scripts -name "*.sh" -exec chmod +x {} \;
+        if [[ -d "scripts/bin" ]]; then
+          find scripts/bin -type f -exec chmod +x {} \;
+        fi
 
     - name: Run shellcheck linting
       run: |
-        ./shellcheck.sh
+        ./scripts/shellcheck.sh
 
     - name: Test script syntax
       run: |
@@ -49,17 +52,17 @@ jobs:
     - name: Test configuration validation
       run: |
         # Run CI-specific tests that work without installation
-        ./tests/test_ci.sh
+        ./scripts/tests/test_ci.sh
 
     - name: Test symlink creation (dry run)
       run: |
         # Test symlink script without actually creating symlinks
-        bash -n ./symlink.sh
+        bash -n ./scripts/symlink.sh
 
     - name: Test setup script (non-interactive)
       run: |
         # Test setup script syntax and help
-        ./setup.sh --help
+        ./scripts/setup.sh --help
 
     - name: Test health check system
       run: |
@@ -85,8 +88,8 @@ jobs:
 
     - name: Run shellcheck
       run: |
-        chmod +x shellcheck.sh
-        ./shellcheck.sh
+        chmod +x scripts/shellcheck.sh
+        ./scripts/shellcheck.sh
 
   security:
     runs-on: ubuntu-latest
@@ -158,9 +161,9 @@ jobs:
     - name: Test cross-platform compatibility
       run: |
         # Test that scripts work on different platforms
-        bash -n setup.sh
-        bash -n validate.sh
-        bash -n symlink.sh
+        bash -n scripts/setup.sh
+        bash -n scripts/validate.sh
+        bash -n scripts/symlink.sh
 
         # Test that config files are valid
         zsh -n zsh/.zshrc || echo ".zshrc syntax test failed"
