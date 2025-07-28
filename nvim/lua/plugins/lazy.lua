@@ -224,6 +224,120 @@ require('lazy').setup({
     version = '*',
     config = true,
   },
+
+  -- Smooth scrolling
+  {
+    'karb94/neoscroll.nvim',
+    config = function()
+      require('neoscroll').setup({
+        hide_cursor = true,
+        stop_eof = true,
+        respect_scrolloff = false,
+        cursor_scrolls_alone = true,
+        easing_function = 'quadratic',
+        pre_hook = nil,
+        post_hook = nil,
+      })
+    end,
+  },
+
+  -- Better notifications
+  {
+    'rcarriga/nvim-notify',
+    config = function()
+      require('notify').setup({
+        background_colour = '#000000',
+        fps = 30,
+        icons = {
+          DEBUG = '',
+          ERROR = '',
+          INFO = '',
+          TRACE = '✎',
+          WARN = ''
+        },
+        level = 2,
+        minimum_width = 50,
+        render = 'default',
+        stages = 'fade_in_slide_out',
+        timeout = 5000,
+        top_down = true
+      })
+      vim.notify = require('notify')
+    end,
+  },
+
+  -- Rust Cargo.toml helper
+  {
+    'saecki/crates.nvim',
+    event = { 'BufRead Cargo.toml' },
+    config = function()
+      require('crates').setup({
+        src = {
+          cmp = {
+            enabled = true,
+          },
+        },
+        null_ls = {
+          enabled = true,
+          name = 'crates.nvim',
+        },
+        popup = {
+          autofocus = true,
+          hide_on_select = true,
+          copy_register = '"',
+          style = 'minimal',
+          border = 'rounded',
+          show_version_date = false,
+          show_dependency_version = true,
+          max_height = 30,
+          min_width = 20,
+          padding = 1,
+        },
+      })
+    end,
+  },
+
+  -- Fast navigation (jump to any location)
+  {
+    'smoka7/hop.nvim',
+    version = '*',
+    config = function()
+      require('hop').setup({
+        keys = 'etovxqpdygfblzhckisuran',
+        jump_on_sole_occurrence = true,
+        case_insensitive = true,
+        create_hl_autocmd = true,
+      })
+
+      -- Set up keymaps
+      local hop = require('hop')
+      local directions = require('hop.hint').HintDirection
+      
+      -- Jump to any word (using 'f' as requested)
+      vim.keymap.set('', 'f', function()
+        hop.hint_words()
+      end, { desc = 'Hop to word' })
+      
+      -- Jump to any character
+      vim.keymap.set('', '<leader>c', function()
+        hop.hint_char1()
+      end, { desc = 'Hop to character' })
+      
+      -- Jump to any line
+      vim.keymap.set('', '<leader>l', function()
+        hop.hint_lines()
+      end, { desc = 'Hop to line' })
+      
+      -- Jump forward/backward to characters on current line (using s/S)
+      vim.keymap.set('', 's', function()
+        hop.hint_char1({ direction = directions.AFTER_CURSOR, current_line_only = true })
+      end, { desc = 'Hop forward to char (current line)' })
+      
+      vim.keymap.set('', 'S', function()
+        hop.hint_char1({ direction = directions.BEFORE_CURSOR, current_line_only = true })
+      end, { desc = 'Hop backward to char (current line)' })
+    end,
+  },
 }, {
   -- Lazy.nvim configuration
   ui = {

@@ -64,7 +64,7 @@ opt.backupskip = {'/tmp/*', '/private/tmp/*'}
 
 -- Display
 opt.number = true              -- Enable line numbers
-opt.relativenumber = true      -- Relative line numbers (modern improvement)
+opt.relativenumber = false     -- Disable relative line numbers
 opt.cursorline = true          -- Highlight current line
 opt.colorcolumn = '80'         -- Show vertical line at 80 characters
 opt.signcolumn = 'yes'         -- Always show sign column (for git, lsp, etc.)
