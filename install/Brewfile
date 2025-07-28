@@ -1,61 +1,166 @@
-# git
-brew "git"
-# NodeJS
-brew "node"
-# Display tree output
-brew "tree"
-# Perl
-brew "perl"
-# Scala
-brew "scala"
-# Scala build tool
-brew "sbt"
-# Fuzzy finder
-brew "fzf"
-# zoxide, auto jump
-brew "zoxide"
-# diff-so-fancy, git diff tool
-brew "diff-so-fancy"
-# JSON parser
-brew "jq"
-# Python 3
-brew "python"
-# Java build tool
-brew "maven"
-# Text editor
-brew "vim"
-# Improved `cat`
-brew "bat"
-# Faster `grep
-brew "ripgrep"
-# More useable `find`
-brew "fd"
-# Check bash scripts for problems
-brew "shellcheck"
-# GNU flavored utils
-brew "coreutils"
-# GitHub Markdown file previewer (dep. of vim plugin "vim-markdown-preview")
-brew "grip"
-# Find out the wifi password
-brew "wifi-password"
-# IDEA
-cask "pycharm"
-# IDEA
-cask "intellij-idea"
-# Spotlight with workflows
-cask "alfred"
-# Media streamer
-cask "vlc"
-# Gaming platform
-cask "steam"
-# Decompression tool
-cask "the-unarchiver"
+# Enhanced Brewfile - Generated from system scan
+# This includes tools you currently have installed that would be useful for a new setup
 
-# Mac App Store apps
-mas "AdBlock", id: 1402042596
-mas "Xcode", id: 497799835
-mas "Monosnap", id: 540348655
-mas "iMovie", id: 408981434
-mas "Airmail", id: 918858936
-mas "Adblock Plus", id: 1432731683
-mas "Amphetamine", id: 937984704
+# ============================================================================
+# CORE DEVELOPMENT TOOLS
+# ============================================================================
+
+# Version Control & Git
+brew "git"
+brew "gh"                     # GitHub CLI
+brew "git-filter-repo"        # Git repo filtering tool
+
+# Languages & Runtimes
+brew "node"                   # Node.js
+brew "python@3.13"            # Python 3.13
+brew "python@3.12"            # Python 3.12
+brew "python@3.11"            # Python 3.11 (for compatibility)
+brew "python@3.10"            # Python 3.10
+brew "python@3.8"             # Python 3.8
+brew "go"                     # Go programming language
+brew "rust"                   # Rust programming language
+brew "ruby"                   # Ruby programming language
+brew "lua"                    # Lua programming language
+brew "perl"                   # Perl programming language
+
+# Java & JVM
+brew "openjdk@21"             # Java 21 LTS
+brew "openjdk@17"             # Java 17 LTS
+brew "openjdk@11"             # Java 11 LTS
+brew "scala"                  # Scala programming language
+brew "sbt"                    # Scala build tool
+brew "maven"                  # Java build tool
+brew "mvnd"                   # Maven daemon for faster builds
+cask "corretto@11"            # Amazon Corretto 11 JDK
+cask "corretto@17"            # Amazon Corretto 17 JDK
+
+# ============================================================================
+# COMMAND LINE TOOLS & UTILITIES
+# ============================================================================
+
+# Text Processing & Search
+brew "ripgrep"                # Faster grep (rg)
+brew "fd"                     # More useable find
+brew "bat"                    # Improved cat with syntax highlighting
+brew "fzf"                    # Fuzzy finder
+brew "jq"                     # JSON processor
+brew "tree"                   # Directory tree viewer
+brew "htop"                   # Better top
+brew "procs"                  # Modern ps
+brew "eza"                    # Modern ls replacement
+brew "glow"                   # Markdown reader
+brew "git-delta"             # Enhanced git diff viewer (better than diff-so-fancy)
+
+# File Management
+brew "zoxide"                 # Smart cd command
+brew "entr"                   # File watcher
+brew "f3"                     # Flash drive tester
+
+# Network & HTTP
+brew "httpie"                 # HTTP client
+brew "wget"                   # Web file downloader
+brew "nmap"                   # Network discovery
+brew "wifi-password"          # Get WiFi password
+
+# System Tools
+brew "coreutils"              # GNU core utilities
+brew "shellcheck"             # Shell script linter
+brew "mas"                    # Mac App Store CLI
+brew "btop"                   # Beautiful process viewer
+brew "tldr"                   # Simplified man pages
+brew "readline"               # GNU readline library
+brew "sqlite"                 # SQL database engine
+brew "pssh"                   # Parallel SSH
+
+# ============================================================================
+# DEVELOPMENT ENVIRONMENT
+# ============================================================================
+
+# Editors & IDEs
+brew "vim"                    # Text editor
+cask "intellij-idea"          # Java/Kotlin IDE
+cask "pycharm"                # Python IDE
+
+# Version Managers
+brew "pyenv"                  # Python version manager
+
+# Package Managers
+brew "pipenv"                 # Python package manager
+brew "pipx"                   # Python app installer
+brew "poetry"                 # Python dependency management
+brew "tox"                    # Python testing automation
+brew "yarn"                   # JavaScript package manager
+
+# ============================================================================
+# CLOUD & DEVOPS TOOLS
+# ============================================================================
+
+# Cloud Services
+cask "google-cloud-sdk"       # Google Cloud CLI
+cask "gcloud-cli"             # Google Cloud CLI (alternative)
+brew "kubectl"                # Kubernetes CLI
+brew "k9s"                    # Kubernetes TUI
+brew "kubecolor"              # Colorized kubectl
+brew "kubeconform"            # Kubernetes manifest validation
+
+# Containers
+cask "docker"                 # Docker Desktop
+cask "docker-desktop"         # Docker Desktop (explicit)
+
+# ============================================================================
+# PRODUCTIVITY & UTILITIES
+# ============================================================================
+
+# Productivity Apps
+cask "alfred"                 # Spotlight replacement with workflows
+cask "notion"                 # Note-taking and productivity
+
+# Development Utilities
+cask "devtoys"                # Developer utilities
+cask "db-browser-for-sqlite"  # SQLite browser
+brew "avro-tools"             # Apache Avro tools
+brew "protobuf"               # Protocol buffers
+brew "graphviz"               # Graph visualization software
+
+# ============================================================================
+# MEDIA & CREATIVE
+# ============================================================================
+
+# Media Players & Tools
+cask "vlc"                    # Media player
+cask "steam"                  # Gaming platform
+brew "flac"                   # FLAC audio codec
+
+# Fonts
+cask "font-fira-code"         # Programming font with ligatures
+
+# ============================================================================
+# SYSTEM UTILITIES
+# ============================================================================
+
+# Compression & Archives
+cask "the-unarchiver"         # Archive utility
+brew "sevenzip"               # 7-Zip compression
+
+# Screen & Recording
+cask "tuple"                  # Screen sharing for pair programming
+
+# Terminal & Shell
+brew "starship"               # Cross-shell prompt
+brew "zsh"                    # Z shell
+cask "warp"                   # Modern terminal
+
+# ============================================================================
+# MAC APP STORE APPS
+# ============================================================================
+
+mas "Xcode", id: 497799835                # Apple's IDE
+mas "Airmail", id: 918858936              # Email client
+mas "Amphetamine", id: 937984704          # Keep Mac awake
+mas "iMovie", id: 408981434               # Video editing
+mas "Monosnap", id: 540348655             # Screenshot tool
+mas "Hidden Bar", id: 1452453066          # Hide menu bar items
+mas "Magnet", id: 441258766               # Window management
+mas "Keynote", id: 409183694              # Presentations
+mas "GarageBand", id: 682658836           # Music creation
+

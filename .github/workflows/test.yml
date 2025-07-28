@@ -1,4 +1,4 @@
-name: Test Dotfiles
+name: Test Dotfilesd
 
 on:
   push:

@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+# Smart cat script that uses glow for markdown files and bat for everything else
+# Usage: smart-cat [file...]
+
+# Check if any arguments were provided
+if [[ $# -eq 0 ]]; then
+    # No arguments, use bat to read from stdin
+    exec bat "$@"
+fi
+
+# Process each file argument
+for file in "$@"; do
+    # Check if file exists
+    if [[ ! -f "$file" && ! -r /dev/stdin ]]; then
+        echo "smart-cat: $file: No such file or directory" >&2
+        continue
+    fi
+
+    # Determine if file is markdown based on extension
+    case "${file,,}" in
+        *.md|*.markdown|*.mdown|*.mkd|*.mdwn|*.mdx)
+            # It's a markdown file, use glow
+            if command -v glow &> /dev/null; then
+                glow --pager "$file"
+            else
+                echo "Warning: glow not found, falling back to bat" >&2
+                bat "$file"
+            fi
+            ;;
+        *)
+            # Not markdown, use bat
+            if command -v bat &> /dev/null; then
+                bat "$file"
+            else
+                echo "Warning: bat not found, falling back to system cat" >&2
+                command cat "$file"
+            fi
+            ;;
+    esac
+done

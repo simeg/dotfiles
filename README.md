@@ -88,12 +88,40 @@ Located in `bin/` directory, these scripts enhance your development workflow:
 - **`fixup`** - Interactive Git fixup commits
 - **`gforbm`** - Git fetch and rebase from main branch
 - **`git-show`** - Enhanced git show with formatting
-- **`live-status`** - Live system status monitoring
 - **`rssh`** - Remote SSH utilities
 - **`spuri`** - Python script for special URI handling
 - **`squash`** - Interactive Git commit squashing
 - **`super-amend`** - Enhanced Git amend workflow
 - **`starship-theme`** - Easy starship theme switcher
+- **`smart-cat`** - Smart cat that uses glow for markdown files
+- **`perf-dashboard`** - Performance monitoring dashboard
+
+## 📊 Analytics & Performance Monitoring
+
+This repository includes comprehensive analytics and performance monitoring:
+
+```bash
+# Package usage analytics
+make analytics-packages        # Analyze which packages you actually use
+./scripts/analyze-package-usage.sh analyze
+
+# Performance monitoring  
+make perf-dashboard           # Interactive performance dashboard
+make analytics-performance   # Comprehensive performance analysis
+
+# Combined analytics
+make analytics               # Run both package and performance analytics
+make analytics-report        # Generate detailed reports
+```
+
+**Key Features:**
+- **Package Usage Tracking** - Identify unused packages and optimize your setup
+- **Performance Monitoring** - Track shell startup times, plugin performance, and command execution
+- **Trend Analysis** - Detect performance regressions over time
+- **Optimization Suggestions** - Get actionable recommendations for improvements
+- **Interactive Dashboard** - Real-time performance metrics and insights
+
+See [Analytics Documentation](docs/ANALYTICS.md) for detailed usage and features.
 
 ## 🎨 Shell Features
 

@@ -3,6 +3,9 @@
 # 🧠 Environment Setup
 ########################################
 
+# Performance monitoring - track startup
+SHELL_STARTUP_START=$(date +%s%N 2>/dev/null || date +%s000000000)
+
 # Load plugin manager znap
 source ~/.zsh/znap/znap.zsh
 
@@ -119,3 +122,20 @@ znap compile ~/.zshrc ~/.znap-plugins.zsh || true
 
 # Profiling output (uncomment for debugging)
 # zprof
+
+########################################
+# 📊 Performance & Usage Analytics
+########################################
+
+# Load performance monitoring
+if [[ -f ~/.config/dotfiles/perf-monitor.sh ]]; then
+    source ~/.config/dotfiles/perf-monitor.sh
+    # Track startup completion
+    track_shell_startup "$SHELL_STARTUP_START" "complete"
+fi
+
+# Package Usage Analytics (added by analyze-package-usage.sh)
+if [[ -f ~/.config/dotfiles/usage-analytics.sh ]]; then
+    source ~/.config/dotfiles/usage-analytics.sh
+fi
+

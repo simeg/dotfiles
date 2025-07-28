@@ -25,7 +25,7 @@ alias reload="source ~/.zshrc"
 
 alias mv="mv -i -v"
 alias cp="cp -i -v"
-alias cat="bat"
+alias cat="smart-cat"
 alias tt="tree -C"
 alias path='echo -e ${PATH//:/\\n}'
 alias l="ls -lah"

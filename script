@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Define your array of cask names
+casks=(
+  bitwarden
+  istat-menus
+  iterm2
+  webstorm
+  windscribe
+)
+
+# Loop through the array and uninstall each one
+for cask in "${casks[@]}"; do
+  echo "Uninstalling $cask..."
+  brew uninstall "$cask" --cask
+done
