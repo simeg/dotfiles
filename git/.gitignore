@@ -1,3 +1,5 @@
+# This is my global gitignore that gets symlinked to $HOME
+
 # Bundled Plugins #
 ###################
 node_modules/

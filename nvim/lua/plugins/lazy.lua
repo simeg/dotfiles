@@ -15,7 +15,35 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require('lazy').setup({
-  -- Color schemes (matching your vim setup)
+  -- Color schemes
+  {
+    'catppuccin/nvim',
+    name = 'catppuccin',
+    lazy = false,
+    priority = 1000,
+    config = function()
+      require('catppuccin').setup({
+        flavour = 'frappe', -- latte, frappe, macchiato, mocha
+        transparent_background = false,
+        show_end_of_buffer = false,
+        term_colors = true,
+        dim_inactive = {
+          enabled = false,
+        },
+        integrations = {
+          cmp = true,
+          gitsigns = true,
+          nvimtree = true,
+          telescope = true,
+          treesitter = true,
+          which_key = true,
+          mason = true,
+        },
+      })
+      vim.cmd.colorscheme('catppuccin')
+    end,
+  },
+  
   {
     'morhetz/gruvbox',
     priority = 1000,
@@ -61,6 +89,22 @@ require('lazy').setup({
   {
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
+    lazy = false,
+    priority = 900,
+    config = function()
+      require('nvim-treesitter.configs').setup({
+        ensure_installed = { 'lua', 'vim', 'vimdoc', 'html', 'css', 'javascript', 'python', 'bash', 'json', 'yaml', 'markdown' },
+        sync_install = false,
+        auto_install = true,
+        highlight = {
+          enable = true,
+          additional_vim_regex_highlighting = false,
+        },
+        indent = {
+          enable = true,
+        },
+      })
+    end,
   },
 
   -- Git integration (gitgutter replacement)

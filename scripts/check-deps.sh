@@ -164,7 +164,7 @@ check_brewfile() {
 
     # Count total packages first
     local total_packages
-    total_packages=$(grep -E '^(brew|cask)' "$brewfile" | wc -l)
+    total_packages=$(grep -cE '^(brew|cask)' "$brewfile")
     
     echo -n "  📦 Checking $total_packages packages"
     
@@ -181,7 +181,7 @@ check_brewfile() {
         
         if [[ -n "$missing_output" ]]; then
             log_warning "Some Brewfile packages are missing:"
-            echo "$missing_output" | sed 's/^/    /'
+            echo "${missing_output//$'\n'/$'\n'    }"
             echo "    Install with: brew bundle --file=$brewfile"
         else
             log_warning "Brewfile check failed for unknown reason"

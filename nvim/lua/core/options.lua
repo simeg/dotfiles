@@ -71,26 +71,31 @@ opt.signcolumn = 'yes'         -- Always show sign column (for git, lsp, etc.)
 opt.wrap = false               -- Don't wrap long lines
 opt.termguicolors = true       -- Enable 24-bit RGB colors
 
--- Completely disable vim's built-in syntax system (neovim 0.11.3 fix)
--- We'll use treesitter exclusively for syntax highlighting
-vim.g.syntax_on = 0
-vim.g.loaded_syntax_completion = 1
+-- Enable basic syntax highlighting and filetype detection
+vim.cmd('syntax enable')
+vim.cmd('filetype plugin indent on')
 
--- Disable the problematic system syntax files
-vim.g.did_load_filetypes = 1
-vim.g.did_indent_on = 1
-
--- Enable only filetype detection and plugin loading
-vim.cmd('filetype plugin on')
-
--- Skip all syntax-related autocmds and use treesitter instead
-vim.api.nvim_create_autocmd('VimEnter', {
+-- Override with treesitter when available
+vim.api.nvim_create_autocmd('User', {
+  pattern = 'LazyVimStarted',
   callback = function()
-    -- Ensure treesitter is loaded and handling syntax
-    pcall(function()
-      if vim.fn.exists(':TSEnable') == 2 then
-        vim.cmd('TSEnable highlight')
-      end
+    -- Enable treesitter highlighting when lazy is ready
+    vim.schedule(function()
+      pcall(function()
+        local ts_highlight = require('nvim-treesitter.highlight')
+        local ts_config = require('nvim-treesitter.configs')
+        if ts_highlight and ts_config then
+          -- Enable treesitter highlighting
+          vim.cmd('TSEnable highlight')
+          
+          -- Disable additional vim regex highlighting since we have treesitter
+          vim.api.nvim_create_autocmd('BufEnter', {
+            callback = function()
+              vim.opt_local.syntax = 'off'
+            end,
+          })
+        end
+      end)
     end)
   end,
 })
@@ -146,8 +151,10 @@ opt.secure = true              -- Disable unsafe commands in local config files
 opt.splitright = true          -- Vertical splits go to the right
 opt.splitbelow = true          -- Horizontal splits go below
 
--- Folding (enhanced from vim)
-opt.foldmethod = 'indent'      -- Fold based on indentation
+-- Folding (disabled - no automatic folding)
+opt.foldmethod = 'manual'      -- Manual folding only
+opt.foldenable = false         -- Disable folding by default
+opt.foldlevel = 99             -- Keep all folds open
 opt.foldlevelstart = 99        -- Start with all folds open
 
 -- Session options
