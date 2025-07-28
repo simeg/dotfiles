@@ -45,7 +45,7 @@ jobs:
     - name: Dependency audit
       run: |
         # Check dependency health
-        ./scripts/check-deps.sh --essential
+        ./scripts/check-deps.sh --core
         
     - name: Generate health report
       run: |
@@ -66,7 +66,7 @@ jobs:
           ./scripts/profile-shell.sh --startup || echo "Performance issues detected"
           echo ""
           echo "### Dependencies"
-          ./scripts/check-deps.sh --essential || echo "Dependency issues detected"
+          ./scripts/check-deps.sh --core || echo "Dependency issues detected"
         } > health-report.md
         
     - name: Upload health report

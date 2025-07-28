@@ -75,6 +75,18 @@ check_essential_deps() {
     echo
 }
 
+# Check core dependencies (CI-friendly, no znap)
+check_core_deps() {
+    log_info "Checking core dependencies..."
+    
+    check_command "git" "Git version control" "brew install git"
+    check_command "zsh" "Zsh shell" "brew install zsh"
+    check_command "vim" "Vim editor" "brew install vim"
+    check_command "bash" "Bash shell" "Should be available by default"
+    
+    echo
+}
+
 # Check shell enhancements
 check_shell_deps() {
     log_info "Checking shell enhancement dependencies..."
@@ -290,6 +302,7 @@ show_help() {
     echo "Options:"
     echo "  --help                Show this help message"
     echo "  --essential           Check only essential dependencies"
+    echo "  --core                Check core dependencies (CI-friendly)"
     echo "  --shell               Check shell enhancement tools"
     echo "  --dev                 Check development tools"
     echo "  --languages           Check language-specific tools"
@@ -301,6 +314,7 @@ show_help() {
     echo "Examples:"
     echo "  $0                           # Check all dependencies"
     echo "  $0 --essential               # Check only essential tools"
+    echo "  $0 --core                    # Check core tools (CI-friendly)"
     echo "  $0 --install-essentials      # Install missing essentials"
     echo ""
 }
@@ -315,6 +329,9 @@ main() {
         --essential)
             check_essential_deps
             check_znap
+            ;;
+        --core)
+            check_core_deps
             ;;
         --shell)
             check_shell_deps

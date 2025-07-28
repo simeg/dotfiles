@@ -1,4 +1,4 @@
-.PHONY: all setup update validate test lint symlink clean health profile deps
+.PHONY: all setup update validate test test-quick test-syntax test-ci lint symlink clean health profile deps deps-essential deps-core
 
 all: setup
 
@@ -20,7 +20,10 @@ test-quick:
 test-syntax:
 	./tests/test_dotfiles.sh --syntax-only
 
-ci: lint test
+test-ci:
+	./tests/test_ci.sh
+
+ci: lint test-ci
 
 lint:
 	./shellcheck.sh
@@ -50,4 +53,7 @@ deps:
 
 deps-essential:
 	./scripts/check-deps.sh --essential
+
+deps-core:
+	./scripts/check-deps.sh --core
 

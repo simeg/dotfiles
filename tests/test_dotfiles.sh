@@ -56,9 +56,24 @@ run_test() {
 # Test functions
 test_zsh_syntax() {
     local zshrc="$HOME/.zshrc"
+    
+    # In CI environment, test the source file instead of symlink
     if [[ ! -f "$zshrc" ]]; then
-        echo "No .zshrc found at $zshrc"
-        return 1
+        local script_dir
+        script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+        local source_zshrc="$script_dir/../zsh/.zshrc"
+        
+        if [[ -f "$source_zshrc" ]]; then
+            echo "Testing source .zshrc (CI environment)"
+            if ! zsh -n "$source_zshrc" 2>/dev/null; then
+                echo "Syntax error in source $source_zshrc"
+                return 1
+            fi
+            return 0
+        else
+            echo "No .zshrc found at $zshrc or $source_zshrc"
+            return 1
+        fi
     fi
 
     # Test zsh syntax without executing
@@ -73,10 +88,19 @@ test_zsh_syntax() {
 test_modular_configs_exist() {
     local config_dir="$HOME/.config/zsh"
     local configs=("aliases.zsh" "exports.zsh" "functions.zsh" "misc.zsh" "path.zsh")
+    local script_dir
+    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    local source_dir="$script_dir/../zsh"
 
     for config in "${configs[@]}"; do
-        if [[ ! -f "$config_dir/$config" ]]; then
-            echo "Missing modular config: $config_dir/$config"
+        # Check both installed location and source location
+        if [[ -f "$config_dir/$config" ]]; then
+            continue  # Found in installed location
+        elif [[ -f "$source_dir/$config" ]]; then
+            echo "Found $config in source directory (CI environment)"
+            continue  # Found in source location
+        else
+            echo "Missing modular config: $config (checked $config_dir and $source_dir)"
             return 1
         fi
     done
@@ -87,14 +111,28 @@ test_modular_configs_exist() {
 test_modular_configs_syntax() {
     local config_dir="$HOME/.config/zsh"
     local configs=("aliases.zsh" "exports.zsh" "functions.zsh" "misc.zsh" "path.zsh")
+    local script_dir
+    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    local source_dir="$script_dir/../zsh"
 
     for config in "${configs[@]}"; do
-        local config_file="$config_dir/$config"
-        if [[ -f "$config_file" ]]; then
-            if ! zsh -n "$config_file" 2>/dev/null; then
-                echo "Syntax error in $config_file"
-                return 1
-            fi
+        local config_file=""
+        
+        # Find the config file (prefer installed version)
+        if [[ -f "$config_dir/$config" ]]; then
+            config_file="$config_dir/$config"
+        elif [[ -f "$source_dir/$config" ]]; then
+            config_file="$source_dir/$config"
+            echo "Testing $config from source directory (CI environment)"
+        else
+            echo "Config file not found: $config"
+            return 1
+        fi
+        
+        # Test syntax
+        if ! zsh -n "$config_file" 2>/dev/null; then
+            echo "Syntax error in $config_file"
+            return 1
         fi
     done
 

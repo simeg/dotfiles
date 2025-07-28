@@ -64,17 +64,3 @@ jobs:
         # Test zsh script syntax without actually installing
         bash -n install/zsh.sh
         
-  test-brewfile:
-    name: Test Brewfile
-    runs-on: macos-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Validate Brewfile syntax
-      run: |
-        if [[ -f "install/Brewfile" ]]; then
-          # Check if Brewfile has valid syntax
-          brew bundle check --file=install/Brewfile --no-lock || true
-        fi

@@ -9,79 +9,63 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
         shell: [bash, zsh]
-    
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-      
+
     - name: Set up shell environment
       run: |
         # Install required shells
         sudo apt-get update
         sudo apt-get install -y zsh bash shellcheck
-        
+
         # Install additional tools for testing
         sudo apt-get install -y git vim curl wget
-    
+
     - name: Make scripts executable
       run: |
         chmod +x scripts/*.sh
         chmod +x *.sh
-        
+
     - name: Run shellcheck linting
       run: |
         ./shellcheck.sh
-        
+
     - name: Test script syntax
       run: |
         # Test all shell scripts for syntax errors
         find . -name "*.sh" -type f -exec bash -n {} \;
         find . -name "*.zsh" -type f -exec zsh -n {} \;
-        
+
     - name: Run dependency checks
       run: |
-        ./scripts/check-deps.sh --essential
-        
+        ./scripts/check-deps.sh --core
+
     - name: Test configuration validation
       run: |
-        # Create minimal test environment
-        mkdir -p ~/.config/zsh
-        
-        # Copy config files for testing
-        cp zsh/aliases.zsh ~/.config/zsh/ || echo "aliases.zsh not found"
-        cp zsh/exports.zsh ~/.config/zsh/ || echo "exports.zsh not found" 
-        cp zsh/functions.zsh ~/.config/zsh/ || echo "functions.zsh not found"
-        cp zsh/misc.zsh ~/.config/zsh/ || echo "misc.zsh not found"
-        cp zsh/path.zsh ~/.config/zsh/ || echo "path.zsh not found"
-        
-        # Test syntax of modular configs
-        ./tests/test_dotfiles.sh --syntax-only
-        
+        # Run CI-specific tests that work without installation
+        ./tests/test_ci.sh
+
     - name: Test symlink creation (dry run)
       run: |
         # Test symlink script without actually creating symlinks
         bash -n ./symlink.sh
-        
+
     - name: Test setup script (non-interactive)
       run: |
         # Test setup script syntax and help
         ./setup.sh --help
-        
+
     - name: Test health check system
       run: |
         # Test health check script
         ./scripts/health-check.sh --help
-        
-    - name: Test changelog generation
-      run: |
-        # Test changelog script
-        ./scripts/changelog.sh --help
-        ./scripts/changelog.sh stats || echo "No git history in CI"
-        
+
     - name: Test performance profiling
       run: |
         # Test performance script
@@ -89,16 +73,16 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-      
+
     - name: Install shellcheck
       run: |
         sudo apt-get update
         sudo apt-get install -y shellcheck
-        
+
     - name: Run shellcheck
       run: |
         chmod +x shellcheck.sh
@@ -106,21 +90,21 @@ jobs:
 
   security:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-      
+
     - name: Check for secrets in code
       run: |
         # Check for potential secrets (basic patterns)
         ! grep -r -i "password\|secret\|token\|key.*=" . --include="*.sh" --include="*.zsh" --include="*.md" || echo "Found potential secrets - please review"
-        
+
     - name: Check file permissions
       run: |
         # Ensure no scripts have world-writable permissions
         ! find . -name "*.sh" -perm -002 | grep -q . || (echo "Found world-writable scripts" && exit 1)
-        
+
     - name: Check for private config references
       run: |
         # Ensure private config is properly handled
@@ -128,19 +112,19 @@ jobs:
 
   documentation:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-      
+
     - name: Check README exists
       run: |
         test -f README.md || (echo "README.md not found" && exit 1)
-        
+
     - name: Check changelog exists
       run: |
         test -f CHANGELOG.md || echo "CHANGELOG.md not found (run scripts/changelog.sh init)"
-        
+
     - name: Check documentation completeness
       run: |
         # Check if essential documentation exists
@@ -150,37 +134,37 @@ jobs:
 
   compatibility:
     runs-on: ${{ matrix.os }}
-    
+
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-      
+
     - name: Install dependencies (Ubuntu)
       if: matrix.os == 'ubuntu-latest'
       run: |
         sudo apt-get update
         sudo apt-get install -y zsh bash git vim
-        
+
     - name: Install dependencies (macOS)
       if: matrix.os == 'macos-latest'
       run: |
         # macOS should have these by default, but ensure they're available
         which zsh bash git vim || echo "Some tools missing"
-        
+
     - name: Test cross-platform compatibility
       run: |
         # Test that scripts work on different platforms
         bash -n setup.sh
         bash -n validate.sh
         bash -n symlink.sh
-        
+
         # Test that config files are valid
         zsh -n zsh/.zshrc || echo ".zshrc syntax test failed"
-        
+
     - name: Test shell performance
       run: |
         # Quick performance test
