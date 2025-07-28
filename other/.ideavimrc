@@ -1,3 +1,0 @@
-" This file is for configuring IdeaVim, the plugin that enables Vim in
-" IntelliJ and other JetBrains products
-set clipboard+=unnamed

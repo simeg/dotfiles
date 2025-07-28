@@ -162,51 +162,31 @@ check_brewfile() {
         return
     fi
 
-    local missing_packages=()
-    local total_packages=0
-    local checked_packages=0
-
     # Count total packages first
+    local total_packages
     total_packages=$(grep -E '^(brew|cask)' "$brewfile" | wc -l)
     
     echo -n "  📦 Checking $total_packages packages"
-
-    # Check each package in Brewfile
-    while IFS= read -r line; do
-        if [[ "$line" =~ ^brew[[:space:]]+\"([^\"]+)\" ]]; then
-            local package="${BASH_REMATCH[1]}"
-            ((checked_packages++))
-            
-            # Show progress indicator
-            if (( checked_packages % 10 == 0 )); then
-                echo -n "."
-            fi
-            
-            if ! brew list "$package" &> /dev/null; then
-                missing_packages+=("$package")
-            fi
-        elif [[ "$line" =~ ^cask[[:space:]]+\"([^\"]+)\" ]]; then
-            local cask="${BASH_REMATCH[1]}"
-            ((checked_packages++))
-            
-            # Show progress indicator
-            if (( checked_packages % 10 == 0 )); then
-                echo -n "."
-            fi
-            
-            if ! brew list --cask "$cask" &> /dev/null; then
-                missing_packages+=("$cask (cask)")
-            fi
-        fi
-    done < "$brewfile"
-
-    echo # New line after progress dots
     
-    if [[ ${#missing_packages[@]} -eq 0 ]]; then
+    # Use brew bundle check for faster validation
+    if brew bundle check --file="$brewfile" &> /dev/null; then
+        echo # New line after progress message
         log_success "All Brewfile packages are installed"
     else
-        log_warning "Missing Brewfile packages: ${missing_packages[*]}"
-        echo "    Install with: brew bundle --file=$brewfile"
+        echo # New line after progress message
+        
+        # Get detailed info about missing packages
+        local missing_output
+        missing_output=$(brew bundle check --file="$brewfile" 2>&1 | grep -E "(not installed|not found)" || true)
+        
+        if [[ -n "$missing_output" ]]; then
+            log_warning "Some Brewfile packages are missing:"
+            echo "$missing_output" | sed 's/^/    /'
+            echo "    Install with: brew bundle --file=$brewfile"
+        else
+            log_warning "Brewfile check failed for unknown reason"
+            echo "    Try: brew bundle check --file=$brewfile"
+        fi
     fi
 
     echo
