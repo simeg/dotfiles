@@ -186,9 +186,27 @@ analyze_package_sizes() {
     local used_packages="$2"
     
     local total_unused_size=0
+    local package_count=0
+    local total_packages
+    total_packages=$(wc -l < "$unused_packages")
+    
+    # Skip size analysis if there are too many packages (would be too slow)
+    if [[ $total_packages -gt 50 ]]; then
+        echo "  💾 Estimated space savings: ~$((total_packages * 50))MB (${total_packages} unused packages × 50MB average)"
+        return
+    fi
+    
+    echo -n "  📊 Analyzing package sizes"
     
     while IFS= read -r package; do
         if [[ -n "$package" ]]; then
+            ((package_count++))
+            
+            # Show progress indicator
+            if (( package_count % 5 == 0 )); then
+                echo -n "."
+            fi
+            
             local size
             size=$(brew info --json "$package" 2>/dev/null | jq -r '.[0].installed[0].installed_on_request // empty' 2>/dev/null || echo "")
             if [[ -n "$size" ]]; then
@@ -196,6 +214,8 @@ analyze_package_sizes() {
             fi
         fi
     done < "$unused_packages"
+    
+    echo # New line after progress dots
     
     if [[ $total_unused_size -gt 0 ]]; then
         echo "  💾 Estimated space savings from removing unused packages: ~${total_unused_size}MB"

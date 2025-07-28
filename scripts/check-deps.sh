@@ -163,22 +163,45 @@ check_brewfile() {
     fi
 
     local missing_packages=()
+    local total_packages=0
+    local checked_packages=0
+
+    # Count total packages first
+    total_packages=$(grep -E '^(brew|cask)' "$brewfile" | wc -l)
+    
+    echo -n "  📦 Checking $total_packages packages"
 
     # Check each package in Brewfile
     while IFS= read -r line; do
         if [[ "$line" =~ ^brew[[:space:]]+\"([^\"]+)\" ]]; then
             local package="${BASH_REMATCH[1]}"
+            ((checked_packages++))
+            
+            # Show progress indicator
+            if (( checked_packages % 10 == 0 )); then
+                echo -n "."
+            fi
+            
             if ! brew list "$package" &> /dev/null; then
                 missing_packages+=("$package")
             fi
         elif [[ "$line" =~ ^cask[[:space:]]+\"([^\"]+)\" ]]; then
             local cask="${BASH_REMATCH[1]}"
+            ((checked_packages++))
+            
+            # Show progress indicator
+            if (( checked_packages % 10 == 0 )); then
+                echo -n "."
+            fi
+            
             if ! brew list --cask "$cask" &> /dev/null; then
                 missing_packages+=("$cask (cask)")
             fi
         fi
     done < "$brewfile"
 
+    echo # New line after progress dots
+    
     if [[ ${#missing_packages[@]} -eq 0 ]]; then
         log_success "All Brewfile packages are installed"
     else
