@@ -262,7 +262,8 @@ backup_config() {
         return 1
     fi
     
-    local backup_path="$CONFIG_PATH.backup.$(date +%Y%m%d_%H%M%S)"
+    local backup_path
+    backup_path="$CONFIG_PATH.backup.$(date +%Y%m%d_%H%M%S)"
     cp "$CONFIG_PATH" "$backup_path"
     log_success "Configuration backed up to: $backup_path"
 }

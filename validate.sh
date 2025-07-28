@@ -148,8 +148,8 @@ check_zsh_config() {
     # Check if znap is installed
     check_directory_exists "$HOME/.znap" "Znap plugin manager"
 
-    # Check if starship config is linked
-    check_symlink "$HOME/.config/starship.toml" "$dotfiles_dir/starship.toml" "Starship config"
+    # Check if starship config exists (managed by starship-theme tool)
+    check_file_exists "$HOME/.config/starship.toml" "Starship config"
 
     # Check if zsh is the default shell
     check
@@ -288,6 +288,103 @@ check_bin_directory() {
     fi
 }
 
+# Check modular configuration
+check_modular_config() {
+    log_info "Checking modular configuration..."
+    
+    local config_dir="$HOME/.config/zsh"
+    local configs=("aliases.zsh" "exports.zsh" "functions.zsh" "misc.zsh" "path.zsh")
+    
+    # Check if modular config directory exists
+    check_directory_exists "$config_dir" "Modular config directory"
+    
+    # Check each config file
+    for config in "${configs[@]}"; do
+        local config_file="$config_dir/$config"
+        check_file_exists "$config_file" "Modular config: $config"
+        
+        # Syntax check
+        if [[ -f "$config_file" ]]; then
+            check
+            if zsh -n "$config_file" 2>/dev/null; then
+                log_success "Syntax check: $config is valid"
+            else
+                log_error "Syntax check: $config has syntax errors"
+            fi
+        fi
+    done
+    
+    # Check private config handling
+    check
+    local private_config="$config_dir/private.zsh"
+    if grep -q "private.zsh" "$HOME/.zshrc"; then
+        log_success "Private config: .zshrc sources private.zsh"
+        
+        if [[ -f "$private_config" ]]; then
+            if zsh -n "$private_config" 2>/dev/null; then
+                log_success "Private config: private.zsh syntax is valid"
+            else
+                log_error "Private config: private.zsh has syntax errors"
+            fi
+        else
+            log_warning "Private config: private.zsh not found (create for sensitive vars)"
+        fi
+    else
+        log_error "Private config: .zshrc doesn't source private.zsh"
+    fi
+    
+    # Check .gitignore for private files
+    check
+    local gitignore_file="$config_dir/.gitignore"
+    if [[ -f "$gitignore_file" ]] && grep -q "private.zsh" "$gitignore_file"; then
+        log_success "Security: .gitignore excludes private files"
+    else
+        log_warning "Security: No .gitignore for private configs"
+    fi
+}
+
+# Check shell performance
+check_shell_performance() {
+    log_info "Checking shell performance..."
+    
+    # Measure shell startup time
+    check
+    local startup_times=()
+    for _ in {1..3}; do
+        local time_output
+        time_output=$(time (zsh -c 'exit') 2>&1 | grep real | awk '{print $2}')
+        startup_times+=("$time_output")
+    done
+    
+    log_info "Shell startup times: ${startup_times[*]}"
+    
+    # Check if startup is reasonable (average under 1.5 seconds)
+    local total_seconds=0
+    local count=0
+    for time_str in "${startup_times[@]}"; do
+        if [[ "$time_str" =~ ([0-9]+)\.([0-9]+)s ]]; then
+            local seconds=${BASH_REMATCH[1]}
+            local decimals=${BASH_REMATCH[2]}
+            # Convert to milliseconds for easier math
+            local ms=$((seconds * 1000 + 10#$decimals * 10))
+            total_seconds=$((total_seconds + ms))
+            count=$((count + 1))
+        fi
+    done
+    
+    if [[ $count -gt 0 ]]; then
+        local avg_ms=$((total_seconds / count))
+        # avg_seconds calculation removed - was unused
+        if [[ $avg_ms -lt 1500 ]]; then
+            log_success "Performance: Shell startup is fast (avg: ${avg_ms}ms)"
+        elif [[ $avg_ms -lt 3000 ]]; then
+            log_warning "Performance: Shell startup is moderate (avg: ${avg_ms}ms)"
+        else
+            log_error "Performance: Shell startup is slow (avg: ${avg_ms}ms)"
+        fi
+    fi
+}
+
 # Check shell functionality
 check_shell_functionality() {
     log_info "Checking shell functionality..."
@@ -295,7 +392,11 @@ check_shell_functionality() {
     # Check if starship is working
     check
     if command -v starship >/dev/null 2>&1; then
-        log_success "Starship prompt: Available"
+        if starship print-config &>/dev/null; then
+            log_success "Starship prompt: Available and configured"
+        else
+            log_warning "Starship prompt: Available but config may be invalid"
+        fi
     else
         log_warning "Starship prompt: Not found"
     fi
@@ -306,6 +407,22 @@ check_shell_functionality() {
         log_success "Zsh completions: Working"
     else
         log_warning "Zsh completions: May not be working properly"
+    fi
+    
+    # Check znap plugin manager
+    check
+    if [[ -d "$HOME/.zsh/znap" ]]; then
+        log_success "Plugin manager: znap is installed"
+    else
+        log_error "Plugin manager: znap not found"
+    fi
+    
+    # Check essential aliases
+    check
+    if zsh -c 'source ~/.zshrc && type l' &>/dev/null; then
+        log_success "Aliases: Basic aliases are loaded"
+    else
+        log_warning "Aliases: May not be loading properly"
     fi
 }
 
@@ -321,6 +438,9 @@ run_all_checks() {
     check_zsh_config
     echo
 
+    check_modular_config
+    echo
+
     check_git_config
     echo
 
@@ -334,6 +454,9 @@ run_all_checks() {
     echo
 
     check_shell_functionality
+    echo
+
+    check_shell_performance
     echo
 }
 
@@ -369,11 +492,13 @@ show_usage() {
     echo "Options:"
     echo "  -h, --help     Show this help message"
     echo "  --zsh          Only check Zsh configuration"
+    echo "  --modular      Only check modular configuration"
     echo "  --git          Only check Git configuration"
     echo "  --vim          Only check Vim configuration"
     echo "  --brew         Only check Homebrew"
     echo "  --bin          Only check bin directory"
     echo "  --shell        Only check shell functionality"
+    echo "  --perf         Only check shell performance"
     echo ""
 }
 
@@ -386,7 +511,7 @@ while [[ $# -gt 0 ]]; do
             show_usage
             exit 0
             ;;
-        --zsh|--git|--vim|--brew|--bin|--shell)
+        --zsh|--modular|--git|--vim|--brew|--bin|--shell|--perf)
             CHECK_ALL=false
             break
             ;;
@@ -405,6 +530,9 @@ if [[ "$CHECK_ALL" == false ]]; then
             --zsh)
                 check_zsh_config
                 ;;
+            --modular)
+                check_modular_config
+                ;;
             --git)
                 check_git_config
                 ;;
@@ -419,6 +547,9 @@ if [[ "$CHECK_ALL" == false ]]; then
                 ;;
             --shell)
                 check_shell_functionality
+                ;;
+            --perf)
+                check_shell_performance
                 ;;
         esac
         shift

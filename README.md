@@ -6,6 +6,7 @@ These are my dotfiles. There are many like them, but these ones are mine. My dot
    <img src="_include/terminal_window.png">
 </p>
 
+
 ## 🚀 Quick Start
 
 ```bash
@@ -119,6 +120,8 @@ This repository includes multiple starship themes and a convenient theme switche
 - **enhanced** - Full-featured theme with all modules (git metrics, language versions, etc.)
 - **simple** - Balanced theme with essential info but not overwhelming
 - **minimal** - Clean and fast prompt with only directory and git branch
+- **neon** - Vibrant theme with bright colors and modern styling
+- **rainbow** - Colorful theme with gradient effects and rich visual elements
 
 ### Theme Commands
 
@@ -182,22 +185,83 @@ source ~/.zshrc         # Reload configuration
 ./update.sh --vim-only   # Update Vim plugins
 ```
 
-## 🚧 Development
-
-### Adding New Features
-1. Create feature scripts in appropriate directories
-2. Update setup.sh if installation steps are needed
-3. Add validation checks to validate.sh
-4. Update this README
-
-### Testing Changes
-```bash
-make lint          # Check shell script quality
-./validate.sh      # Verify configuration
-./setup.sh --help  # Test setup script
-```
 
 ## 📝 License
 
 This project is licensed under the MIT License - see the LICENSE.md file for details.
+
+## 🔐 Private Configuration
+
+For sensitive environment variables (API keys, project IDs, etc.), use the private config file:
+
+### Setup Private Config
+```bash
+# Create private config file (not tracked by git)
+touch ~/.config/zsh/private.zsh
+chmod 600 ~/.config/zsh/private.zsh
+
+# Add sensitive variables
+echo 'export ANTHROPIC_VERTEX_PROJECT_ID="your-project-id"' >> ~/.config/zsh/private.zsh
+echo 'export API_KEY="your-api-key"' >> ~/.config/zsh/private.zsh
+```
+
+The `.zshrc` automatically sources `~/.config/zsh/private.zsh` if it exists. This file should:
+- **Never be committed** to version control  
+- Contain only sensitive environment variables
+- Be created manually on each new machine during setup
+- Be secured with proper file permissions: `chmod 600 ~/.config/zsh/private.zsh`
+
+### Important Security Notes
+
+⚠️ **CRITICAL**: The private configuration system is designed to keep sensitive data OUT of the repository:
+
+1. **Private files are stored locally**: All sensitive configs live in `~/.config/zsh/` on your machine
+2. **Automatic exclusion**: A `.gitignore` file in `~/.config/zsh/` prevents accidental commits
+3. **Machine-specific setup**: You must create `private.zsh` on each new computer
+4. **No cloud sync**: These files should NOT be synced to cloud storage or shared
+
+### What Goes in Private Config
+
+```bash
+# ~/.config/zsh/private.zsh - Examples of what belongs here:
+export ANTHROPIC_VERTEX_PROJECT_ID="your-project-id"
+export OPENAI_API_KEY="your-api-key"
+export AWS_ACCESS_KEY_ID="your-aws-key"
+export GITHUB_TOKEN="your-github-token"
+export DATABASE_URL="your-db-connection-string"
+
+# Work-specific configurations
+export WORK_EMAIL="your.work@company.com"
+export COMPANY_VPN_CONFIG="/path/to/company/vpn"
+
+# Personal API keys and tokens
+export PERSONAL_GITHUB_TOKEN="your-personal-token"
+export HOMEBREW_GITHUB_API_TOKEN="your-brew-token"
+```
+
+### Setting Up Private Config on New Machines
+
+When you set up dotfiles on a new computer, remember to:
+
+1. **Create the private config file**:
+   ```bash
+   touch ~/.config/zsh/private.zsh
+   chmod 600 ~/.config/zsh/private.zsh
+   ```
+
+2. **Add your sensitive variables**:
+   ```bash
+   echo 'export YOUR_API_KEY="your-actual-key"' >> ~/.config/zsh/private.zsh
+   ```
+
+3. **Verify it's working**:
+   ```bash
+   source ~/.zshrc
+   echo $YOUR_API_KEY  # Should show your key
+   ```
+
+4. **Confirm it's excluded from git**:
+   ```bash
+   git status  # private.zsh should NOT appear in untracked files
+   ```
 

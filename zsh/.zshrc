@@ -107,5 +107,15 @@ zstyle :bracketed-paste-magic paste-finish pastefinish
 # Something adds this for me, just let it be
 export PATH=/opt/spotify-devex/bin:$PATH
 
+# Performance optimizations
+# Enable profiling (uncomment for debugging)
+# zmodload zsh/zprof
+
+# Skip global compinit for faster startup
+skip_global_compinit=1
+
 # Let znap compile stuff so it's faster to load
 znap compile ~/.zshrc ~/.znap-plugins.zsh || true
+
+# Profiling output (uncomment for debugging)
+# zprof
