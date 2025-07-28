@@ -93,7 +93,7 @@ Located in `scripts/bin/` directory, these scripts enhance your development work
 - **`squash`** - Interactive Git commit squashing
 - **`super-amend`** - Enhanced Git amend workflow
 - **`starship-theme`** - Easy starship theme switcher
-- **`smart-cat`** - Smart cat that uses glow for markdown files
+- **`smart-cat`** - Smart `cat` that uses `glow` for markdown files
 - **`perf-dashboard`** - Performance monitoring dashboard
 
 ## 📊 Analytics & Performance Monitoring
