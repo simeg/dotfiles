@@ -17,10 +17,10 @@ cd ~/.dotfiles
 # Run the complete setup
 make setup
 # or
-./setup.sh
+./scripts/setup.sh
 
 # Verify everything is working
-./validate.sh
+./scripts/validate.sh
 ```
 
 ## 📋 What's Included
@@ -36,25 +36,25 @@ make setup
 
 ### Setup & Installation
 ```bash
-make setup           # Complete initial setup
-./setup.sh           # Same as above with more options
-./setup.sh --help    # See all setup options
+make setup                    # Complete initial setup
+./scripts/setup.sh           # Same as above with more options
+./scripts/setup.sh --help    # See all setup options
 ```
 
 ### Updates & Maintenance  
 ```bash
-./update.sh          # Update everything (git, packages, plugins)
-./update.sh --help   # See all update options
-./validate.sh        # Verify configuration is working
-make lint            # Run shellcheck on all scripts
+./scripts/update.sh          # Update everything (git, packages, plugins)
+./scripts/update.sh --help   # See all update options
+./scripts/validate.sh        # Verify configuration is working
+make lint                    # Run shellcheck on all scripts
 ```
 
 ### Selective Operations
 ```bash
-./setup.sh --symlink-only    # Only create symlinks
-./update.sh --brew-only      # Only update Homebrew packages
-./update.sh --vim-only       # Only update Vim plugins
-./validate.sh --zsh          # Only validate Zsh config
+./scripts/setup.sh --symlink-only    # Only create symlinks
+./scripts/update.sh --brew-only      # Only update Homebrew packages
+./scripts/update.sh --vim-only       # Only update Vim plugins
+./scripts/validate.sh --zsh          # Only validate Zsh config
 ```
 
 ## 📁 Directory Structure
@@ -67,21 +67,22 @@ make lint            # Run shellcheck on all scripts
 ├── git/                   # Git configuration files
 ├── starship/              # Starship prompt themes
 │   └── themes/           # Available starship themes
-├── bin/                   # Custom utility scripts
-├── install/               # Installation scripts
-│   ├── Brewfile          # Homebrew packages
-│   ├── brew.sh           # Homebrew installer
-│   ├── vim.sh            # Vim setup
-│   └── zsh.sh            # Zsh setup
-├── setup.sh              # Main setup script
-├── update.sh             # Update script
-├── validate.sh           # Configuration validator
-└── symlink.sh            # Symlink creator
+├── scripts/              # All scripts organized in subdirectories
+│   ├── bin/              # Custom utility scripts
+│   ├── install/          # Installation scripts
+│   │   ├── Brewfile      # Homebrew packages
+│   │   ├── brew.sh       # Homebrew installer
+│   │   ├── vim.sh        # Vim setup
+│   │   └── zsh.sh        # Zsh setup
+│   ├── setup.sh          # Main setup script
+│   ├── update.sh         # Update script
+│   ├── validate.sh       # Configuration validator
+│   └── symlink.sh        # Symlink creator
 ```
 
 ## 🔧 Custom Bin Scripts
 
-Located in `bin/` directory, these scripts enhance your development workflow:
+Located in `scripts/bin/` directory, these scripts enhance your development workflow:
 
 - **`backup`** - Backup utility
 - **`cpwd`** - Copy current working directory to clipboard  
@@ -194,23 +195,23 @@ The `validate.sh` script checks:
 
 **Symlinks not working?**
 ```bash
-./symlink.sh  # Recreate symlinks
+./scripts/symlink.sh  # Recreate symlinks
 ```
 
 **Plugins not loading?**
 ```bash
-./update.sh --zsh-only  # Update Zsh plugins
-source ~/.zshrc         # Reload configuration
+./scripts/update.sh --zsh-only  # Update Zsh plugins
+source ~/.zshrc                 # Reload configuration
 ```
 
 **Homebrew packages missing?**
 ```bash
-./update.sh --brew-only  # Update packages
+./scripts/update.sh --brew-only  # Update packages
 ```
 
 **Vim plugins not working?**
 ```bash
-./update.sh --vim-only   # Update Vim plugins
+./scripts/update.sh --vim-only   # Update Vim plugins
 ```
 
 

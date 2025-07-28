@@ -79,7 +79,7 @@ help:
 # Includes: symlinks, package installation, and validation
 setup:
 	@echo "🚀 Starting complete dotfiles setup..."
-	./setup.sh
+	./scripts/setup.sh
 
 # Install packages and dependencies from Brewfile
 install: packages-install
@@ -92,7 +92,7 @@ uninstall: clean
 # Create symbolic links from dotfiles to home directory
 symlink:
 	@echo "🔗 Creating symbolic links..."
-	./symlink.sh
+	./scripts/symlink.sh
 
 # =============================================================================
 # UPDATES & MAINTENANCE
@@ -101,12 +101,12 @@ symlink:
 # Update all components: git repos, packages, plugins, and configurations
 update:
 	@echo "🔄 Updating all dotfiles components..."
-	./update.sh
+	./scripts/update.sh
 
 # Validate that all configurations are working correctly
 validate:
 	@echo "✅ Validating dotfiles configuration..."
-	./validate.sh
+	./scripts/validate.sh
 
 # Clean up broken symlinks, temporary files, and caches
 clean:
@@ -124,27 +124,27 @@ clean:
 # Run shellcheck linting on all shell scripts
 lint:
 	@echo "🔍 Running shellcheck on all shell scripts..."
-	./shellcheck.sh
+	./scripts/shellcheck.sh
 
 # Run complete test suite including integration tests
 test:
 	@echo "🧪 Running complete test suite..."
-	./tests/test_dotfiles.sh
+	./scripts/tests/test_dotfiles.sh
 
 # Run quick validation tests only (faster feedback)
 test-quick:
 	@echo "⚡ Running quick validation tests..."
-	./tests/test_dotfiles.sh --quick
+	./scripts/tests/test_dotfiles.sh --quick
 
 # Run syntax-only tests (no execution, fastest option)
 test-syntax:
 	@echo "📝 Running syntax-only tests..."
-	./tests/test_dotfiles.sh --syntax-only
+	./scripts/tests/test_dotfiles.sh --syntax-only
 
 # Run CI-friendly tests (no symlink dependencies)
 test-ci:
 	@echo "🤖 Running CI-compatible tests..."
-	./tests/test_ci.sh
+	./scripts/tests/test_ci.sh
 
 # Complete CI pipeline: linting + testing
 ci: lint test-ci
@@ -236,7 +236,7 @@ analytics:
 	@./scripts/analyze-package-usage.sh analyze || echo "⚠️  Package analytics require data collection (run commands first)"
 	@echo ""
 	@echo "⚡ Performance Dashboard:"
-	@./bin/perf-dashboard || echo "⚠️  Performance monitoring requires data collection"
+	@./scripts/bin/perf-dashboard || echo "⚠️  Performance monitoring requires data collection"
 
 # Analyze package usage patterns and identify optimization opportunities
 analytics-packages:
@@ -260,7 +260,7 @@ analytics-report:
 # Show interactive performance dashboard with real-time metrics
 perf-dashboard:
 	@echo "📊 Opening performance dashboard..."
-	./bin/perf-dashboard
+	./scripts/bin/perf-dashboard
 
 # Generate detailed performance analysis report
 perf-report:

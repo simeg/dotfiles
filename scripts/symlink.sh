@@ -17,14 +17,14 @@ done
 
 ln -sv "$(pwd)"/vim "$HOME"/.vim
 ln -sv "$(pwd)"/nvim "$HOME"/.config/nvim
-ln -sv "$(pwd)"/bin "$HOME"/.bin
+ln -sv "$(pwd)"/scripts/bin "$HOME"/.bin
 
 echo "Creating ~/.config directories"
 mkdir -p "$HOME"/.config/zsh
 echo "Setting up starship theme (default: enhanced)"
 # Use starship-theme script to set the enhanced theme as default
-if [[ -x "$(pwd)/bin/starship-theme" ]]; then
-    "$(pwd)/bin/starship-theme" set enhanced
+if [[ -x "$(pwd)/scripts/bin/starship-theme" ]]; then
+    "$(pwd)/scripts/bin/starship-theme" set enhanced
 else
     # Fallback: direct symlink if script not available
     ln -sv "$(pwd)"/starship/themes/enhanced.toml "$HOME"/.config/starship.toml

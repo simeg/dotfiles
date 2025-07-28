@@ -193,7 +193,7 @@ backup_existing() {
 # Install Homebrew
 install_homebrew() {
     log_info "Installing Homebrew..."
-    if ! ./install/brew.sh; then
+    if ! ./scripts/install/brew.sh; then
         log_error "Failed to install Homebrew"
         exit 1
     fi
@@ -222,7 +222,7 @@ install_packages() {
 # Install Zsh configuration
 install_zsh() {
     log_info "Setting up Zsh..."
-    if ! ./install/zsh.sh; then
+    if ! ./scripts/install/zsh.sh; then
         log_error "Failed to install Zsh configuration"
         exit 1
     fi
@@ -232,7 +232,7 @@ install_zsh() {
 # Install Oh My Zsh
 install_oh_my_zsh() {
     log_info "Installing Oh My Zsh..."
-    if ! ./install/oh-my-zsh.sh; then
+    if ! ./scripts/install/oh-my-zsh.sh; then
         log_warning "Oh My Zsh installation failed, continuing..."
     else
         log_success "Oh My Zsh installation completed"
@@ -242,7 +242,7 @@ install_oh_my_zsh() {
 # Install Vim configuration
 install_vim() {
     log_info "Setting up Vim..."
-    if ! ./install/vim.sh; then
+    if ! ./scripts/install/vim.sh; then
         log_error "Failed to install Vim configuration"
         exit 1
     fi
@@ -251,9 +251,9 @@ install_vim() {
 
 # Install Rust (if script exists)
 install_rust() {
-    if [[ -f "install/rust.sh" ]]; then
+    if [[ -f "scripts/install/rust.sh" ]]; then
         log_info "Installing Rust..."
-        if ! ./install/rust.sh; then
+        if ! ./scripts/install/rust.sh; then
             log_warning "Rust installation failed, continuing..."
         else
             log_success "Rust installation completed"
@@ -263,9 +263,9 @@ install_rust() {
 
 # Install macOS specific settings
 install_macos_settings() {
-    if [[ -f "install/macOS/macOS.sh" ]]; then
+    if [[ -f "scripts/install/macOS/macOS.sh" ]]; then
         log_info "Applying macOS settings..."
-        if ! ./install/macOS/macOS.sh; then
+        if ! ./scripts/install/macOS/macOS.sh; then
             log_warning "macOS settings application failed, continuing..."
         else
             log_success "macOS settings applied"
@@ -276,7 +276,7 @@ install_macos_settings() {
 # Create symlinks
 create_symlinks() {
     log_info "Creating symlinks..."
-    if ! ./symlink.sh; then
+    if ! ./scripts/symlink.sh; then
         log_error "Failed to create symlinks"
         exit 1
     fi
@@ -286,10 +286,10 @@ create_symlinks() {
 # Make scripts executable
 make_scripts_executable() {
     log_info "Making scripts executable..."
-    find install -name "*.sh" -exec chmod +x {} \;
-    chmod +x symlink.sh shellcheck.sh
-    if [[ -d "bin" ]]; then
-        find bin -type f -exec chmod +x {} \;
+    find scripts -name "*.sh" -exec chmod +x {} \;
+    chmod +x scripts/symlink.sh scripts/shellcheck.sh
+    if [[ -d "scripts/bin" ]]; then
+        find scripts/bin -type f -exec chmod +x {} \;
     fi
     log_success "Scripts made executable"
 }
@@ -370,7 +370,7 @@ main() {
     # Suggest next steps
     echo
     log_info "Next steps:"
-    echo "  1. Run './validate.sh' to verify the installation"
+    echo "  1. Run './scripts/validate.sh' to verify the installation"
     echo "  2. Run './scripts/profile-shell.sh --startup' to check performance"
     echo "  3. Create ~/.config/zsh/private.zsh for sensitive environment variables"
 }
