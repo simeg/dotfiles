@@ -2,6 +2,8 @@
 
 set -e
 
+# Symlinks all files in this repo that start with . to $HOME
+
 symlink_file_to_home() {
   ln -sfv "$(pwd)/$1" "$HOME"
 }
@@ -16,7 +18,19 @@ done
 ln -sv "$(pwd)"/vim "$HOME"/.vim
 ln -sv "$(pwd)"/bin "$HOME"/.bin
 
-echo "Creating ~/.config"
-mkdir -p "$HOME"/.config
-echo "Symlinking starship config"
-ln -sv "$(pwd)"/starship.toml "$HOME"/.config/
+echo "Creating ~/.config directories"
+mkdir -p "$HOME"/.config/zsh
+echo "Setting up starship theme (default: enhanced)"
+# Use starship-theme script to set the enhanced theme as default
+if [[ -x "$(pwd)/bin/starship-theme" ]]; then
+    "$(pwd)/bin/starship-theme" set enhanced
+else
+    # Fallback: direct symlink if script not available
+    ln -sv "$(pwd)"/starship/themes/enhanced.toml "$HOME"/.config/starship.toml
+fi
+echo "Symlinking zsh modular configs"
+ln -sv "$(pwd)"/zsh/exports.zsh "$HOME"/.config/zsh/
+ln -sv "$(pwd)"/zsh/path.zsh "$HOME"/.config/zsh/
+ln -sv "$(pwd)"/zsh/aliases.zsh "$HOME"/.config/zsh/
+ln -sv "$(pwd)"/zsh/functions.zsh "$HOME"/.config/zsh/
+ln -sv "$(pwd)"/zsh/misc.zsh "$HOME"/.config/zsh/

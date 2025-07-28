@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-readonly hash=$(git log --oneline --decorate --graph | fzf | awk -F' ' '{ print $2 }')
+readonly hash
+hash=$(git log --oneline --decorate --graph | fzf | awk -F' ' '{ print $2 }')
 
 git commit --fixup "${hash}"
 GIT_SEQUENCE_EDITOR=true git rebase --autostash -i --autosquash "${hash}"\~1

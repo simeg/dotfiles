@@ -1,15 +1,20 @@
-.PHONY: all lint remote setup symlink
+.PHONY: all setup update validate lint symlink
+
+all: setup
+
+setup:
+	./setup.sh
+
+update:
+	./update.sh
+
+validate:
+	./validate.sh
 
 ci: lint
 
 lint:
 	./shellcheck.sh
-
-remote:
-	./remote-setup.sh
-
-setup:
-	./setup.sh
 
 symlink:
 	./symlink.sh

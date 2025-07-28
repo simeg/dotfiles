@@ -144,20 +144,10 @@ defaults write com.apple.Safari WarnAboutFraudulentWebsites -bool true
 # Enable “Do Not Track”
 defaults write com.apple.Safari SendDoNotTrackHTTPHeader -bool true
 
-
-#####################
-### Spectacle.app ###
-#####################
-
-# Set up my preferred keyboard shortcuts
-cp spectacle-shortcuts.json ~/Library/Application\ Support/Spectacle/Shortcuts.json 2> /dev/null
-
-
 # Restart processes to apply changes
 for app in "Activity Monitor" \
 	"cfprefsd" \
   "Finder" \
-  "Spectacle" \
   "Dock" \
 	"SystemUIServer"; do
 	killall "${app}" &> /dev/null

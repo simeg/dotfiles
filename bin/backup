@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+# Exit if no argument is given
+if [ "$#" -ne 1 ]; then
+  echo "Usage: $0 <file>"
+  exit 1
+fi
+
+file="$1"
+
+# Check if file exists and is a regular file
+if [ ! -f "$file" ]; then
+  echo "Error: '$file' is not a valid file."
+  exit 2
+fi
+
+# Create the backup
+cp -- "$file" "$file.bak"
+echo "Backup created: $file.bak"

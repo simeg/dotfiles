@@ -14,7 +14,6 @@ Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 Plug 'junegunn/goyo.vim', { 'on':  'Goyo' }
 Plug 'JamshedVesuna/vim-markdown-preview'
 Plug 'airblade/vim-gitgutter'
-Plug 'wakatime/vim-wakatime'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'tpope/vim-commentary'
@@ -23,7 +22,6 @@ Plug 'tpope/vim-commentary'
 
     Plug 'pangloss/vim-javascript'
     Plug 'tpope/vim-markdown'
-    Plug 'python-mode/python-mode', { 'for': 'python', 'branch': 'develop' }
 
     " HTML + CSS
     Plug 'hail2u/vim-css3-syntax'
@@ -59,16 +57,6 @@ let g:goyo_width = 100
 " Airline configuration
 let g:airline_theme='wombat'
 let g:airline_powerline_fonts = 1
-" let g:airline#extensions#branch#enabled = 1
-" let g:airline#extensions#syntastic#enabled = 1
-" let g:airline#extensions#tabline#enabled = 1
-" let g:airline#extensions#taboo#enabled = 1
-" let g:airline#extensions#tagbar#enabled = 1
-" let g:airline#extensions#whitespace#enabled = 1
-" let g:airline#extensions#whitespace#mixed_indent_algo = 0
-" let g:airline_left_sep=''
-" let g:airline_powerline_fonts = 0
-" let g:airline_right_sep=''
 
 " ### Markdown Preview configuration ###
 " Use GitHub flavoured markdown

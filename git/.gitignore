@@ -21,6 +21,8 @@ bower_components/
 *.exe
 *.o
 *.so
+__pycache__/
+*.pyc
 
 # Packages #
 ############
@@ -94,3 +96,7 @@ fabric.properties
 ##############
 ._*
 
+# Claude #
+#########
+CLAUDE.md
+.claude/

@@ -1,4 +1,0 @@
-#!/usr/bin/env bash
-
-readonly host=$(burklee | fzf)
-[[ ! -z "$host" ]] && ssh -A "$host"

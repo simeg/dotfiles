@@ -1,0 +1,111 @@
+# ⚡ Simple Starship Theme  
+# Balanced theme with useful info but not overwhelming
+
+format = """
+$username\
+$directory\
+$git_branch\
+$git_status\
+$nodejs\
+$python\
+$cmd_duration\
+$line_break\
+$character"""
+
+add_newline = true
+
+# Username (show when not default)
+[username]
+style_user = "yellow"
+format = "[$user]($style)@"
+show_always = false
+
+# Directory
+[directory]
+style = "cyan bold"
+read_only = " 🔒"
+truncation_length = 3
+truncate_to_repo = true
+format = "[$path]($style)[$read_only]($read_only_style) "
+
+# Git branch
+[git_branch]
+symbol = "⎇ "
+style = "purple bold"
+format = "on [$symbol$branch]($style) "
+
+# Git status
+[git_status]
+format = '([\[$all_status$ahead_behind\]]($style) )'
+style = "red bold"
+
+# Language versions (only common ones)
+[nodejs]
+symbol = "⬢ "
+style = "green"
+format = "via [$symbol$version]($style) "
+
+[python]
+symbol = "🐍 "
+style = "yellow"
+format = "via [$symbol$version]($style) "
+
+[golang]
+symbol = "🐹 "
+style = "cyan"
+format = "via [$symbol$version]($style) "
+
+[rust]
+symbol = "🦀 "
+style = "red"
+format = "via [$symbol$version]($style) "
+
+[java]
+symbol = "☕ "
+style = "red"
+format = "via [$symbol$version]($style) "
+
+# Command duration (only for slow commands)
+[cmd_duration]
+min_time = 5_000
+style = "yellow"
+format = "took [$duration]($style) "
+
+# Character
+[character]
+success_symbol = "[❯](bold green)"
+error_symbol = "[❯](bold red)"
+
+# Disabled modules
+[package]
+disabled = true
+
+[docker_context]
+disabled = true
+
+[kubernetes]
+disabled = true
+
+[git_commit]
+disabled = true
+
+[git_state]
+disabled = true
+
+[git_metrics]
+disabled = true
+
+[status]
+disabled = true
+
+[time]
+disabled = true
+
+[hostname]
+disabled = true
+
+[battery]
+disabled = true
+
+[memory_usage]
+disabled = true

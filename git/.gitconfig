@@ -23,5 +23,5 @@
 	insteadOf = https://github.com/
 [url "ssh://git@ghe.spotify.net/"]
 	insteadOf = https://ghe.spotify.net/
-[maintenance]
-	repo = /Users/segersand/repos/statements
+[init]
+	defaultBranch = main

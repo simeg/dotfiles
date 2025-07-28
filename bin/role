@@ -1,5 +1,0 @@
-#!/usr/local/bin/zsh
-
-readonly host=$(reveal role $1 | fzf)
-
-ssh -A ${host}

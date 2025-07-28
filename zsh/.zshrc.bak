@@ -1,4 +1,5 @@
 #!/usr/bin/env zsh
+
 ########################################
 # 🧠 Environment Setup
 ########################################
@@ -8,18 +9,6 @@ source ~/.zsh/znap/znap.zsh
 
 # Load all plugins from external file
 source "${HOME}/.znap-plugins.zsh"
-
-# Load modular configuration files (only if they exist)
-[[ -f "${HOME}/.config/zsh/exports.zsh" ]] && source "${HOME}/.config/zsh/exports.zsh"
-[[ -f "${HOME}/.config/zsh/path.zsh" ]] && source "${HOME}/.config/zsh/path.zsh"
-[[ -f "${HOME}/.config/zsh/aliases.zsh" ]] && source "${HOME}/.config/zsh/aliases.zsh"
-[[ -f "${HOME}/.config/zsh/functions.zsh" ]] && source "${HOME}/.config/zsh/functions.zsh"
-[[ -f "${HOME}/.config/zsh/misc.zsh" ]] && source "${HOME}/.config/zsh/misc.zsh"
-[[ -f "${HOME}/.config/zsh/private.zsh" ]] && source "${HOME}/.config/zsh/private.zsh"
-
-fpath=(~/.local/share/zsh/completions $fpath)
-autoload -U compinit && compinit
-
 
 ########################################
 # 💻 Prompt (fast init)
@@ -38,7 +27,7 @@ export CLAUDE_CODE_USE_VERTEX=1
 export ANTHROPIC_SMALL_FAST_MODEL='claude-3-5-haiku@20241022'
 export CLOUD_ML_REGION='europe-west1'
 export VERTEX_REGION_CLAUDE_4_0_OPUS='europe-west4'
-# Moved to private config file
+export ANTHROPIC_VERTEX_PROJECT_ID='spotify-claude-code-trial'
 
 ########################################
 # ☕ Java
@@ -54,6 +43,12 @@ export PYENV_ROOT="$HOME/.pyenv"
 znap eval pyenv 'eval "$(pyenv init -)"'
 
 ########################################
+# 🌐 Node.js / nvm
+########################################
+export NVM_DIR="$HOME/.nvm"
+znap eval nvm '[ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"'
+
+########################################
 # 📦 SDKMAN
 ########################################
 export SDKMAN_DIR="$HOME/.sdkman"
@@ -66,14 +61,24 @@ znap eval sdkman '[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ] && source "$SDKMAN_DIR
 eval "$(zoxide init zsh)"
 
 ########################################
-# 📁 Legacy: Remove old shell directory references
+# 📁 Local Scripts & Functions
 ########################################
-# This section has been moved to modular config files above
+for FILE in ~/repos/dotfiles/shell/.*.zsh; do
+  [[ "$FILE" = *.path.zsh ]] && typeset -U path
+  source "$FILE"
+done
 
 ########################################
 # 🔄 Completions
 ########################################
-#
+fpath=(/Users/segersand/.docker/completions $fpath)
+fpath=(/opt/homebrew/share/zsh/site-functions $fpath)
+fpath=(~/.zsh/completions $fpath)
+
+autoload -Uz compinit
+zstyle ':completion:*' completer _complete
+compinit
+
 # kubectl completions
 if command -v kubectl &>/dev/null; then
   source <(kubectl completion zsh)
@@ -103,9 +108,3 @@ pastefinish() {
 }
 zstyle :bracketed-paste-magic paste-init pasteinit
 zstyle :bracketed-paste-magic paste-finish pastefinish
-
-# Something adds this for me, just let it be
-export PATH=/opt/spotify-devex/bin:$PATH
-
-# Let znap compile stuff so it's faster to load
-znap compile ~/.zshrc ~/.znap-plugins.zsh || true

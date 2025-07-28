@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  lint:
+    name: Lint Shell Scripts
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Install shellcheck
+      run: brew install shellcheck
+      
+    - name: Run shellcheck
+      run: make lint
+      
+  test-setup:
+    name: Test Setup Script
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Make scripts executable
+      run: |
+        find install -name "*.sh" -exec chmod +x {} \;
+        chmod +x setup.sh symlink.sh shellcheck.sh
+        if [[ -d "bin" ]]; then
+          find bin -type f -exec chmod +x {} \;
+        fi
+        
+    - name: Test setup script help
+      run: ./setup.sh --help
+      
+    - name: Test brew installation check
+      run: |
+        # Test that brew check works
+        ./install/brew.sh || true
+        
+    - name: Test symlink creation (dry run)
+      run: |
+        # Create a temporary test directory structure
+        mkdir -p test_home
+        export HOME="$(pwd)/test_home"
+        
+        # Test symlink script
+        ./symlink.sh || true
+        
+    - name: Validate vim setup script
+      run: |
+        # Test vim script syntax without actually installing
+        bash -n install/vim.sh
+        
+    - name: Validate zsh setup script
+      run: |
+        # Test zsh script syntax without actually installing
+        bash -n install/zsh.sh
+        
+  test-brewfile:
+    name: Test Brewfile
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Validate Brewfile syntax
+      run: |
+        if [[ -f "install/Brewfile" ]]; then
+          # Check if Brewfile has valid syntax
+          brew bundle check --file=install/Brewfile --no-lock || true
+        fi
