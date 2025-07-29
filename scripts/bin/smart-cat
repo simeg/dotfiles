@@ -18,7 +18,7 @@ for file in "$@"; do
     fi
 
     # Determine if file is markdown based on extension
-    case "${file,,}" in
+    case "$(basename "$file" | tr '[:upper:]' '[:lower:]')" in
         *.md|*.markdown|*.mdown|*.mkd|*.mdwn|*.mdx)
             # It's a markdown file, use glow
             if command -v glow &> /dev/null; then
