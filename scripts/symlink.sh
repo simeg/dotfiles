@@ -3,7 +3,14 @@
 safe_ln() {
   local src="$1"
   local dst="$2"
-  if [ -L "$dst" ] || [ ! -e "$dst" ]; then
+
+  # If destination is a symlink, remove it first to avoid nested symlinks
+  if [ -L "$dst" ]; then
+    rm "$dst"
+  fi
+
+  # Create symlink if destination doesn't exist or was just removed
+  if [ ! -e "$dst" ]; then
     ln -sfv "$src" "$dst"
   else
     echo "⚠️  Skipping $dst — not a symlink and already exists"
