@@ -22,9 +22,3 @@ export skip_global_compinit=1
 # Shell history size
 export SAVEHIST=10000000
 
-########################################
-# 🎨 Plugins & Theme Config
-########################################
-
-# VIM_PLUGIN_DIR removed - using Neovim with Lazy.nvim instead
-export ZSH_PLUGIN_DIR="$HOME/.zsh"

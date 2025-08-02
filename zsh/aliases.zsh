@@ -85,11 +85,6 @@ alias gs="git-show"
 alias gf!="super-amend"
 alias fixup!="super-amend"
 
-# forgit (fzf-powered git helpers)
-alias ga_="forgit::add"
-alias glo_="forgit::log"
-alias gd_="forgit::diff"
-
 ########################################
 # ☸️ Kubernetes
 ########################################

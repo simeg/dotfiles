@@ -13,7 +13,6 @@ znap source zsh-users/zsh-autosuggestions
 
 # Adds many useful command completions from third-party tools
 znap source ohmyzsh/ohmyzsh lib/directories        # Common directory-related aliases
-# znap source ohmyzsh/ohmyzsh plugins/common-aliases # Widely used, memorable aliases (like ll, l, la, etc.) - DISABLED: conflicts with neovim aliases
 
 # To speed up shell start
 znap source marlonrichert/zsh-autocomplete
@@ -28,8 +27,9 @@ znap source zdharma-continuum/history-search-multi-word
 
 # 💻 Oh-My-Zsh plugins
 
+# Load shared lib functions (required by many plugins)
+znap source ohmyzsh/ohmyzsh
 # Git plugin: adds aliases and functions like `gst`, `gl`, `gco`, etc.
-znap source ohmyzsh/ohmyzsh                        # Load shared lib functions (required by many plugins)
 znap source ohmyzsh/ohmyzsh plugins/git
 
 # MacOS plugin: adds utilities for macOS like `tab`, `quick-look`, `man-preview`

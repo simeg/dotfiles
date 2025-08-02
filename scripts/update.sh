@@ -102,10 +102,10 @@ update_nvim_plugins() {
 update_zsh_plugins() {
     log_info "Updating Zsh plugins..."
 
-    if [[ -d "$HOME/.znap" ]]; then
+    if [[ -d "$HOME/.zsh/znap" ]]; then
         # Update znap itself
-        if [[ -d "$HOME/.znap/.git" ]]; then
-            git -C "$HOME/.znap" pull
+        if [[ -d "$HOME/.zsh/znap/.git" ]]; then
+            git -C "$HOME/.zsh/znap" pull
         fi
 
         # Update znap plugins if znap is available
@@ -124,8 +124,8 @@ update_zsh_plugins() {
 update_symlinks() {
     log_info "Updating symlinks..."
 
-    if [[ -f "symlink.sh" ]]; then
-        ./symlink.sh
+    if [[ -f "scripts/symlink.sh" ]]; then
+        ./scripts/symlink.sh
         log_success "Symlinks updated"
     else
         log_error "symlink.sh not found"
@@ -158,8 +158,8 @@ show_changes() {
 main_update() {
     log_info "Starting dotfiles update..."
 
-    # Change to script directory
-    cd "$(dirname "$0")"
+    # Change to dotfiles root directory
+    cd "$(dirname "$0")/.."
 
     # Pre-update checks
     check_git_repo
