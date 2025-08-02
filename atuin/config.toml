@@ -14,19 +14,19 @@
 # session_path = "~/.session"
 
 ## date format used, either "us" or "uk"
-# dialect = "us"
+dialect = "uk"
 
 ## default timezone to use when displaying time
 ## either "l", "local" to use the system's current local timezone, or an offset
 ## from UTC in the format of "<+|->H[H][:M[M][:S[S]]]"
 ## for example: "+9", "-05", "+03:30", "-01:23:45", etc.
-# timezone = "local"
+timezone = "local"
 
 ## enable or disable automatic sync
 # auto_sync = true
 
 ## enable or disable automatic update checks
-# update_check = true
+update_check = true
 
 ## address of the sync server
 # sync_address = "https://api.atuin.sh"
@@ -65,11 +65,11 @@
 
 ## which style to use
 ## possible values: auto, full, compact
-# style = "auto"
+style = "full"
 
 ## the maximum number of lines the interface should take up
 ## set it to 0 to always go full screen
-# inline_height = 0
+inline_height = 20
 
 ## Invert the UI - put the search bar at the top , Default to `false`
 # invert = false
@@ -128,7 +128,7 @@
 # show_help = true
 
 ## Configure whether or not to show tabs for search and inspect
-# show_tabs = true
+show_tabs = true
 
 ## Configure whether or not the tabs row may be auto-hidden, which includes the current Atuin
 ## tab, such as Search or Inspector, and other tabs you may wish to see. This will
@@ -249,7 +249,7 @@ records = true
 ## The port that should be used for TCP on non unix systems
 # tcp_port = 8889
 
-# [theme]
+[theme]
 ## Color theme to use for rendering in the terminal.
 ## There are some built-in themes, including the base theme ("default"),
 ## "autumn" and "marine". You can add your own themes to the "./themes" subdirectory of your
@@ -259,13 +259,14 @@ records = true
 ##    https://ogeon.github.io/docs/palette/master/palette/named/index.html
 ## If you provide a custom theme file, it should be  called "NAME.toml" and the theme below
 ## should be the stem, i.e. `theme = "NAME"` for your chosen NAME.
-# name = "autumn"
+name = "catppuccin-frappe-peach"
 
 ## Whether the theme manager should output normal or extra information to help fix themes.
 ## Boolean, true or false. If unset, left up to the theme manager.
 # debug = true
 
 [search]
+# no_clear = true
 ## The list of enabled filter modes, in order of priority.
 ## The "workspace" mode is skipped when not in a workspace or workspaces = false.
 ## Default filter mode can be overridden with the filter_mode setting.
