@@ -1,11 +1,18 @@
 #!/usr/bin/env bash
 
-set -e
+safe_ln() {
+  local src="$1"
+  local dst="$2"
+  if [ -L "$dst" ] || [ ! -e "$dst" ]; then
+    ln -sfv "$src" "$dst"
+  else
+    echo "⚠️  Skipping $dst — not a symlink and already exists"
+  fi
+}
 
 # Symlinks all files in this repo that start with . to $HOME
-
 symlink_file_to_home() {
-  ln -sfv "$(pwd)/$1" "$HOME"
+  safe_ln "$(pwd)/$1" "$HOME"
 }
 
 for dotfile in */.*; do
@@ -15,23 +22,25 @@ for dotfile in */.*; do
   fi
 done
 
-ln -sv "$(pwd)"/nvim "$HOME"/.config
-ln -sv "$(pwd)"/nvim/.ideavimrc "$HOME"/.ideavimrc
-ln -sv "$(pwd)"/scripts/bin "$HOME"/.bin
+safe_ln "$(pwd)"/nvim "$HOME"/.config
+safe_ln "$(pwd)"/nvim/.ideavimrc "$HOME"/.ideavimrc
+safe_ln "$(pwd)"/scripts/bin "$HOME"/.bin
 
 echo "Creating ~/.config directories"
 mkdir -p "$HOME"/.config/zsh
 echo "Setting up starship theme (default: enhanced)"
 # Use starship-theme script to set the enhanced theme as default
 if [[ -x "$(pwd)/scripts/bin/starship-theme" ]]; then
-    "$(pwd)/scripts/bin/starship-theme" set enhanced
+    "$(pwd)/scripts/bin/starship-theme" set catppuccin
 else
     # Fallback: direct symlink if script not available
-    ln -sv "$(pwd)"/starship/themes/enhanced.toml "$HOME"/.config/starship.toml
+    safe_ln "$(pwd)"/starship/themes/enhanced.toml "$HOME"/.config/starship.toml
 fi
 echo "Symlinking zsh modular configs"
-ln -sv "$(pwd)"/zsh/exports.zsh "$HOME"/.config/zsh/
-ln -sv "$(pwd)"/zsh/path.zsh "$HOME"/.config/zsh/
-ln -sv "$(pwd)"/zsh/aliases.zsh "$HOME"/.config/zsh/
-ln -sv "$(pwd)"/zsh/functions.zsh "$HOME"/.config/zsh/
-ln -sv "$(pwd)"/zsh/misc.zsh "$HOME"/.config/zsh/
+safe_ln "$(pwd)"/zsh/exports.zsh "$HOME"/.config/zsh
+safe_ln "$(pwd)"/zsh/path.zsh "$HOME"/.config/zsh
+safe_ln "$(pwd)"/zsh/aliases.zsh "$HOME"/.config/zsh
+safe_ln "$(pwd)"/zsh/functions.zsh "$HOME"/.config/zsh
+safe_ln "$(pwd)"/zsh/misc.zsh "$HOME"/.config/zsh
+
+echo "✅ All symlinks set!"
