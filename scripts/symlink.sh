@@ -15,7 +15,7 @@ for dotfile in */.*; do
   fi
 done
 
-ln -sv "$(pwd)"/nvim "$HOME"/.config/nvim
+ln -sv "$(pwd)"/nvim "$HOME"/.config
 ln -sv "$(pwd)"/nvim/.ideavimrc "$HOME"/.ideavimrc
 ln -sv "$(pwd)"/scripts/bin "$HOME"/.bin
 
