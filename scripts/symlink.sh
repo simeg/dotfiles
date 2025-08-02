@@ -40,6 +40,7 @@ safe_ln "$(pwd)"/atuin/themes "$HOME"/.config/atuin/themes
 
 echo "Creating ~/.config directories"
 mkdir -p "$HOME"/.config/zsh
+mkdir -p "$HOME"/.config/zsh/completions
 echo "Setting up starship theme (default: catppuccin)"
 # Use starship-theme script to set the catppuccin theme as default
 if [[ -x "$(pwd)/scripts/bin/starship-theme" ]]; then
@@ -49,10 +50,12 @@ else
     safe_ln "$(pwd)"/starship/themes/catppuccin.toml "$HOME"/.config/starship.toml
 fi
 echo "Symlinking zsh modular configs"
-safe_ln "$(pwd)"/zsh/exports.zsh "$HOME"/.config/zsh
-safe_ln "$(pwd)"/zsh/path.zsh "$HOME"/.config/zsh
-safe_ln "$(pwd)"/zsh/aliases.zsh "$HOME"/.config/zsh
-safe_ln "$(pwd)"/zsh/functions.zsh "$HOME"/.config/zsh
-safe_ln "$(pwd)"/zsh/misc.zsh "$HOME"/.config/zsh
+safe_ln "$(pwd)"/zsh/exports.zsh "$HOME"/.config/zsh/exports.zsh
+safe_ln "$(pwd)"/zsh/path.zsh "$HOME"/.config/zsh/path.zsh
+safe_ln "$(pwd)"/zsh/aliases.zsh "$HOME"/.config/zsh/aliases.zsh
+safe_ln "$(pwd)"/zsh/functions.zsh "$HOME"/.config/zsh/functions.zsh
+safe_ln "$(pwd)"/zsh/misc.zsh "$HOME"/.config/zsh/misc.zsh
+safe_ln "$(pwd)"/zsh/completions/_starship-theme "$HOME"/.config/zsh/completions/_starship-theme
+safe_ln "$(pwd)"/zsh/completions/README.md "$HOME"/.config/zsh/completions/README.md
 
 echo "✅ All symlinks set!"

@@ -1,0 +1,80 @@
+#compdef starship-theme
+
+# Zsh completion for starship-theme command
+# Place this file in your completion directory (e.g., ~/.config/zsh/completions/)
+
+_starship_theme() {
+    local context state line
+    typeset -A opt_args
+
+    # Commands available
+    local commands=(
+        'list:List available themes'
+        'ls:List available themes (alias)'
+        'current:Show current theme'
+        'set:Switch to specified theme'
+        'preview:Preview theme configuration'
+        'backup:Backup current configuration'
+        'restore:Restore from backup'
+        'add:Add new theme from file'
+        'help:Show help message'
+    )
+
+    # Function to get available themes
+    _get_themes() {
+        local themes_dir
+        # Try to find themes directory
+        for dotfiles_dir in ~/repos/dotfiles ~/.dotfiles; do
+            if [[ -d "$dotfiles_dir/starship/themes" ]]; then
+                themes_dir="$dotfiles_dir/starship/themes"
+                break
+            fi
+        done
+        
+        if [[ -d "$themes_dir" ]]; then
+            local themes=()
+            for theme_file in "$themes_dir"/*.toml; do
+                if [[ -f "$theme_file" ]]; then
+                    themes+=($(basename "$theme_file" .toml))
+                fi
+            done
+            _describe 'themes' themes
+        fi
+    }
+
+    _arguments -C \
+        '1: :->command' \
+        '*: :->args' \
+        && return 0
+
+    case $state in
+        command)
+            _describe 'starship-theme commands' commands
+            ;;
+        args)
+            case $words[2] in
+                set)
+                    _get_themes
+                    ;;
+                preview)
+                    _get_themes
+                    ;;
+                add)
+                    if [[ $CURRENT -eq 3 ]]; then
+                        _message 'theme name'
+                    elif [[ $CURRENT -eq 4 ]]; then
+                        _files -g "*.toml"
+                    fi
+                    ;;
+                list|ls|current|backup|restore|help)
+                    # These commands don't take arguments
+                    ;;
+                *)
+                    _get_themes
+                    ;;
+            esac
+            ;;
+    esac
+}
+
+_starship_theme "$@"

@@ -5,6 +5,66 @@
 
 set -e
 
+# Enhanced error handling
+ORIGINAL_BRANCH=""
+# shellcheck disable=SC2034  # UPDATE_FAILED is used in error handler
+UPDATE_FAILED=false
+
+# Cleanup function
+cleanup_on_error() {
+    local exit_code=$?
+    # shellcheck disable=SC2034  # UPDATE_FAILED is used for error tracking
+    UPDATE_FAILED=true
+    
+    log_error "Update failed with exit code $exit_code"
+    log_error "Last command: $BASH_COMMAND"
+    
+    # If we were pulling changes and it failed, offer to reset
+    if [[ -n "$ORIGINAL_BRANCH" ]] && git rev-parse --git-dir > /dev/null 2>&1; then
+        if ask_yes_no "❌ Git update failed. Reset to original state?" "y"; then
+            log_info "Resetting to original branch state..."
+            git reset --hard HEAD 2>/dev/null || true
+            git clean -fd 2>/dev/null || true
+            log_info "Repository reset completed after update failure"
+        else
+            log_warning "Update failed but repository reset was skipped"
+        fi
+    else
+        log_warning "Update failed outside of git context"
+    fi
+    
+    exit $exit_code
+}
+
+# Simple yes/no prompt for error handling
+ask_yes_no() {
+    local question="$1"
+    local default="${2:-y}"
+    local response
+    
+    while true; do
+        if [[ "$default" == "y" ]]; then
+            echo -n "$question [Y/n]: "
+        else
+            echo -n "$question [y/N]: "
+        fi
+        
+        read -r response
+        
+        if [[ -z "$response" ]]; then
+            response="$default"
+        fi
+        
+        case "$response" in
+            [Yy]|[Yy][Ee][Ss]) return 0 ;;
+            [Nn]|[Nn][Oo]) return 1 ;;
+            *) echo "Please answer yes or no." ;;
+        esac
+    done
+}
+
+trap 'cleanup_on_error' ERR
+
 # Color output
 RED='\033[0;31m'
 GREEN='\033[0;32m'

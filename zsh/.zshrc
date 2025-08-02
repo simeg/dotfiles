@@ -22,7 +22,8 @@ source "${HOME}/.znap-plugins.zsh"
 # Load aliases AFTER plugins to override any conflicting aliases
 [[ -f "${HOME}/.config/zsh/aliases.zsh" ]] && source "${HOME}/.config/zsh/aliases.zsh"
 
-fpath=(~/.local/share/zsh/completions $fpath)
+# Add custom completions to fpath
+fpath=(~/.local/share/zsh/completions ~/.config/zsh/completions $fpath)
 autoload -U compinit && compinit
 
 
