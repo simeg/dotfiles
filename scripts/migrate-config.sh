@@ -80,7 +80,7 @@ migrate_modular_configs() {
     # Update aliases to point to new modular structure
     if [[ -f "$HOME/.config/zsh/aliases.zsh" ]]; then
         # Update the alias for editing aliases
-        sed -i.bak 's|alias ali="vim ~/repos/dotfiles/shell/.alias"|alias ali="vim ~/.config/zsh/aliases.zsh"|g' "$HOME/.config/zsh/aliases.zsh"
+        sed -i.bak 's|alias ali="vim ~/repos/dotfiles/shell/.alias"|alias ali="nvim ~/.config/zsh/aliases.zsh"|g' "$HOME/.config/zsh/aliases.zsh"
         rm -f "$HOME/.config/zsh/aliases.zsh.bak"
         log_success "Updated aliases to point to modular config"
     fi

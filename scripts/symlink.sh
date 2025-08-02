@@ -40,13 +40,13 @@ safe_ln "$(pwd)"/atuin/themes "$HOME"/.config/atuin/themes
 
 echo "Creating ~/.config directories"
 mkdir -p "$HOME"/.config/zsh
-echo "Setting up starship theme (default: enhanced)"
-# Use starship-theme script to set the enhanced theme as default
+echo "Setting up starship theme (default: catppuccin)"
+# Use starship-theme script to set the catppuccin theme as default
 if [[ -x "$(pwd)/scripts/bin/starship-theme" ]]; then
     "$(pwd)/scripts/bin/starship-theme" set catppuccin
 else
     # Fallback: direct symlink if script not available
-    safe_ln "$(pwd)"/starship/themes/enhanced.toml "$HOME"/.config/starship.toml
+    safe_ln "$(pwd)"/starship/themes/catppuccin.toml "$HOME"/.config/starship.toml
 fi
 echo "Symlinking zsh modular configs"
 safe_ln "$(pwd)"/zsh/exports.zsh "$HOME"/.config/zsh
