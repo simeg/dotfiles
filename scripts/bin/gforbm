@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-# Get the default branch, don't assume it's "master"
-readonly default_branch
-default_branch=$(git symbolic-ref --short HEAD)
+# Get the current branch
+current_branch="$(git rev-parse --abbrev-ref HEAD)"
+readonly current_branch
 
-git fetch origin && git rebase --autostash origin/"${default_branch}"
+git fetch origin && git rebase --autostash origin/"${current_branch}"

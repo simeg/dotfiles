@@ -272,7 +272,7 @@ create_symlinks() {
 # Make scripts executable
 make_scripts_executable() {
     log_info "Making scripts executable..."
-    find scripts -name "*.sh" -exec chmod +x {} \;
+    find . -name "*.sh" -exec chmod +x {} \;
     chmod +x scripts/symlink.sh scripts/shellcheck.sh
     if [[ -d "scripts/bin" ]]; then
         find scripts/bin -type f -exec chmod +x {} \;
