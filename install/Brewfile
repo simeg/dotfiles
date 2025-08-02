@@ -149,6 +149,7 @@ cask "tuple"                  # Screen sharing for pair programming
 # Terminal & Shell
 brew "starship"               # Cross-shell prompt
 brew "zsh"                    # Z shell
+cask "iterm2"                 # Terminal emulator
 cask "warp"                   # Modern terminal
 
 # ============================================================================
