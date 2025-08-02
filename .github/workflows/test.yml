@@ -31,8 +31,8 @@ jobs:
       run: |
         chmod +x scripts/*.sh
         find scripts -name "*.sh" -exec chmod +x {} \;
-        if [[ -d "scripts/bin" ]]; then
-          find scripts/bin -type f -exec chmod +x {} \;
+        if [[ -d "bin" ]]; then
+          find bin -type f -exec chmod +x {} \;
         fi
 
     - name: Run shellcheck linting
@@ -166,7 +166,7 @@ jobs:
         bash -n scripts/symlink.sh
 
         # Test that config files are valid
-        zsh -n zsh/.zshrc || echo ".zshrc syntax test failed"
+        zsh -n .config/zsh/.zshrc || echo ".zshrc syntax test failed"
 
     - name: Test shell performance
       run: |

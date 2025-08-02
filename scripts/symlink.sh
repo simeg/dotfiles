@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# New streamlined symlink script for reorganized dotfiles structure
+# This works with the new .config/ organization
+
 safe_ln() {
   local src="$1"
   local dst="$2"
@@ -17,45 +20,108 @@ safe_ln() {
   fi
 }
 
-# Symlinks all files in this repo that start with . to $HOME
-symlink_file_to_home() {
-  safe_ln "$(pwd)/$1" "$HOME"
+# Function to symlink directory contents
+symlink_dir_contents() {
+  local src_dir="$1"
+  local dst_dir="$2"
+  local description="$3"
+  
+  if [[ ! -d "$src_dir" ]]; then
+    echo "⚠️  Source directory $src_dir doesn't exist, skipping $description"
+    return
+  fi
+  
+  echo "Setting up $description"
+  mkdir -p "$dst_dir"
+  
+  for item in "$src_dir"/*; do
+    if [[ -e "$item" ]]; then
+      local item_name
+      item_name="$(basename "$item")"
+      safe_ln "$item" "$dst_dir/$item_name"
+    fi
+  done
 }
 
-for dotfile in */.*; do
-  # Ignore folders
-  if [ -f "$dotfile" ]; then
-    symlink_file_to_home "$dotfile"
+echo "🔗 Creating symbolic links with new structure..."
+
+# Symlinks all files in git/ that start with . to $HOME
+echo "Setting up Git configuration"
+for dotfile in git/.*; do
+  # Ignore . and .. and directories
+  if [[ -f "$dotfile" && "$(basename "$dotfile")" != "." && "$(basename "$dotfile")" != ".." ]]; then
+    safe_ln "$(pwd)/$dotfile" "$HOME/$(basename "$dotfile")"
   fi
 done
 
-safe_ln "$(pwd)"/nvim "$HOME"/.config
-safe_ln "$(pwd)"/nvim/.ideavimrc "$HOME"/.ideavimrc
-safe_ln "$(pwd)"/scripts/bin "$HOME"/.bin
+# Symlink entire .config structure
+echo "Setting up .config directory structure"
+mkdir -p "$HOME/.config"
 
-echo "Setting up Atuin configuration"
-mkdir -p "$HOME"/.config/atuin
-safe_ln "$(pwd)"/atuin/config.toml "$HOME"/.config/atuin/config.toml
-safe_ln "$(pwd)"/atuin/themes "$HOME"/.config/atuin/themes
+# Symlink .config items (but handle zsh specially)
+for config_item in .config/*; do
+  if [[ -e "$config_item" ]]; then
+    item_name="$(basename "$config_item")"
+    
+    # Special handling for zsh directory - symlink individual files
+    if [[ "$item_name" == "zsh" ]]; then
+      echo "Setting up zsh configuration files"
+      mkdir -p "$HOME/.config/zsh"
+      for zsh_file in .config/zsh/*; do
+        if [[ -f "$zsh_file" ]]; then
+          zsh_filename="$(basename "$zsh_file")"
+          safe_ln "$(pwd)/$zsh_file" "$HOME/.config/zsh/$zsh_filename"
+        elif [[ -d "$zsh_file" && "$(basename "$zsh_file")" == "completions" ]]; then
+          # Handle completions directory
+          safe_ln "$(pwd)/$zsh_file" "$HOME/.config/zsh/completions"
+        fi
+      done
+    else
+      # Regular symlink for non-zsh directories
+      safe_ln "$(pwd)/$config_item" "$HOME/.config/$item_name"
+    fi
+  fi
+done
 
-echo "Creating ~/.config directories"
-mkdir -p "$HOME"/.config/zsh
-mkdir -p "$HOME"/.config/zsh/completions
+# Special handling for starship config
 echo "Setting up starship theme (default: catppuccin)"
-# Use starship-theme script to set the catppuccin theme as default
-if [[ -x "$(pwd)/scripts/bin/starship-theme" ]]; then
-    "$(pwd)/scripts/bin/starship-theme" set catppuccin
-else
-    # Fallback: direct symlink if script not available
-    safe_ln "$(pwd)"/starship/themes/catppuccin.toml "$HOME"/.config/starship.toml
+if [[ -x "$(pwd)/bin/starship-theme" ]]; then
+    "$(pwd)/bin/starship-theme" set catppuccin
+elif [[ -f "$(pwd)/.config/starship/themes/catppuccin.toml" ]]; then
+    # Fallback: direct symlink if script not available  
+    safe_ln "$(pwd)/.config/starship/themes/catppuccin.toml" "$HOME/.config/starship.toml"
 fi
-echo "Symlinking zsh modular configs"
-safe_ln "$(pwd)"/zsh/exports.zsh "$HOME"/.config/zsh/exports.zsh
-safe_ln "$(pwd)"/zsh/path.zsh "$HOME"/.config/zsh/path.zsh
-safe_ln "$(pwd)"/zsh/aliases.zsh "$HOME"/.config/zsh/aliases.zsh
-safe_ln "$(pwd)"/zsh/functions.zsh "$HOME"/.config/zsh/functions.zsh
-safe_ln "$(pwd)"/zsh/misc.zsh "$HOME"/.config/zsh/misc.zsh
-safe_ln "$(pwd)"/zsh/completions/_starship-theme "$HOME"/.config/zsh/completions/_starship-theme
-safe_ln "$(pwd)"/zsh/completions/README.md "$HOME"/.config/zsh/completions/README.md
 
-echo "✅ All symlinks set!"
+# Symlink bin directory to ~/.bin
+echo "Setting up bin directory"
+safe_ln "$(pwd)/bin" "$HOME/.bin"
+
+# Handle special files that don't follow the pattern
+echo "Setting up special configuration files"
+
+# zshrc (goes to home directory)
+if [[ -f ".config/zsh/.zshrc" ]]; then
+  safe_ln "$(pwd)/.config/zsh/.zshrc" "$HOME/.zshrc"
+fi
+
+# znap plugins file (goes to home directory)
+if [[ -f ".config/zsh/.znap-plugins.zsh" ]]; then
+  safe_ln "$(pwd)/.config/zsh/.znap-plugins.zsh" "$HOME/.znap-plugins.zsh"
+fi
+
+# ideavimrc (goes to home directory) 
+if [[ -f ".config/nvim/.ideavimrc" ]]; then
+  safe_ln "$(pwd)/.config/nvim/.ideavimrc" "$HOME/.ideavimrc"
+fi
+
+echo "✅ All symlinks set with new structure!"
+echo ""
+echo "📁 Structure summary:"
+echo "  ~/.config/nvim       ← .config/nvim"
+echo "  ~/.config/starship   ← .config/starship" 
+echo "  ~/.config/atuin      ← .config/atuin"
+echo "  ~/.config/zsh        ← .config/zsh"
+echo "  ~/.bin               ← bin"
+echo "  ~/.gitconfig         ← git/.gitconfig"
+echo "  ~/.gitignore         ← git/.gitignore"
+echo ""

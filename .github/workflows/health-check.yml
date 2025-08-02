@@ -22,8 +22,8 @@ jobs:
     - name: Make scripts executable
       run: |
         find scripts -name "*.sh" -exec chmod +x {} \;
-        if [[ -d "scripts/bin" ]]; then
-          find scripts/bin -type f -exec chmod +x {} \;
+        if [[ -d "bin" ]]; then
+          find bin -type f -exec chmod +x {} \;
         fi
         
     - name: Run comprehensive health check

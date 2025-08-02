@@ -60,15 +60,23 @@ make lint                    # Run shellcheck on all scripts
 ## 📁 Directory Structure
 
 ```
-├── zsh/                    # Zsh configuration files
-│   ├── .zshrc             # Main Zsh configuration
-│   └── .znap-plugins.zsh  # Plugin definitions
-├── nvim/                  # Neovim configuration with Lazy.nvim
-├── git/                   # Git configuration files
-├── starship/              # Starship prompt themes
-│   └── themes/           # Available starship themes
-├── scripts/              # All scripts organized in subdirectories
-│   ├── bin/              # Custom utility scripts
+├── .config/               # Configuration files (mirrors ~/.config structure)
+│   ├── zsh/              # Zsh configuration files (moved to .config/zsh/)
+│   │   ├── .zshrc        # Main Zsh configuration
+│   │   ├── .znap-plugins.zsh  # Plugin definitions
+│   │   ├── aliases.zsh   # Command aliases
+│   │   ├── exports.zsh   # Environment variables
+│   │   ├── functions.zsh # Custom functions
+│   │   ├── misc.zsh      # Miscellaneous config
+│   │   ├── path.zsh      # PATH modifications
+│   │   └── completions/  # Tab completion scripts
+│   ├── nvim/             # Neovim configuration with Lazy.nvim (moved to .config/nvim/)
+│   ├── starship/         # Starship prompt themes (moved to .config/starship/)
+│   │   └── themes/       # Available starship themes
+│   └── atuin/            # Shell history sync configuration (moved to .config/atuin/)
+├── bin/                  # Custom utility scripts
+├── git/                  # Git configuration files  
+├── scripts/              # Management and setup scripts
 │   ├── install/          # Installation scripts
 │   │   ├── Brewfile      # Homebrew packages
 │   │   ├── brew.sh       # Homebrew installer
@@ -81,7 +89,7 @@ make lint                    # Run shellcheck on all scripts
 
 ## 🔧 Custom Bin Scripts
 
-Located in `scripts/bin/` directory, these scripts enhance your development workflow:
+Located in `bin/` directory, these scripts enhance your development workflow:
 
 - **`backup`** - Backup utility
 - **`cpwd`** - Copy current working directory to clipboard
@@ -169,13 +177,13 @@ starship-theme restore          # Restore from backup
 starship-theme add mytheme ~/path/to/my-starship.toml
 
 # Or manually copy to themes directory
-cp my-theme.toml starship/themes/
+cp my-theme.toml .config/starship/themes/
 starship-theme set my-theme
 ```
 
 ### Theme Structure
 
-Themes are stored in `starship/themes/` as `.toml` files. Each theme file should:
+Themes are stored in `.config/starship/themes/` as `.toml` files. Each theme file should:
 - Start with a descriptive comment (e.g., `# 🌟 Minimal Theme`)
 - Be a valid starship configuration
 - Include appropriate module settings

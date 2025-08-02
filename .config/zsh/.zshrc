@@ -71,10 +71,6 @@ znap eval sdkman '[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ] && source "$SDKMAN_DIR
 # Should not be lazy loaded
 eval "$(zoxide init zsh)"
 
-########################################
-# 📁 Legacy: Remove old shell directory references
-########################################
-# This section has been moved to modular config files above
 
 ########################################
 # 🔄 Completions
@@ -127,12 +123,12 @@ znap compile ~/.zshrc ~/.znap-plugins.zsh || true
 # 📊 Performance & Usage Analytics
 ########################################
 
-# Load performance monitoring
-if [[ -f ~/.config/dotfiles/perf-monitor.sh ]]; then
-    source ~/.config/dotfiles/perf-monitor.sh
-    # Track startup completion
-    track_shell_startup "$SHELL_STARTUP_START" "complete"
-fi
+# Load performance monitoring (disabled - script not yet implemented)
+# if [[ -f ~/.config/dotfiles/perf-monitor.sh ]]; then
+#     source ~/.config/dotfiles/perf-monitor.sh
+#     # Track startup completion
+#     track_shell_startup "$SHELL_STARTUP_START" "complete"
+# fi
 
 # Package Usage Analytics (added by analyze-package-usage.sh)
 if [[ -f ~/.config/dotfiles/usage-analytics.sh ]]; then
@@ -149,3 +145,6 @@ vi() { nvim "$@"; }
 # Atuin (shell history in cloud)
 ########################################
 eval "$(atuin init zsh)"
+
+compdef _git-x git-x
+compdef '_git-x' 'git x'

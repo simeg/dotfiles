@@ -339,8 +339,8 @@ make_scripts_executable() {
     log_info "Making scripts executable..."
     find . -name "*.sh" -exec chmod +x {} \;
     chmod +x scripts/symlink.sh scripts/shellcheck.sh
-    if [[ -d "scripts/bin" ]]; then
-        find scripts/bin -type f -exec chmod +x {} \;
+    if [[ -d "bin" ]]; then
+        find bin -type f -exec chmod +x {} \;
     fi
     log_success "Scripts made executable"
 }

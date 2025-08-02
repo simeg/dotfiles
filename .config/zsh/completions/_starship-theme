@@ -25,8 +25,8 @@ _starship_theme() {
         local themes_dir
         # Try to find themes directory
         for dotfiles_dir in ~/repos/dotfiles ~/.dotfiles; do
-            if [[ -d "$dotfiles_dir/starship/themes" ]]; then
-                themes_dir="$dotfiles_dir/starship/themes"
+            if [[ -d "$dotfiles_dir/.config/starship/themes" ]]; then
+                themes_dir="$dotfiles_dir/.config/starship/themes"
                 break
             fi
         done

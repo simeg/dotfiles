@@ -38,3 +38,5 @@
 	insteadOf = https://ghe.spotify.net/
 [init]
 	defaultBranch = main
+[alias]
+	x = !git-x

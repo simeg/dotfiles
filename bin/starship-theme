@@ -26,10 +26,10 @@ else
         # We're probably in ~/.bin, find the dotfiles directory
         DOTFILES_DIR="/Users/segersand/repos/dotfiles"
         # Try to find it more dynamically
-        if [[ ! -d "$DOTFILES_DIR/starship/themes" ]]; then
+        if [[ ! -d "$DOTFILES_DIR/.config/starship/themes" ]]; then
             # Look for dotfiles directory
             for possible_dir in ~/repos/dotfiles ~/.dotfiles; do
-                if [[ -d "$possible_dir/starship/themes" ]]; then
+                if [[ -d "$possible_dir/.config/starship/themes" ]]; then
                     DOTFILES_DIR="$possible_dir"
                     break
                 fi
@@ -37,7 +37,7 @@ else
         fi
     fi
 fi
-THEMES_DIR="$DOTFILES_DIR/starship/themes"
+THEMES_DIR="$DOTFILES_DIR/.config/starship/themes"
 CONFIG_PATH="$HOME/.config/starship.toml"
 CURRENT_THEME_FILE="$HOME/.config/starship-current-theme"
 

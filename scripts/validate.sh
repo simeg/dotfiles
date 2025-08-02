@@ -139,8 +139,8 @@ check_zsh_config() {
     dotfiles_dir="$(cd "$(dirname "$0")/.." && pwd)"
 
     # Check main zsh files
-    check_symlink "$HOME/.zshrc" "$dotfiles_dir/zsh/.zshrc" "Zsh main config"
-    check_symlink "$HOME/.znap-plugins.zsh" "$dotfiles_dir/zsh/.znap-plugins.zsh" "Zsh plugins config"
+    check_symlink "$HOME/.zshrc" "$dotfiles_dir/.config/zsh/.zshrc" "Zsh main config"
+    check_symlink "$HOME/.znap-plugins.zsh" "$dotfiles_dir/.config/zsh/.znap-plugins.zsh" "Zsh plugins config"
 
     # Check if znap is installed
     check_directory_exists "$HOME/.znap" "Znap plugin manager"
@@ -196,7 +196,7 @@ check_neovim_config() {
     dotfiles_dir="$(cd "$(dirname "$0")/.." && pwd)"
 
     # Check ideavim config
-    check_symlink "$HOME/.ideavimrc" "$dotfiles_dir/nvim/.ideavimrc" "IdeaVim config"
+    check_symlink "$HOME/.ideavimrc" "$dotfiles_dir/.config/nvim/.ideavimrc" "IdeaVim config"
 }
 
 # Check Homebrew and packages
@@ -236,7 +236,7 @@ check_bin_directory() {
     dotfiles_dir="$(cd "$(dirname "$0")/.." && pwd)"
 
     # Check bin symlink
-    check_symlink "$HOME/.bin" "$dotfiles_dir/scripts/bin" "Bin directory"
+    check_symlink "$HOME/.bin" "$dotfiles_dir/bin" "Bin directory"
 
     # Check if bin is in PATH
     check
@@ -247,13 +247,13 @@ check_bin_directory() {
     fi
 
     # Check if bin scripts are executable
-    if [[ -d "$dotfiles_dir/scripts/bin" ]]; then
+    if [[ -d "$dotfiles_dir/bin" ]]; then
         local non_executable=()
         while IFS= read -r -d '' file; do
             if [[ ! -x "$file" ]]; then
                 non_executable+=("$(basename "$file")")
             fi
-        done < <(find "$dotfiles_dir/scripts/bin" -type f -print0)
+        done < <(find "$dotfiles_dir/bin" -type f -print0)
 
         check
         if [[ ${#non_executable[@]} -eq 0 ]]; then

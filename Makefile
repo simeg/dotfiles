@@ -114,10 +114,9 @@ clean:
 	@echo "Removing broken symlinks..."
 	@find $$HOME -maxdepth 1 -type l ! -exec test -e {} \; -delete 2>/dev/null || true
 	@echo "Removing dotfiles symlinks..."
-	@rm -f ~/.zshrc ~/.znap-plugins.zsh ~/.gitconfig ~/.gitignore ~/.ideavimrc ~/.bin ~/.config/starship.toml ~/.config/nvim
-	@rm -f ~/.config/zsh/exports.zsh ~/.config/zsh/path.zsh ~/.config/zsh/aliases.zsh ~/.config/zsh/functions.zsh ~/.config/zsh/misc.zsh
-	@rm -f ~/.config/zsh/completions/_starship-theme ~/.config/zsh/completions/README.md
-	@rm -f ~/.config/atuin/config.toml ~/.config/atuin/themes
+	@rm -f ~/.zshrc ~/.znap-plugins.zsh ~/.gitconfig ~/.gitignore ~/.ideavimrc ~/.bin
+	@rm -f ~/.config/nvim ~/.config/starship ~/.config/atuin
+	@rm -f ~/.config/zsh/aliases.zsh ~/.config/zsh/exports.zsh ~/.config/zsh/functions.zsh ~/.config/zsh/misc.zsh ~/.config/zsh/path.zsh ~/.config/zsh/completions
 	@echo "Cleanup completed. If things broke, run 'make symlink'"
 
 # =============================================================================
@@ -239,7 +238,7 @@ analytics:
 	@./scripts/analyze-package-usage.sh analyze || echo "⚠️  Package analytics require data collection (run commands first)"
 	@echo ""
 	@echo "⚡ Performance Dashboard:"
-	@./scripts/bin/perf-dashboard || echo "⚠️  Performance monitoring requires data collection"
+	@./bin/perf-dashboard || echo "⚠️  Performance monitoring requires data collection"
 
 # Analyze package usage patterns and identify optimization opportunities
 analytics-packages:
@@ -263,19 +262,10 @@ analytics-report:
 # Show interactive performance dashboard with real-time metrics
 perf-dashboard:
 	@echo "📊 Opening performance dashboard..."
-	./scripts/bin/perf-dashboard
+	./bin/perf-dashboard
 
 # Generate detailed performance analysis report
 perf-report:
 	@echo "📈 Generating performance analysis report..."
 	./scripts/performance-report.sh comprehensive
 
-# =============================================================================
-# LEGACY TARGET ALIASES (for backward compatibility)
-# =============================================================================
-
-# Legacy aliases - kept for backward compatibility
-sync-packages: packages-analyze
-sync-packages-analyze: packages-analyze
-sync-packages-export: packages-export
-sync-packages-update: packages-update

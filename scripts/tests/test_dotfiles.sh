@@ -61,7 +61,7 @@ test_zsh_syntax() {
     if [[ ! -f "$zshrc" ]]; then
         local script_dir
         script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-        local source_zshrc="$script_dir/../zsh/.zshrc"
+        local source_zshrc="$script_dir/../.config/zsh/.zshrc"
         
         if [[ -f "$source_zshrc" ]]; then
             echo "Testing source .zshrc (CI environment)"

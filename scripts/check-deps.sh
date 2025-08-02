@@ -221,7 +221,7 @@ check_znap() {
         log_success "znap plugins configuration found"
     else
         log_error "znap plugins configuration missing"
-        echo "    Should be symlinked from dotfiles/zsh/.znap-plugins.zsh"
+        echo "    Should be symlinked from dotfiles/.config/zsh/.znap-plugins.zsh"
     fi
 
     echo

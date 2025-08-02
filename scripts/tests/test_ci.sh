@@ -55,7 +55,7 @@ DOTFILES_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # Test source file syntax
 test_source_zsh_syntax() {
-    local zshrc="$DOTFILES_DIR/zsh/.zshrc"
+    local zshrc="$DOTFILES_DIR/.config/zsh/.zshrc"
     
     if [[ ! -f "$zshrc" ]]; then
         echo "Source .zshrc not found at $zshrc"
@@ -73,7 +73,7 @@ test_source_zsh_syntax() {
 
 # Test modular config syntax
 test_source_modular_syntax() {
-    local source_dir="$DOTFILES_DIR/zsh"
+    local source_dir="$DOTFILES_DIR/.config/zsh"
     local configs=("aliases.zsh" "exports.zsh" "functions.zsh" "misc.zsh" "path.zsh")
 
     for config in "${configs[@]}"; do
@@ -96,7 +96,7 @@ test_source_modular_syntax() {
 
 # Test znap plugins file syntax
 test_znap_plugins_syntax() {
-    local plugins_file="$DOTFILES_DIR/zsh/.znap-plugins.zsh"
+    local plugins_file="$DOTFILES_DIR/.config/zsh/.znap-plugins.zsh"
     
     if [[ ! -f "$plugins_file" ]]; then
         echo "znap plugins file not found at $plugins_file"
@@ -135,11 +135,20 @@ test_shell_scripts_syntax() {
 
 # Test essential directories exist
 test_directory_structure() {
-    local required_dirs=("zsh" "nvim" "git" "install" "scripts")
+    local required_dirs=(".config" "git" "install" "scripts" "bin")
+    local required_config_dirs=("zsh" "nvim" "starship" "atuin")
     
     for dir in "${required_dirs[@]}"; do
         if [[ ! -d "$DOTFILES_DIR/$dir" ]]; then
             echo "Required directory missing: $dir"
+            return 1
+        fi
+    done
+    
+    # Check .config subdirectories
+    for config_dir in "${required_config_dirs[@]}"; do
+        if [[ ! -d "$DOTFILES_DIR/.config/$config_dir" ]]; then
+            echo "Required .config directory missing: .config/$config_dir"
             return 1
         fi
     done
@@ -150,11 +159,11 @@ test_directory_structure() {
 # Test essential files exist
 test_essential_files() {
     local required_files=(
-        "zsh/.zshrc"
-        "zsh/.znap-plugins.zsh"
+        ".config/zsh/.zshrc"
+        ".config/zsh/.znap-plugins.zsh"
         "git/.gitconfig"
         "git/.gitignore"
-        "nvim/.ideavimrc"
+        ".config/nvim/.ideavimrc"
         "README.md"
         "Makefile"
         "scripts/setup.sh"

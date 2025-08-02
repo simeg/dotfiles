@@ -3,9 +3,10 @@
 ########################################
 
 # Use Neovim as default editor
-alias vim="nvim"
-alias v="nvim"
-alias vi="nvim"
+# vim aliases handled by functions in .zshrc to prevent override
+# alias vim="nvim"
+# alias v="nvim"
+# alias vi="nvim"
 
 alias vm="nvim ./Makefile"
 alias vp="nvim ./package.json"
@@ -15,7 +16,7 @@ alias vimrc="nvim ~/.config/nvim/init.lua"
 alias nvimrc="nvim ~/.config/nvim/init.lua"
 alias zshrc="nvim ~/.zshrc ; reload"
 alias gitignore="nvim ~/.gitignore"
-alias ali="nvim ~/repos/dotfiles/zsh/aliases.zsh"
+alias ali="nvim ~/.config/zsh/aliases.zsh"
 
 alias dotfiles="pushd ~/repos/dotfiles"
 alias reload="source ~/.zshrc"
