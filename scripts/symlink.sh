@@ -33,6 +33,10 @@ safe_ln "$(pwd)"/nvim "$HOME"/.config
 safe_ln "$(pwd)"/nvim/.ideavimrc "$HOME"/.ideavimrc
 safe_ln "$(pwd)"/scripts/bin "$HOME"/.bin
 
+echo "Setting up Atuin configuration"
+mkdir -p "$HOME"/.config/atuin
+safe_ln "$(pwd)"/atuin/config.toml "$HOME"/.config/atuin/config.toml
+
 echo "Creating ~/.config directories"
 mkdir -p "$HOME"/.config/zsh
 echo "Setting up starship theme (default: enhanced)"
