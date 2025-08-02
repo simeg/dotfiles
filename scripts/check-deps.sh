@@ -81,7 +81,20 @@ check_core_deps() {
 
     check_command "git" "Git version control" "brew install git"
     check_command "zsh" "Zsh shell" "brew install zsh"
-    check_command "nvim" "Neovim editor" "brew install neovim"
+    
+    # For CI environments, accept either vim or nvim
+    if command -v "nvim" &> /dev/null; then
+        check_command "nvim" "Neovim editor" "brew install neovim"
+    elif command -v "vim" &> /dev/null; then
+        log_success "Vim editor (vim --version | head -1)"
+        DEPS_FOUND=$((DEPS_FOUND + 1))
+    else
+        log_error "Text editor (Missing)"
+        echo "    Install with: brew install neovim (or vim)"
+        DEPS_MISSING=$((DEPS_MISSING + 1))
+    fi
+    DEPS_CHECKED=$((DEPS_CHECKED + 1))
+    
     check_command "bash" "Bash shell" "Should be available by default"
 
     echo
