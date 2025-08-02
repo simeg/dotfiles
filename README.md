@@ -3,7 +3,7 @@
 These are my dotfiles. There are many like them, but these ones are mine. My dotfiles are my best friends. They are my life. I must master them as I master my life. My dotfiles, without me, are useless. Without my dotfiles, I am useless.
 
 <p align="center">
-   <img src="_include/banner.png">
+   <img src="banner.png">
 </p>
 
 
@@ -75,7 +75,7 @@ make lint                    # Run shellcheck on all scripts
 │   │   └── themes/       # Available starship themes
 │   └── atuin/            # Shell history sync configuration (moved to .config/atuin/)
 ├── bin/                  # Custom utility scripts
-├── git/                  # Git configuration files  
+├── git/                  # Git configuration files
 ├── scripts/              # Management and setup scripts
 │   ├── install/          # Installation scripts
 │   │   ├── Brewfile      # Homebrew packages
