@@ -5,6 +5,57 @@
 
 set -e
 
+# Global error handling
+# shellcheck disable=SC2034  # SETUP_FAILED is used in error handler
+SETUP_FAILED=false
+ROLLBACK_COMMANDS=()
+
+# Add command to rollback list
+add_rollback() {
+    ROLLBACK_COMMANDS+=("$1")
+}
+
+# Execute rollback commands in reverse order
+execute_rollback() {
+    if [[ ${#ROLLBACK_COMMANDS[@]} -eq 0 ]]; then
+        return
+    fi
+    
+    log_warning "Executing rollback commands..."
+    
+    # Execute in reverse order
+    for (( i=${#ROLLBACK_COMMANDS[@]}-1 ; i>=0 ; i-- )); do
+        log_info "Rolling back: ${ROLLBACK_COMMANDS[i]}"
+        eval "${ROLLBACK_COMMANDS[i]}" || log_warning "Rollback command failed: ${ROLLBACK_COMMANDS[i]}"
+    done
+}
+
+# Error handler
+handle_error() {
+    local exit_code=$?
+    # shellcheck disable=SC2034  # SETUP_FAILED is used for error tracking
+    SETUP_FAILED=true
+    
+    log_error "Setup failed with exit code $exit_code"
+    log_error "Last command: $BASH_COMMAND"
+    
+    if [[ ${#ROLLBACK_COMMANDS[@]} -gt 0 ]]; then
+        if ask_yes_no "❌ Setup failed. Do you want to rollback changes?" "y"; then
+            execute_rollback
+            log_info "Setup was rolled back due to failure"
+        else
+            log_warning "Setup failed but rollback was skipped"
+        fi
+    else
+        log_warning "Setup failed with no rollback actions available"
+    fi
+    
+    exit $exit_code
+}
+
+# Set error trap
+trap 'handle_error' ERR
+
 # Color output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -38,6 +89,7 @@ INSTALL_ZSH=true
 SETUP_GIT=true
 CREATE_SYMLINKS=true
 BACKUP_EXISTING=true
+ENABLE_ANALYTICS=false
 
 # Interactive prompts
 ask_yes_no() {
@@ -135,6 +187,15 @@ configure_interactive_setup() {
         CREATE_SYMLINKS=false
     fi
 
+    # Analytics (optional for advanced users)
+    if ask_yes_no "📊 Enable analytics and performance monitoring? (advanced feature)" "n"; then
+        ENABLE_ANALYTICS=true
+        log_info "Analytics enabled - you can use 'make analytics' for insights"
+    else
+        ENABLE_ANALYTICS=false
+        log_info "Analytics disabled - keeping setup simple"
+    fi
+
     echo
     log_info "Configuration complete! Starting installation..."
     echo
@@ -152,6 +213,7 @@ show_setup_summary() {
     echo "Setup Neovim: ✅ Yes (automatic via symlinks)"
     echo "Configure Git: $([ "$SETUP_GIT" == true ] && echo "✅ Yes" || echo "❌ No")"
     echo "Create symlinks: $([ "$CREATE_SYMLINKS" == true ] && echo "✅ Yes" || echo "❌ No")"
+    echo "Enable analytics: $([ "$ENABLE_ANALYTICS" == true ] && echo "✅ Yes" || echo "❌ No")"
     echo "========================================="
     echo
 }
@@ -171,6 +233,7 @@ backup_existing() {
     log_info "Backing up existing dotfiles..."
     BACKUP_DIR="$HOME/.dotfiles_backup_$(date +%Y%m%d_%H%M%S)"
     mkdir -p "$BACKUP_DIR"
+    add_rollback "rm -rf '$BACKUP_DIR'"
 
     # List of files to backup
     local files_to_backup=(".zshrc" ".gitconfig" ".gitignore" ".ideavimrc")
@@ -188,6 +251,13 @@ backup_existing() {
 # Install Homebrew
 install_homebrew() {
     log_info "Installing Homebrew..."
+    
+    # Only add rollback if Homebrew wasn't already installed
+    if ! command -v brew &> /dev/null; then
+        # shellcheck disable=SC2016  # Single quotes intentional - command evaluated later during rollback
+        add_rollback 'if command -v brew &> /dev/null; then /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)"; fi'
+    fi
+    
     if ! ./scripts/install/brew.sh; then
         log_error "Failed to install Homebrew"
         exit 1
@@ -224,15 +294,6 @@ install_zsh() {
     log_success "Zsh setup completed"
 }
 
-# Install Oh My Zsh
-install_oh_my_zsh() {
-    log_info "Installing Oh My Zsh..."
-    if ! ./scripts/install/oh-my-zsh.sh; then
-        log_warning "Oh My Zsh installation failed, continuing..."
-    else
-        log_success "Oh My Zsh installation completed"
-    fi
-}
 
 
 # Install Rust (if script exists)
@@ -249,9 +310,9 @@ install_rust() {
 
 # Install macOS specific settings
 install_macos_settings() {
-    if [[ -f "scripts/install/macOS/macOS.sh" ]]; then
+    if [[ -f "install/macOS/macOS.sh" ]]; then
         log_info "Applying macOS settings..."
-        if ! ./scripts/install/macOS/macOS.sh; then
+        if ! ./install/macOS/macOS.sh; then
             log_warning "macOS settings application failed, continuing..."
         else
             log_success "macOS settings applied"
@@ -262,6 +323,10 @@ install_macos_settings() {
 # Create symlinks
 create_symlinks() {
     log_info "Creating symlinks..."
+    
+    # Add rollback to clean symlinks if needed
+    add_rollback 'make clean &> /dev/null || true'
+    
     if ! ./scripts/symlink.sh; then
         log_error "Failed to create symlinks"
         exit 1
@@ -298,8 +363,8 @@ run_lint() {
 main() {
     log_info "Starting dotfiles installation..."
 
-    # Change to script directory
-    cd "$(dirname "$0")"
+    # Change to dotfiles root directory  
+    cd "$(dirname "$0")/.."
 
     # Run interactive configuration if enabled
     if [[ "$INTERACTIVE_MODE" == true ]]; then
@@ -328,7 +393,7 @@ main() {
     # Install configurations
     if [[ "$INSTALL_ZSH" == true ]]; then
         install_zsh
-        install_oh_my_zsh
+        # Note: Using znap instead of Oh My Zsh - no need to install Oh My Zsh
     fi
 
     # Neovim configuration is now handled automatically via symlinks
@@ -357,6 +422,10 @@ main() {
     echo "  1. Run './scripts/validate.sh' to verify the installation"
     echo "  2. Run './scripts/profile-shell.sh --startup' to check performance"
     echo "  3. Create ~/.config/zsh/private.zsh for sensitive environment variables"
+    
+    if [[ "$ENABLE_ANALYTICS" == true ]]; then
+        echo "  4. Try 'make analytics' to see package usage and performance insights"
+    fi
 }
 
 # Show usage information
@@ -373,6 +442,7 @@ show_usage() {
     echo "  --symlink-only      Only create symlinks"
     echo "  --deps-only         Only check and install dependencies"
     echo "  --minimal           Minimal installation (essential tools only)"
+    echo "  --simple            Simple setup without analytics or advanced features"
     echo ""
     echo "Examples:"
     echo "  $0                      # Interactive setup (recommended)"
@@ -423,6 +493,12 @@ while [[ $# -gt 0 ]]; do
             # INSTALL_VIM removed - using Neovim instead
             shift
             ;;
+        --simple)
+            # Simple setup - disable analytics and complex features
+            ENABLE_ANALYTICS=false
+            INTERACTIVE_MODE=false
+            shift
+            ;;
         *)
             log_error "Unknown option: $1"
             show_usage
@@ -434,17 +510,17 @@ done
 # Execute based on options
 if [[ "$BREW_ONLY" == true ]]; then
     log_info "Running Homebrew-only installation..."
-    cd "$(dirname "$0")"
+    cd "$(dirname "$0")/.."
     check_macos
     install_homebrew
     install_packages
 elif [[ "$SYMLINK_ONLY" == true ]]; then
     log_info "Creating symlinks only..."
-    cd "$(dirname "$0")"
+    cd "$(dirname "$0")/.."
     create_symlinks
 elif [[ "$DEPS_ONLY" == true ]]; then
     log_info "Checking dependencies only..."
-    cd "$(dirname "$0")"
+    cd "$(dirname "$0")/.."
     ./scripts/check-deps.sh
 else
     # Run full installation

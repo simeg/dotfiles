@@ -56,11 +56,17 @@ pull_latest() {
 
     local current_branch
     current_branch=$(git branch --show-current)
+    ORIGINAL_BRANCH="$current_branch"
+
+    # Store current commit hash for potential rollback
+    local original_commit
+    original_commit=$(git rev-parse HEAD)
 
     if git pull origin "$current_branch"; then
         log_success "Successfully pulled latest changes"
     else
         log_error "Failed to pull latest changes"
+        log_info "You can manually reset with: git reset --hard $original_commit"
         exit 1
     fi
 }

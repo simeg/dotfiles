@@ -115,6 +115,9 @@ clean:
 	@find $$HOME -maxdepth 1 -type l ! -exec test -e {} \; -delete 2>/dev/null || true
 	@echo "Removing dotfiles symlinks..."
 	@rm -f ~/.zshrc ~/.znap-plugins.zsh ~/.gitconfig ~/.gitignore ~/.ideavimrc ~/.bin ~/.config/starship.toml ~/.config/nvim
+	@rm -f ~/.config/zsh/exports.zsh ~/.config/zsh/path.zsh ~/.config/zsh/aliases.zsh ~/.config/zsh/functions.zsh ~/.config/zsh/misc.zsh
+	@rm -f ~/.config/zsh/completions/_starship-theme ~/.config/zsh/completions/README.md
+	@rm -f ~/.config/atuin/config.toml ~/.config/atuin/themes
 	@echo "Cleanup completed. If things broke, run 'make symlink'"
 
 # =============================================================================
