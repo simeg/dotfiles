@@ -82,19 +82,19 @@ update_homebrew() {
     fi
 }
 
-# Update Vim plugins
-update_vim_plugins() {
-    log_info "Updating Vim plugins..."
+# Update Neovim plugins
+update_nvim_plugins() {
+    log_info "Updating Neovim plugins..."
 
-    if command -v vim >/dev/null 2>&1; then
-        if [[ -f "$HOME/.vim/autoload/plug.vim" ]]; then
-            vim +PlugUpdate +PlugClean! +qall
-            log_success "Vim plugins updated"
+    if command -v nvim >/dev/null 2>&1; then
+        if [[ -d "$HOME/.config/nvim" ]]; then
+            nvim --headless "+Lazy! sync" +qa
+            log_success "Neovim plugins updated"
         else
-            log_warning "vim-plug not found, skipping plugin updates"
+            log_warning "Neovim config not found, skipping plugin updates"
         fi
     else
-        log_warning "Vim not found, skipping plugin updates"
+        log_warning "Neovim not found, skipping plugin updates"
     fi
 }
 
@@ -177,8 +177,8 @@ main_update() {
         update_homebrew
     fi
 
-    if [[ "$UPDATE_VIM" == true ]]; then
-        update_vim_plugins
+    if [[ "$UPDATE_NVIM" == true ]]; then
+        update_nvim_plugins
     fi
 
     if [[ "$UPDATE_ZSH" == true ]]; then
@@ -209,11 +209,11 @@ show_usage() {
     echo "  -h, --help         Show this help message"
     echo "  --all              Update everything (default)"
     echo "  --brew-only        Only update Homebrew packages"
-    echo "  --vim-only         Only update Vim plugins"
+    echo "  --nvim-only        Only update Neovim plugins"
     echo "  --zsh-only         Only update Zsh plugins"
     echo "  --symlinks-only    Only update symlinks"
     echo "  --no-brew          Skip Homebrew updates"
-    echo "  --no-vim           Skip Vim plugin updates"
+    echo "  --no-nvim          Skip Neovim plugin updates"
     echo "  --no-zsh           Skip Zsh plugin updates"
     echo "  --no-symlinks      Skip symlink updates"
     echo "  --no-lint          Skip linting checks"
@@ -223,7 +223,7 @@ show_usage() {
 
 # Parse command line arguments
 UPDATE_BREW=true
-UPDATE_VIM=true
+UPDATE_NVIM=true
 UPDATE_ZSH=true
 UPDATE_SYMLINKS=true
 RUN_LINT=true
@@ -231,9 +231,9 @@ RUN_LINT=true
 # Check for specific only flags first
 while [[ $# -gt 0 ]]; do
     case $1 in
-        --brew-only|--vim-only|--zsh-only|--symlinks-only|--git-only)
+        --brew-only|--nvim-only|--zsh-only|--symlinks-only|--git-only)
             UPDATE_BREW=false
-            UPDATE_VIM=false
+            UPDATE_NVIM=false
             UPDATE_ZSH=false
             UPDATE_SYMLINKS=false
             RUN_LINT=false
@@ -256,7 +256,7 @@ while [[ $# -gt 0 ]]; do
             ;;
         --all)
             UPDATE_BREW=true
-            UPDATE_VIM=true
+            UPDATE_NVIM=true
             UPDATE_ZSH=true
             UPDATE_SYMLINKS=true
             RUN_LINT=true
@@ -266,8 +266,8 @@ while [[ $# -gt 0 ]]; do
             UPDATE_BREW=true
             shift
             ;;
-        --vim-only)
-            UPDATE_VIM=true
+        --nvim-only)
+            UPDATE_NVIM=true
             shift
             ;;
         --zsh-only)
@@ -286,8 +286,8 @@ while [[ $# -gt 0 ]]; do
             UPDATE_BREW=false
             shift
             ;;
-        --no-vim)
-            UPDATE_VIM=false
+        --no-nvim)
+            UPDATE_NVIM=false
             shift
             ;;
         --no-zsh)

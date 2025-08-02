@@ -47,7 +47,7 @@ check_command() {
         local version=""
         case "$cmd" in
             git) version=$(git --version 2>/dev/null | head -1) ;;
-            vim) version=$(vim --version 2>/dev/null | head -1) ;;
+            nvim) version=$(nvim --version 2>/dev/null | head -1) ;;
             zsh) version=$(zsh --version 2>/dev/null) ;;
             brew) version=$(brew --version 2>/dev/null | head -1) ;;
             starship) version=$(starship --version 2>/dev/null) ;;
@@ -70,7 +70,7 @@ check_essential_deps() {
 
     check_command "git" "Git version control" "brew install git"
     check_command "zsh" "Zsh shell" "brew install zsh"
-    check_command "vim" "Vim editor" "brew install vim"
+    check_command "nvim" "Neovim editor" "brew install neovim"
 
     echo
 }
@@ -81,7 +81,7 @@ check_core_deps() {
 
     check_command "git" "Git version control" "brew install git"
     check_command "zsh" "Zsh shell" "brew install zsh"
-    check_command "vim" "Vim editor" "brew install vim"
+    check_command "nvim" "Neovim editor" "brew install neovim"
     check_command "bash" "Bash shell" "Should be available by default"
 
     echo
@@ -232,7 +232,7 @@ install_essentials() {
     fi
 
     # Install essential tools
-    local essentials=("git" "zsh" "vim" "starship")
+    local essentials=("git" "zsh" "neovim" "starship")
     for tool in "${essentials[@]}"; do
         if ! command -v "$tool" &> /dev/null; then
             log_info "Installing $tool..."

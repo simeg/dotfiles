@@ -53,7 +53,7 @@ make lint                    # Run shellcheck on all scripts
 ```bash
 ./scripts/setup.sh --symlink-only    # Only create symlinks
 ./scripts/update.sh --brew-only      # Only update Homebrew packages
-./scripts/update.sh --vim-only       # Only update Vim plugins
+./scripts/update.sh --nvim-only      # Only update Neovim plugins
 ./scripts/validate.sh --zsh          # Only validate Zsh config
 ```
 
@@ -208,9 +208,9 @@ source ~/.zshrc                 # Reload configuration
 ./scripts/update.sh --brew-only  # Update packages
 ```
 
-**Vim plugins not working?**
+**Neovim plugins not working?**
 ```bash
-./scripts/update.sh --vim-only   # Update Vim plugins
+./scripts/update.sh --nvim-only  # Update Neovim plugins
 ```
 
 
