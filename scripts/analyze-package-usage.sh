@@ -66,6 +66,7 @@ create_package_mapping() {
             "kubectl") echo "kubectl:kubectl" >> "$PACKAGE_MAPPING" ;;
             "docker") echo "docker:docker" >> "$PACKAGE_MAPPING" ;;
             "git") echo "git:git" >> "$PACKAGE_MAPPING" ;;
+            "nvim") echo "nvim:neovim" >> "$PACKAGE_MAPPING" ;;
             "vim") echo "vim:vim" >> "$PACKAGE_MAPPING" ;;
             "node") echo "node:node" >> "$PACKAGE_MAPPING" ;;
             "npm") echo "npm:node" >> "$PACKAGE_MAPPING" ;;

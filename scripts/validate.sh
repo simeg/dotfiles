@@ -188,9 +188,9 @@ check_git_config() {
     fi
 }
 
-# Check Vim configuration
-check_vim_config() {
-    log_info "Checking Vim configuration..."
+# Check Neovim configuration
+check_neovim_config() {
+    log_info "Checking Neovim configuration..."
 
     local dotfiles_dir
     dotfiles_dir="$(cd "$(dirname "$0")/.." && pwd)"
@@ -420,7 +420,7 @@ run_all_checks() {
     check_git_config
     echo
 
-    check_vim_config
+    check_neovim_config
     echo
 
     check_homebrew

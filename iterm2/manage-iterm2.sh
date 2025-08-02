@@ -116,13 +116,13 @@ show_status() {
     echo ""
     
     if [[ -f "$ITERM_PLIST" ]]; then
-        echo "✅ Current iTerm2 settings: $(ls -lh "$ITERM_PLIST" | awk '{print $5, $6, $7, $8}')"
+        echo "✅ Current iTerm2 settings: $(stat -f '%z %Sm' "$ITERM_PLIST")"
     else
         echo "❌ No current iTerm2 settings found"
     fi
     
     if [[ -f "$DOTFILES_PLIST" ]]; then
-        echo "✅ Dotfiles iTerm2 settings: $(ls -lh "$DOTFILES_PLIST" | awk '{print $5, $6, $7, $8}')"
+        echo "✅ Dotfiles iTerm2 settings: $(stat -f '%z %Sm' "$DOTFILES_PLIST")"
     else
         echo "❌ No dotfiles iTerm2 settings found (run 'export' first)"
     fi

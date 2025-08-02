@@ -40,14 +40,14 @@ make analytics-packages
 ```
 🏆 Most Frequently Used Packages:
   127 uses: git
-  89 uses: vim
+  89 uses: nvim
   76 uses: kubectl
   45 uses: docker
   32 uses: node
 
 ✅ Recently Used Packages (24 total):
   - git
-  - vim
+  - nvim
   - kubectl
   - docker
   - node
