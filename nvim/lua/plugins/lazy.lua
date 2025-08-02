@@ -43,7 +43,7 @@ require('lazy').setup({
       vim.cmd.colorscheme('catppuccin')
     end,
   },
-  
+
   {
     'morhetz/gruvbox',
     priority = 1000,
@@ -53,7 +53,7 @@ require('lazy').setup({
       vim.g.gruvbox_improved_warnings = 1
     end,
   },
-  
+
   {
     'junegunn/seoul256.vim',
     priority = 1000,
@@ -168,7 +168,7 @@ require('lazy').setup({
     'pangloss/vim-javascript',
     ft = 'javascript',
   },
-  
+
   {
     'plasticboy/vim-markdown',
     ft = 'markdown',
@@ -312,30 +312,21 @@ require('lazy').setup({
       -- Set up keymaps
       local hop = require('hop')
       local directions = require('hop.hint').HintDirection
-      
+
       -- Jump to any word (using 'f' as requested)
       vim.keymap.set('', 'f', function()
         hop.hint_words()
       end, { desc = 'Hop to word' })
-      
+
       -- Jump to any character
       vim.keymap.set('', '<leader>c', function()
         hop.hint_char1()
       end, { desc = 'Hop to character' })
-      
+
       -- Jump to any line
       vim.keymap.set('', '<leader>l', function()
         hop.hint_lines()
       end, { desc = 'Hop to line' })
-      
-      -- Jump forward/backward to characters on current line (using s/S)
-      vim.keymap.set('', 's', function()
-        hop.hint_char1({ direction = directions.AFTER_CURSOR, current_line_only = true })
-      end, { desc = 'Hop forward to char (current line)' })
-      
-      vim.keymap.set('', 'S', function()
-        hop.hint_char1({ direction = directions.BEFORE_CURSOR, current_line_only = true })
-      end, { desc = 'Hop backward to char (current line)' })
     end,
   },
 }, {
