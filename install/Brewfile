@@ -134,6 +134,7 @@ brew "flac"                   # FLAC audio codec
 
 # Fonts
 cask "font-fira-code"         # Programming font with ligatures
+cask "font-jetbrains-mono-nerd-font" # Font for terminal
 
 # ============================================================================
 # SYSTEM UTILITIES
