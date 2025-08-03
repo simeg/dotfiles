@@ -20,9 +20,9 @@ execute_rollback() {
     if [[ ${#ROLLBACK_COMMANDS[@]} -eq 0 ]]; then
         return
     fi
-    
+
     log_warning "Executing rollback commands..."
-    
+
     # Execute in reverse order
     for (( i=${#ROLLBACK_COMMANDS[@]}-1 ; i>=0 ; i-- )); do
         log_info "Rolling back: ${ROLLBACK_COMMANDS[i]}"
@@ -35,10 +35,10 @@ handle_error() {
     local exit_code=$?
     # shellcheck disable=SC2034  # SETUP_FAILED is used for error tracking
     SETUP_FAILED=true
-    
+
     log_error "Setup failed with exit code $exit_code"
     log_error "Last command: $BASH_COMMAND"
-    
+
     if [[ ${#ROLLBACK_COMMANDS[@]} -gt 0 ]]; then
         if ask_yes_no "❌ Setup failed. Do you want to rollback changes?" "y"; then
             execute_rollback
@@ -49,7 +49,7 @@ handle_error() {
     else
         log_warning "Setup failed with no rollback actions available"
     fi
-    
+
     exit $exit_code
 }
 
@@ -251,13 +251,13 @@ backup_existing() {
 # Install Homebrew
 install_homebrew() {
     log_info "Installing Homebrew..."
-    
+
     # Only add rollback if Homebrew wasn't already installed
     if ! command -v brew &> /dev/null; then
         # shellcheck disable=SC2016  # Single quotes intentional - command evaluated later during rollback
         add_rollback 'if command -v brew &> /dev/null; then /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)"; fi'
     fi
-    
+
     if ! ./scripts/install/brew.sh; then
         log_error "Failed to install Homebrew"
         exit 1
@@ -323,15 +323,25 @@ install_macos_settings() {
 # Create symlinks
 create_symlinks() {
     log_info "Creating symlinks..."
-    
+
     # Add rollback to clean symlinks if needed
     add_rollback 'make clean &> /dev/null || true'
-    
+
     if ! ./scripts/symlink.sh; then
         log_error "Failed to create symlinks"
         exit 1
     fi
     log_success "Symlinks created successfully"
+}
+
+# Configure shell settings
+configure_shell_settings() {
+    log_info "Configuring shell settings..."
+
+    # Create .hushlogin to suppress login messages
+    touch ~/.hushlogin
+
+    log_success "Shell settings configured"
 }
 
 # Make scripts executable
@@ -363,7 +373,7 @@ run_lint() {
 main() {
     log_info "Starting dotfiles installation..."
 
-    # Change to dotfiles root directory  
+    # Change to dotfiles root directory
     cd "$(dirname "$0")/.."
 
     # Run interactive configuration if enabled
@@ -407,6 +417,9 @@ main() {
         create_symlinks
     fi
 
+    # Configure shell settings
+    configure_shell_settings
+
     # Post-installation
     run_lint
 
@@ -422,7 +435,7 @@ main() {
     echo "  1. Run './scripts/validate.sh' to verify the installation"
     echo "  2. Run './scripts/profile-shell.sh --startup' to check performance"
     echo "  3. Create ~/.config/zsh/private.zsh for sensitive environment variables"
-    
+
     if [[ "$ENABLE_ANALYTICS" == true ]]; then
         echo "  4. Try 'make analytics' to see package usage and performance insights"
     fi
