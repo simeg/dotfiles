@@ -26,6 +26,11 @@ source "${HOME}/.znap-plugins.zsh"
 fpath=(~/.local/share/zsh/completions ~/.config/zsh/completions $fpath)
 autoload -U compinit && compinit
 
+# Add completions for git-x
+if [[ -d ~/.local/share/zsh/site-functions ]]; then
+  fpath=(~/.local/share/zsh/site-functions $fpath)
+  autoload -U compinit && compinit
+fi
 
 ########################################
 # 💻 Prompt (fast init)
@@ -146,5 +151,3 @@ vi() { nvim "$@"; }
 ########################################
 eval "$(atuin init zsh)"
 
-compdef _git-x git-x
-compdef '_git-x' 'git x'
