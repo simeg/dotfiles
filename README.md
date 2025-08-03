@@ -11,16 +11,14 @@ These are my dotfiles. There are many like them, but these ones are mine. My dot
 
 ```bash
 # Clone the repository
-git clone https://github.com/simeg/dotfiles.git ~/.dotfiles
-cd ~/.dotfiles
+git clone https://github.com/simeg/dotfiles.git simeg-dotfiles
+cd ~/simeg-dotfiles
 
 # Run the complete setup
 make setup
-# or
-./scripts/setup.sh
 
 # Verify everything is working
-./scripts/validate.sh
+make validate
 ```
 
 ## 📋 What's Included
@@ -36,7 +34,7 @@ make setup
 
 ### Setup & Installation
 ```bash
-make setup                    # Complete initial setup
+make setup                   # Complete initial setup
 ./scripts/setup.sh           # Same as above with more options
 ./scripts/setup.sh --help    # See all setup options
 ```
@@ -60,31 +58,31 @@ make lint                    # Run shellcheck on all scripts
 ## 📁 Directory Structure
 
 ```
-├── .config/               # Configuration files (mirrors ~/.config structure)
-│   ├── zsh/              # Zsh configuration files (moved to .config/zsh/)
-│   │   ├── .zshrc        # Main Zsh configuration
-│   │   ├── .znap-plugins.zsh  # Plugin definitions
-│   │   ├── aliases.zsh   # Command aliases
-│   │   ├── exports.zsh   # Environment variables
-│   │   ├── functions.zsh # Custom functions
-│   │   ├── misc.zsh      # Miscellaneous config
-│   │   ├── path.zsh      # PATH modifications
-│   │   └── completions/  # Tab completion scripts
-│   ├── nvim/             # Neovim configuration with Lazy.nvim (moved to .config/nvim/)
-│   ├── starship/         # Starship prompt themes (moved to .config/starship/)
-│   │   └── themes/       # Available starship themes
-│   └── atuin/            # Shell history sync configuration (moved to .config/atuin/)
-├── bin/                  # Custom utility scripts
-├── git/                  # Git configuration files
-├── scripts/              # Management and setup scripts
-│   ├── install/          # Installation scripts
-│   │   ├── Brewfile      # Homebrew packages
-│   │   ├── brew.sh       # Homebrew installer
-│   │   └── zsh.sh        # Zsh setup
-│   ├── setup.sh          # Main setup script
-│   ├── update.sh         # Update script
-│   ├── validate.sh       # Configuration validator
-│   └── symlink.sh        # Symlink creator
+├── .config/                    # Configuration files (mirrors ~/.config structure)
+│   ├── zsh/                    # Zsh configuration files (moved to .config/zsh/)
+│   │   ├── .zshrc              # Main Zsh configuration
+│   │   ├── .znap-plugins.zsh   # Plugin definitions
+│   │   ├── aliases.zsh         # Command aliases
+│   │   ├── exports.zsh         # Environment variables
+│   │   ├── functions.zsh       # Custom functions
+│   │   ├── misc.zsh            # Miscellaneous config
+│   │   ├── path.zsh            # PATH modifications
+│   │   └── completions/        # Tab completion scripts
+│   ├── nvim/                   # Neovim configuration with Lazy.nvim (moved to .config/nvim/)
+│   ├── starship/               # Starship prompt themes (moved to .config/starship/)
+│   │   └── themes/             # Available starship themes
+│   └── atuin/                  # Shell history sync configuration (moved to .config/atuin/)
+├── bin/                        # Custom utility scripts
+├── git/                        # Git configuration files
+├── scripts/                    # Management and setup scripts
+│   ├── install/                # Installation scripts
+│   │   ├── Brewfile            # Homebrew packages
+│   │   ├── brew.sh             # Homebrew installer
+│   │   └── zsh.sh              # Zsh setup
+│   ├── setup.sh                # Main setup script
+│   ├── update.sh               # Update script
+│   ├── validate.sh             # Configuration validator
+│   └── symlink.sh              # Symlink creator
 ```
 
 ## 🔧 Custom Bin Scripts
@@ -110,11 +108,11 @@ This repository includes comprehensive analytics and performance monitoring:
 
 ```bash
 # Package usage analytics
-make analytics-packages        # Analyze which packages you actually use
+make analytics-packages      # Analyze which packages you actually use
 ./scripts/analyze-package-usage.sh analyze
 
 # Performance monitoring
-make perf-dashboard           # Interactive performance dashboard
+make perf-dashboard          # Interactive performance dashboard
 make analytics-performance   # Comprehensive performance analysis
 
 # Combined analytics
@@ -153,11 +151,7 @@ This repository includes multiple starship themes and a convenient theme switche
 
 ### Available Themes
 
-- **enhanced** - Full-featured theme with all modules (git metrics, language versions, etc.)
-- **simple** - Balanced theme with essential info but not overwhelming
-- **minimal** - Clean and fast prompt with only directory and git branch
-- **neon** - Vibrant theme with bright colors and modern styling
-- **rainbow** - Colorful theme with gradient effects and rich visual elements
+See [theme folder](.config/starship/themes).
 
 ### Theme Commands
 
@@ -166,8 +160,8 @@ starship-theme list              # List all available themes
 starship-theme current           # Show current active theme
 starship-theme set minimal       # Switch to minimal theme
 starship-theme preview enhanced  # Preview theme configuration
-starship-theme backup           # Backup current configuration
-starship-theme restore          # Restore from backup
+starship-theme backup            # Backup current configuration
+starship-theme restore           # Restore from backup
 ```
 
 ### Adding Your Own Themes
@@ -300,4 +294,3 @@ When you set up dotfiles on a new computer, remember to:
    ```bash
    git status  # private.zsh should NOT appear in untracked files
    ```
-
