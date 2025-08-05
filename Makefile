@@ -5,13 +5,12 @@
 # and safe to run multiple times.
 
 # Define all phony targets (targets that don't create files)
-.PHONY: all setup update validate test test-quick test-syntax test-ci ci \
+.PHONY: all setup update validate test test-ci ci \
         lint symlink clean install uninstall \
-        health health-quick profile profile-startup \
-        deps deps-essential deps-core \
-        packages packages-analyze packages-export packages-update packages-install \
-        analytics analytics-packages analytics-performance analytics-report \
-        perf-dashboard perf-report \
+        health profile \
+        deps \
+        packages \
+        analytics \
         help
 
 # =============================================================================
@@ -40,36 +39,19 @@ help:
 	@echo "Quality Assurance:"
 	@echo "  lint               Run shellcheck on all shell scripts"
 	@echo "  test               Run complete test suite"
-	@echo "  test-quick         Run quick validation tests only"
-	@echo "  test-syntax        Run syntax-only tests"
 	@echo "  test-ci            Run CI-friendly tests (no symlink dependencies)"
 	@echo "  ci                 Run full CI pipeline (lint + test-ci)"
 	@echo ""
 	@echo "System Health:"
 	@echo "  health             Complete system health check"
-	@echo "  health-quick       Quick health check (essential components only)"
 	@echo "  profile            Profile shell startup performance"
-	@echo "  profile-startup    Profile startup with detailed timing"
+	@echo "  deps               Check all dependencies"
 	@echo ""
 	@echo "Package Management:"
-	@echo "  packages           Sync and analyze package usage"
-	@echo "  packages-analyze   Analyze differences between installed and configured packages"
-	@echo "  packages-export    Export package lists for other package managers"
-	@echo "  packages-update    Update Brewfile with missing packages"
-	@echo "  packages-install   Install packages from Brewfile"
-	@echo ""
-	@echo "Dependency Management:"
-	@echo "  deps               Check all dependencies"
-	@echo "  deps-essential     Check essential dependencies only"
-	@echo "  deps-core          Check core development dependencies"
+	@echo "  packages           Analyze and sync package usage"
 	@echo ""
 	@echo "Analytics & Performance:"
 	@echo "  analytics          Run comprehensive analytics (packages + performance)"
-	@echo "  analytics-packages Analyze package usage patterns"
-	@echo "  analytics-performance Analyze shell and command performance"
-	@echo "  analytics-report   Generate detailed analytics reports"
-	@echo "  perf-dashboard     Show interactive performance dashboard"
-	@echo "  perf-report        Generate comprehensive performance report"
 
 # =============================================================================
 # SETUP & INSTALLATION
@@ -82,7 +64,7 @@ setup:
 	./scripts/setup.sh
 
 # Install packages and dependencies from Brewfile
-install: packages-install
+install: packages
 
 # Remove symlinks and perform cleanup
 uninstall: clean
@@ -133,15 +115,6 @@ test:
 	@echo "🧪 Running complete test suite..."
 	./scripts/tests/test_dotfiles.sh
 
-# Run quick validation tests only (faster feedback)
-test-quick:
-	@echo "⚡ Running quick validation tests..."
-	./scripts/tests/test_dotfiles.sh --quick
-
-# Run syntax-only tests (no execution, fastest option)
-test-syntax:
-	@echo "📝 Running syntax-only tests..."
-	./scripts/tests/test_dotfiles.sh --syntax-only
 
 # Run CI-friendly tests (no symlink dependencies)
 test-ci:
@@ -161,20 +134,10 @@ health:
 	@echo "🏥 Running comprehensive system health check..."
 	./scripts/health-check.sh
 
-# Quick health check for essential components only
-health-quick:
-	@echo "⚡ Running quick health check..."
-	./scripts/health-check.sh --quick
-
 # Profile shell startup performance with detailed analysis
 profile:
 	@echo "📊 Profiling shell startup performance..."
 	./scripts/profile-shell.sh
-
-# Profile startup timing with granular measurements
-profile-startup:
-	@echo "⏱️  Profiling startup timing..."
-	./scripts/profile-shell.sh --startup
 
 # =============================================================================
 # DEPENDENCY MANAGEMENT
@@ -185,40 +148,15 @@ deps:
 	@echo "🔧 Checking all dependencies..."
 	./scripts/check-deps.sh
 
-# Check only essential dependencies (minimal viable setup)
-deps-essential:
-	@echo "⚡ Checking essential dependencies..."
-	./scripts/check-deps.sh --essential
-
-# Check core development dependencies
-deps-core:
-	@echo "💻 Checking core development dependencies..."
-	./scripts/check-deps.sh --core
-
 # =============================================================================
 # PACKAGE MANAGEMENT
 # =============================================================================
 
-# Comprehensive package synchronization and analysis
-packages: packages-analyze
-
-# Analyze differences between installed packages and Brewfile
-packages-analyze:
-	@echo "📦 Analyzing package differences..."
-	./scripts/sync-packages.sh analyze
-
-# Export package lists for other package managers (npm, pipx, etc.)
-packages-export:
-	@echo "📤 Exporting package lists..."
-	./scripts/sync-packages.sh export
-
-# Update Brewfile with currently installed but missing packages
-packages-update:
-	@echo "🔄 Updating Brewfile with missing packages..."
-	./scripts/sync-packages.sh update
-
-# Install packages from Brewfile
-packages-install:
+# Comprehensive package management: analyze, sync, and install
+packages:
+	@echo "📦 Managing packages..."
+	@echo "📊 Analyzing package differences..."
+	@./scripts/sync-packages.sh analyze
 	@echo "📥 Installing packages from Brewfile..."
 	@if command -v brew >/dev/null 2>&1; then \
 		brew bundle --file=install/Brewfile; \
@@ -237,35 +175,9 @@ analytics:
 	@echo "📊 Package Usage Analysis:"
 	@./scripts/analyze-package-usage.sh analyze || echo "⚠️  Package analytics require data collection (run commands first)"
 	@echo ""
-	@echo "⚡ Performance Dashboard:"
-	@./bin/perf-dashboard || echo "⚠️  Performance monitoring requires data collection"
-
-# Analyze package usage patterns and identify optimization opportunities
-analytics-packages:
-	@echo "📦 Analyzing package usage patterns..."
-	./scripts/analyze-package-usage.sh analyze
-
-# Analyze shell and command performance metrics
-analytics-performance:
-	@echo "⚡ Analyzing performance metrics..."
-	./scripts/performance-report.sh comprehensive
-
-# Generate comprehensive analytics reports for detailed review
-analytics-report:
-	@echo "📊 Generating comprehensive analytics reports..."
-	@echo "📦 Package Usage Report:"
-	@./scripts/analyze-package-usage.sh report
-	@echo "⚡ Performance Report:"
-	@./scripts/performance-report.sh export
-	@echo "✅ Reports generated in home directory"
-
-# Show interactive performance dashboard with real-time metrics
-perf-dashboard:
+	@echo "⚡ Performance Analysis:"
+	@./scripts/performance-report.sh comprehensive || echo "⚠️  Performance monitoring requires data collection"
+	@echo ""
 	@echo "📊 Opening performance dashboard..."
-	./bin/perf-dashboard
-
-# Generate detailed performance analysis report
-perf-report:
-	@echo "📈 Generating performance analysis report..."
-	./scripts/performance-report.sh comprehensive
+	@./bin/perf-dashboard || echo "⚠️  Performance dashboard requires data collection"
 

@@ -290,6 +290,71 @@ check_dependency_health() {
     fi
 }
 
+# Function to find where a PATH entry might be set from
+find_path_source() {
+    local target_path="$1"
+    local possible_sources=()
+    
+    # Check common locations where PATH might be set
+    local config_files=(
+        "$HOME/.zshrc"
+        "$HOME/.config/zsh/path.zsh"
+        "$HOME/.config/zsh/exports.zsh"
+        "$HOME/.config/zsh/private.zsh"
+        "$HOME/.profile"
+        "$HOME/.bash_profile"
+        "$HOME/.bashrc"
+        "/etc/paths"
+        "/etc/paths.d/*"
+    )
+    
+    for config_file in "${config_files[@]}"; do
+        if [[ -f "$config_file" ]] && grep -q "$target_path" "$config_file" 2>/dev/null; then
+            possible_sources+=("$config_file")
+        fi
+    done
+    
+    # Check /etc/paths.d/ directory
+    if [[ -d "/etc/paths.d" ]]; then
+        while IFS= read -r -d '' file; do
+            if grep -q "$target_path" "$file" 2>/dev/null; then
+                possible_sources+=("$file")
+            fi
+        done < <(find "/etc/paths.d" -type f -print0 2>/dev/null)
+    fi
+    
+    # Check if it might be set by a tool installation
+    local tool_indicators=(
+        "homebrew:brew --prefix"
+        "pyenv:pyenv root"
+        "rbenv:rbenv root"
+        "nvm:NVM_DIR"
+        "cargo:CARGO_HOME"
+        "go:GOPATH"
+        "google-cloud-sdk:gcloud info --format='value(installation.sdk_root)'"
+    )
+    
+    for indicator in "${tool_indicators[@]}"; do
+        local tool_name="${indicator%:*}"
+        local check_cmd="${indicator#*:}"
+        
+        if command -v "${tool_name}" &>/dev/null || [[ -n "${!tool_name}" ]]; then
+            local tool_path
+            if [[ "$check_cmd" == *"gcloud"* ]]; then
+                tool_path=$(eval "$check_cmd" 2>/dev/null || echo "")
+            else
+                tool_path=$(eval "echo \$${check_cmd}" 2>/dev/null || echo "")
+            fi
+            
+            if [[ -n "$tool_path" ]] && [[ "$target_path" == *"$tool_path"* ]]; then
+                possible_sources+=("$tool_name installation")
+            fi
+        fi
+    done
+    
+    printf '%s\n' "${possible_sources[@]}"
+}
+
 # Path health check
 check_path_health() {
     local all_good=true
@@ -318,7 +383,20 @@ check_path_health() {
     done
 
     if [[ ${#bad_paths[@]} -gt 0 ]]; then
-        log_warning "Non-existent directories in PATH: ${bad_paths[*]}"
+        log_warning "Found ${#bad_paths[@]} non-existent directories in PATH:"
+        for bad_path in "${bad_paths[@]}"; do
+            echo "    ❌ $bad_path"
+            
+            # Try to find where this PATH entry might be coming from
+            local sources
+            sources=$(find_path_source "$bad_path")
+            if [[ -n "$sources" ]]; then
+                echo "       Likely set by: $sources"
+            else
+                echo "       Source: unknown (check shell startup files)"
+            fi
+        done
+        echo "    💡 To fix: Remove these entries from the identified files or create the missing directories"
         all_good=false
     else
         log_success "All PATH directories exist"

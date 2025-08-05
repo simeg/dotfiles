@@ -1,3 +1,6 @@
+# ☀️ 70's Retro Starship Theme
+# Colors like retro 70's, not minimal, same as catppuccin but different colors
+
 "$schema" = 'https://starship.rs/config-schema.json'
 
 format = """

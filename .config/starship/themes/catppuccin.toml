@@ -1,3 +1,6 @@
+# 🐱 Colorful Starship Theme
+# Rainbow like colors, not minimal, beautiful
+
 "$schema" = 'https://starship.rs/config-schema.json'
 
 format = """

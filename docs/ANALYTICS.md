@@ -18,7 +18,7 @@ Track which installed packages you actually use to identify bloat and optimize y
 
 ```bash
 # Analyze package usage (last 30 days)
-make analytics-packages
+make analytics
 ./scripts/analyze-package-usage.sh analyze
 
 # Analyze specific time period
@@ -78,13 +78,12 @@ Monitor shell performance, startup times, and identify optimization opportunitie
 ### Commands
 
 ```bash
-# Show interactive performance dashboard
-make perf-dashboard
-./bin/perf-dashboard
+# Run comprehensive performance analysis (includes dashboard)
+make analytics
 
-# Run comprehensive performance analysis
-make analytics-performance
-./scripts/performance-report.sh comprehensive
+# Individual components:
+./bin/perf-dashboard                         # Interactive dashboard
+./scripts/performance-report.sh comprehensive   # Detailed analysis
 
 # Specific analyses
 ./scripts/performance-report.sh startup      # Startup time analysis
@@ -135,11 +134,8 @@ make analytics-performance
 Run all analytics together for a complete overview.
 
 ```bash
-# Run both package and performance analytics
+# Run comprehensive analytics (packages + performance + dashboard)
 make analytics
-
-# Generate comprehensive reports
-make analytics-report
 ```
 
 ## 📈 Data Collection
@@ -197,7 +193,7 @@ Performance monitoring complements the existing profiling tools:
 
 ```bash
 make profile     # Detailed startup profiling
-make perf-dashboard  # Real-time performance monitoring
+make analytics   # Comprehensive performance monitoring including dashboard
 ```
 
 ## 🎯 Optimization Workflow

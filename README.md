@@ -2,9 +2,7 @@
 
 These are my dotfiles. There are many like them, but these ones are mine. My dotfiles are my best friends. They are my life. I must master them as I master my life. My dotfiles, without me, are useless. Without my dotfiles, I am useless.
 
-<p align="center">
-   <img src="banner.png">
-</p>
+<img src="banner.png" alt="Dotfiles Banner" width="100%" style="display: block; margin: 0 auto;">
 
 
 ## 🚀 Quick Start
@@ -34,25 +32,24 @@ make validate
 
 ### Setup & Installation
 ```bash
-make setup                   # Complete initial setup
-./scripts/setup.sh           # Same as above with more options
-./scripts/setup.sh --help    # See all setup options
+make setup                    # Complete initial setup
+make install                  # Install packages only
+make symlink                  # Create symlinks only
 ```
 
 ### Updates & Maintenance
 ```bash
-./scripts/update.sh          # Update everything (git, packages, plugins)
-./scripts/update.sh --help   # See all update options
-./scripts/validate.sh        # Verify configuration is working
-make lint                    # Run shellcheck on all scripts
+make update                   # Update everything (git, packages, plugins)
+make validate                 # Verify configuration is working
+make health                   # Comprehensive system health check
+make lint                     # Run shellcheck on all scripts
 ```
 
-### Selective Operations
+### Package & Analytics
 ```bash
-./scripts/setup.sh --symlink-only    # Only create symlinks
-./scripts/update.sh --brew-only      # Only update Homebrew packages
-./scripts/update.sh --nvim-only      # Only update Neovim plugins
-./scripts/validate.sh --zsh          # Only validate Zsh config
+make packages                 # Analyze and sync package usage
+make analytics                # Comprehensive analytics (packages + performance)
+make deps                     # Check all dependencies
 ```
 
 ## 📁 Directory Structure
@@ -102,32 +99,7 @@ Located in `bin/` directory, these scripts enhance your development workflow:
 - **`smart-cat`** - Smart `cat` that uses `glow` for markdown files
 - **`perf-dashboard`** - Performance monitoring dashboard
 
-## 📊 Analytics & Performance Monitoring
-
-This repository includes comprehensive analytics and performance monitoring:
-
-```bash
-# Package usage analytics
-make analytics-packages      # Analyze which packages you actually use
-./scripts/analyze-package-usage.sh analyze
-
-# Performance monitoring
-make perf-dashboard          # Interactive performance dashboard
-make analytics-performance   # Comprehensive performance analysis
-
-# Combined analytics
-make analytics               # Run both package and performance analytics
-make analytics-report        # Generate detailed reports
-```
-
-**Key Features:**
-- **Package Usage Tracking** - Identify unused packages and optimize your setup
-- **Performance Monitoring** - Track shell startup times, plugin performance, and command execution
-- **Trend Analysis** - Detect performance regressions over time
-- **Optimization Suggestions** - Get actionable recommendations for improvements
-- **Interactive Dashboard** - Real-time performance metrics and insights
-
-See [Analytics Documentation](docs/ANALYTICS.md) for detailed usage and features.
+For detailed information about all available commands and targets, see the [Make Targets Documentation](docs/MAKE_TARGETS.md).
 
 ## 🎨 Shell Features
 
