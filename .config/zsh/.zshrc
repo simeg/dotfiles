@@ -67,15 +67,13 @@ znap eval pyenv 'eval "$(pyenv init -)"'
 ########################################
 # 📦 SDKMAN
 ########################################
-export SDKMAN_DIR="$HOME/.sdkman"
-znap eval sdkman '[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ] && source "$SDKMAN_DIR/bin/sdkman-init.sh"'
+source "$HOME/.sdkman/bin/sdkman-init.sh"
 
 ########################################
 # 🧭 zoxide (smart cd)
 ########################################
 # Should not be lazy loaded
 eval "$(zoxide init zsh)"
-
 
 ########################################
 # 🔄 Completions
@@ -121,20 +119,6 @@ skip_global_compinit=1
 # Let znap compile stuff so it's faster to load
 znap compile ~/.zshrc ~/.znap-plugins.zsh || true
 
-# Profiling output (uncomment for debugging)
-# zprof
-
-########################################
-# 📊 Performance & Usage Analytics
-########################################
-
-# Load performance monitoring (disabled - script not yet implemented)
-# if [[ -f ~/.config/dotfiles/perf-monitor.sh ]]; then
-#     source ~/.config/dotfiles/perf-monitor.sh
-#     # Track startup completion
-#     track_shell_startup "$SHELL_STARTUP_START" "complete"
-# fi
-
 # Package Usage Analytics (added by analyze-package-usage.sh)
 if [[ -f ~/.config/dotfiles/usage-analytics.sh ]]; then
     source ~/.config/dotfiles/usage-analytics.sh
@@ -150,4 +134,3 @@ vi() { nvim "$@"; }
 # Atuin (shell history in cloud)
 ########################################
 eval "$(atuin init zsh)"
-
