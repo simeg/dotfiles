@@ -294,9 +294,12 @@ UPDATE_ZSH=true
 UPDATE_SYMLINKS=true
 RUN_LINT=true
 
+# Store original arguments for proper parsing
+ORIGINAL_ARGS=("$@")
+
 # Check for specific only flags first
-while [[ $# -gt 0 ]]; do
-    case $1 in
+for arg in "${ORIGINAL_ARGS[@]}"; do
+    case $arg in
         --brew-only|--nvim-only|--zsh-only|--symlinks-only|--git-only)
             UPDATE_BREW=false
             UPDATE_NVIM=false
@@ -305,14 +308,11 @@ while [[ $# -gt 0 ]]; do
             RUN_LINT=false
             break
             ;;
-        *)
-            shift
-            ;;
     esac
 done
 
-# Reset argument parsing
-set -- "$@"
+# Parse all arguments
+set -- "${ORIGINAL_ARGS[@]}"
 
 while [[ $# -gt 0 ]]; do
     case $1 in
