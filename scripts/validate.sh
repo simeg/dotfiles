@@ -143,7 +143,7 @@ check_zsh_config() {
     check_symlink "$HOME/.znap-plugins.zsh" "$dotfiles_dir/.config/zsh/.znap-plugins.zsh" "Zsh plugins config"
 
     # Check if znap is installed
-    check_directory_exists "$HOME/.znap" "Znap plugin manager"
+    check_directory_exists "$HOME/.zsh/znap" "Znap plugin manager"
 
     # Check if starship config exists (managed by starship-theme tool)
     check_file_exists "$HOME/.config/starship.toml" "Starship config"
@@ -282,7 +282,7 @@ check_modular_config() {
         # Syntax check
         if [[ -f "$config_file" ]]; then
             check
-            if zsh -n "$config_file" 2>/dev/null; then
+            if /bin/zsh -n "$config_file" 2>/dev/null; then
                 log_success "Syntax check: $config is valid"
             else
                 log_error "Syntax check: $config has syntax errors"
@@ -328,7 +328,7 @@ check_shell_performance() {
     local startup_times=()
     for _ in {1..3}; do
         local time_output
-        time_output=$(time (zsh -c 'exit') 2>&1 | grep real | awk '{print $2}')
+        time_output=$(time (/bin/zsh -c 'exit') 2>&1 | grep real | awk '{print $2}')
         startup_times+=("$time_output")
     done
     
@@ -379,7 +379,7 @@ check_shell_functionality() {
 
     # Check if zsh plugins are loaded (in a new zsh session)
     check
-    if zsh -c 'autoload -U compinit && compinit -C && echo "Completions working"' >/dev/null 2>&1; then
+    if /bin/zsh -c 'autoload -U compinit && compinit -C && echo "Completions working"' >/dev/null 2>&1; then
         log_success "Zsh completions: Working"
     else
         log_warning "Zsh completions: May not be working properly"
@@ -395,7 +395,7 @@ check_shell_functionality() {
     
     # Check essential aliases
     check
-    if zsh -c 'source ~/.zshrc && type l' &>/dev/null; then
+    if /bin/zsh -c 'source ~/.zshrc && type l' &>/dev/null; then
         log_success "Aliases: Basic aliases are loaded"
     else
         log_warning "Aliases: May not be loading properly"

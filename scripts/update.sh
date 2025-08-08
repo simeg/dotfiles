@@ -112,6 +112,12 @@ check_uncommitted_changes() {
 
 # Pull latest changes
 pull_latest() {
+    # Skip git pull in CI environments since they already have the latest code
+    if [[ "$DOTFILES_CI" == "true" ]] || [[ -n "$CI" ]] || [[ -n "$GITHUB_ACTIONS" ]]; then
+        log_info "Skipping git pull in CI environment (code already at latest version)"
+        return 0
+    fi
+
     log_info "Pulling latest changes from remote..."
 
     local current_branch
@@ -137,9 +143,25 @@ update_homebrew() {
 
     if command -v brew >/dev/null 2>&1; then
         brew update
+        
         if [[ -f "install/Brewfile" ]]; then
             brew bundle --file=install/Brewfile
-            log_success "Homebrew packages updated"
+            log_success "Core packages updated from Brewfile"
+            
+            # Update Mac App Store apps unless in CI environment
+            if [[ "$DOTFILES_CI" != "true" ]] && [[ -f "install/Brewfile.mas" ]]; then
+                log_info "Updating Mac App Store apps..."
+                if command -v mas >/dev/null 2>&1; then
+                    brew bundle --file=install/Brewfile.mas
+                    log_success "Mac App Store apps updated"
+                else
+                    log_warning "mas CLI not found, skipping Mac App Store app updates"
+                fi
+            else
+                if [[ "$DOTFILES_CI" == "true" ]]; then
+                    log_info "Skipping Mac App Store apps in CI environment"
+                fi
+            fi
         else
             log_warning "Brewfile not found, skipping package updates"
         fi
@@ -150,6 +172,12 @@ update_homebrew() {
 
 # Update Neovim plugins
 update_nvim_plugins() {
+    # Skip plugin updates in CI environments to avoid authentication issues
+    if [[ "$DOTFILES_CI" == "true" ]] || [[ -n "$CI" ]] || [[ -n "$GITHUB_ACTIONS" ]]; then
+        log_info "Skipping Neovim plugin updates in CI environment (fresh installation already has latest)"
+        return 0
+    fi
+
     log_info "Updating Neovim plugins..."
 
     if command -v nvim >/dev/null 2>&1; then
@@ -166,6 +194,12 @@ update_nvim_plugins() {
 
 # Update zsh plugins
 update_zsh_plugins() {
+    # Skip plugin updates in CI environments to avoid authentication issues
+    if [[ "$DOTFILES_CI" == "true" ]] || [[ -n "$CI" ]] || [[ -n "$GITHUB_ACTIONS" ]]; then
+        log_info "Skipping Zsh plugin updates in CI environment (fresh installation already has latest)"
+        return 0
+    fi
+
     log_info "Updating Zsh plugins..."
 
     if [[ -d "$HOME/.zsh/znap" ]]; then

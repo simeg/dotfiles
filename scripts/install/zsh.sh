@@ -15,6 +15,10 @@ fi
 # Install znap, plugin manager
 echo "Installing znap..."
 mkdir -p "${HOME}/.zsh"
-git clone https://github.com/marlonrichert/zsh-snap.git "${HOME}/.zsh/znap"
-echo "Done installing znap!"
+if [[ ! -d "${HOME}/.zsh/znap" ]]; then
+    git clone https://github.com/marlonrichert/zsh-snap.git "${HOME}/.zsh/znap"
+    echo "Done installing znap!"
+else
+    echo "znap already installed"
+fi
 

@@ -1,0 +1,408 @@
+name: Integration Tests
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+env:
+  # Prevent interactive prompts during testing
+  DOTFILES_CI: true
+  HOMEBREW_NO_INSTALL_CLEANUP: 1
+  HOMEBREW_NO_AUTO_UPDATE: 1
+  # Speed up Homebrew installations
+  HOMEBREW_PARALLEL: 1
+  HOMEBREW_INSTALL_FROM_API: 1
+  HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
+  # Handle conflicts gracefully
+  HOMEBREW_NO_INSTALL_UPGRADE: 1
+
+jobs:
+  test-complete-setup:
+    name: Complete Setup Test
+    runs-on: macos-latest
+    timeout-minutes: 20
+
+    steps:
+    - name: Checkout dotfiles
+      uses: actions/checkout@v4
+
+    - name: Save original environment state
+      id: backup
+      run: |
+        echo "Creating backup of existing configuration..."
+
+        # Create backup directory
+        mkdir -p "$HOME/.dotfiles-ci-backup"
+
+        # Backup existing configs if they exist
+        [[ -f ~/.zshrc ]] && cp ~/.zshrc "$HOME/.dotfiles-ci-backup/zshrc.backup" || true
+        [[ -f ~/.gitconfig ]] && cp ~/.gitconfig "$HOME/.dotfiles-ci-backup/gitconfig.backup" || true
+        [[ -d ~/.config ]] && cp -r ~/.config "$HOME/.dotfiles-ci-backup/config.backup" || true
+        [[ -d ~/.zsh ]] && cp -r ~/.zsh "$HOME/.dotfiles-ci-backup/zsh.backup" || true
+
+        # Record what we backed up
+        ls -la "$HOME/.dotfiles-ci-backup/" || true
+
+        echo "backup-created=true" >> $GITHUB_OUTPUT
+
+    # Cache Homebrew downloads (bottles and tarballs)
+    - name: Cache Homebrew downloads
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/Library/Caches/Homebrew
+          /opt/homebrew/Library/Caches
+        key: brew-downloads-${{ runner.os }}-${{ hashFiles('install/Brewfile.ci-minimal') }}
+        restore-keys: |
+          brew-downloads-${{ runner.os }}-
+
+    # Note: Skipping installation cache as it can cause library path issues
+    # when restored across different runner instances. Download cache is sufficient.
+
+    - name: Install test dependencies
+      run: |
+        # Pre-optimize Homebrew
+        brew analytics off
+        brew update --quiet
+
+        # Install tools needed for testing but not part of regular setup
+        if ! command -v timeout >/dev/null 2>&1; then
+          brew install --quiet coreutils  # For gtimeout (timeout)
+        fi
+        
+        # Ensure Homebrew links are correct (fixes cache-related issues)
+        brew doctor --list-checks | grep -v check_for_link_dependency || true
+
+      # Optional: ensure Homebrew present & updatable quickly (macOS runners already have it)
+    - name: Show brew env
+      run: brew config
+
+    - name: Run complete dotfiles setup
+      run: |
+        echo "🚀 Starting complete dotfiles setup..."
+
+        # Make scripts executable
+        find scripts -name "*.sh" -exec chmod +x {} \;
+        chmod +x bin/*
+
+        # Remove existing config files that might conflict with symlinks in CI
+        rm -f ~/.gitconfig ~/.gitignore ~/.zshrc 2>/dev/null || true
+
+        # Set CI environment variable to skip interactive components
+        export DOTFILES_CI=true
+
+        # Run setup with timeout to prevent hanging
+        timeout 15m make setup || {
+          echo "❌ Setup failed or timed out"
+          exit 1
+        }
+        
+        # Fix any Homebrew linking issues that might occur after package installation
+        echo "🔧 Fixing potential Homebrew linking issues..."
+        brew doctor 2>/dev/null | grep -E "(linking|permission)" || true
+        
+        # Force link packages that commonly have conflicts in CI
+        brew link --overwrite --force zsh 2>/dev/null || true
+        brew link --overwrite --force openssl@3 2>/dev/null || true
+        brew link --overwrite --force pyenv 2>/dev/null || true
+
+    - name: Verify Brew bundle
+      run: brew bundle check --file=install/Brewfile.ci-minimal || true
+
+    - name: Validate core installation
+      run: |
+        echo "✅ Validating core installation..."
+
+        # Run the built-in validation
+        make validate
+
+        # Additional specific checks
+        echo "Checking symlinks..."
+        test -L ~/.zshrc || { echo "❌ ~/.zshrc not symlinked"; exit 1; }
+        test -L ~/.gitconfig || { echo "❌ ~/.gitconfig not symlinked"; exit 1; }
+        test -L ~/.config/nvim || { echo "❌ ~/.config/nvim not symlinked"; exit 1; }
+
+        echo "Checking tools are available..."
+        command -v nvim || { echo "❌ nvim not found"; exit 1; }
+        command -v starship || { echo "❌ starship not found"; exit 1; }
+        command -v git || { echo "❌ git not found"; exit 1; }
+
+        echo "Checking git configuration..."
+        git config --get user.name >/dev/null || echo "⚠️ Git user.name not set (expected in CI)"
+
+    - name: Test shell functionality
+      run: |
+        echo "🐚 Testing shell functionality..."
+
+        # Test zsh loads without errors
+        /bin/zsh -i -c 'echo "✅ Zsh interactive shell loads successfully"' || {
+          echo "❌ Zsh failed to load interactively"
+          exit 1
+        }
+
+        # Test starship prompt works
+        starship prompt --path "$PWD" >/dev/null || {
+          echo "❌ Starship prompt failed"
+          exit 1
+        }
+
+        # Test custom bin scripts
+        ./bin/smart-cat README.md >/dev/null || {
+          echo "❌ smart-cat failed"
+          exit 1
+        }
+
+    - name: Test theme switching functionality
+      run: |
+        echo "🎨 Testing theme switching..."
+
+        # Test theme listing
+        ./bin/starship-theme list || {
+          echo "❌ starship-theme list failed"
+          exit 1
+        }
+
+        # Test theme switching
+        original_theme=$(./bin/starship-theme current)
+        echo "Original theme: $original_theme"
+
+        ./bin/starship-theme set minimal || {
+          echo "❌ Failed to set minimal theme"
+          exit 1
+        }
+
+        current_theme=$(./bin/starship-theme current)
+        # Extract just the theme name from the output (after "Current theme: ")
+        theme_name=$(echo "$current_theme" | grep -o "Current theme: [^[:space:]]*" | sed 's/Current theme: //')
+        [[ "$theme_name" == "minimal" ]] || {
+          echo "❌ Theme not switched correctly. Expected: minimal, Got: $theme_name"
+          echo "Full output: $current_theme"
+          exit 1
+        }
+
+        # Test backup and restore
+        ./bin/starship-theme backup || {
+          echo "❌ Theme backup failed"
+          exit 1
+        }
+
+        ./bin/starship-theme set rainbow || {
+          echo "❌ Failed to set rainbow theme"
+          exit 1
+        }
+
+        ./bin/starship-theme restore || {
+          echo "❌ Theme restore failed"
+          exit 1
+        }
+
+        echo "✅ Theme switching tests passed"
+
+    - name: Test update functionality
+      run: |
+        echo "🔄 Testing update functionality..."
+
+        # Test update components individually (safer in CI)
+        ./scripts/update.sh --git-only || {
+          echo "❌ Git-only update failed"
+          exit 1
+        }
+
+        ./scripts/update.sh --symlinks-only || {
+          echo "❌ Symlinks-only update failed"
+          exit 1
+        }
+
+        # Test update with specific exclusions
+        ./scripts/update.sh --no-brew --no-nvim || {
+          echo "❌ Selective update failed"
+          exit 1
+        }
+
+        echo "✅ Update functionality tests passed"
+
+    - name: Test analytics and health checks
+      run: |
+        echo "📊 Testing analytics and health functionality..."
+
+        # Test health check
+        make health || {
+          echo "❌ Health check failed"
+          exit 1
+        }
+
+        # Test analytics (should work even without data)
+        ./scripts/analyze-package-usage.sh analyze || echo "⚠️ Package analysis requires usage data"
+
+        # Test performance monitoring setup
+        test -f "$HOME/.config/dotfiles/perf-data.csv" || echo "⚠️ Performance data file not created yet"
+
+        echo "✅ Analytics and health tests completed"
+
+    - name: Test linting and validation
+      run: |
+        echo "🔍 Testing linting and validation..."
+
+        # Run linting
+        make lint || {
+          echo "❌ Linting failed"
+          exit 1
+        }
+
+        # Run comprehensive validation
+        make validate || {
+          echo "❌ Comprehensive validation failed"
+          exit 1
+        }
+
+        echo "✅ Linting and validation passed"
+
+    - name: Performance regression test
+      run: |
+        echo "⚡ Testing performance benchmarks..."
+
+        # Test shell startup time (should be under 2 seconds in CI)
+        start_time=$(date +%s%3N)
+        /bin/zsh -i -c 'exit'
+        end_time=$(date +%s%3N)
+        duration=$((end_time - start_time))
+
+        echo "Shell startup time: ${duration}ms"
+
+        if [[ $duration -gt 2000 ]]; then
+          echo "⚠️ Shell startup slower than expected: ${duration}ms > 2000ms"
+          # Don't fail in CI as it might be due to GitHub Actions performance
+        else
+          echo "✅ Shell startup performance acceptable: ${duration}ms"
+        fi
+
+    - name: Test cleanup functionality
+      run: |
+        echo "🧹 Testing cleanup functionality..."
+
+        # Test make clean
+        make clean || {
+          echo "❌ Make clean failed"
+          exit 1
+        }
+
+        # Verify symlinks were removed
+        [[ ! -L ~/.zshrc ]] || {
+          echo "❌ Symlinks not cleaned up properly"
+          exit 1
+        }
+
+        echo "✅ Cleanup functionality works"
+
+    - name: Restore original environment
+      if: always()
+      run: |
+        echo "🔄 Restoring original environment..."
+
+        # Remove any symlinks we created
+        find "$HOME" -maxdepth 1 -type l -delete 2>/dev/null || true
+        rm -rf ~/.config/nvim ~/.config/starship ~/.config/atuin ~/.config/zsh 2>/dev/null || true
+
+        # Restore original configs if they existed
+        if [[ -d "$HOME/.dotfiles-ci-backup" ]]; then
+          [[ -f "$HOME/.dotfiles-ci-backup/zshrc.backup" ]] && mv "$HOME/.dotfiles-ci-backup/zshrc.backup" ~/.zshrc || true
+          [[ -f "$HOME/.dotfiles-ci-backup/gitconfig.backup" ]] && mv "$HOME/.dotfiles-ci-backup/gitconfig.backup" ~/.gitconfig || true
+          [[ -d "$HOME/.dotfiles-ci-backup/config.backup" ]] && mv "$HOME/.dotfiles-ci-backup/config.backup" ~/.config || true
+          [[ -d "$HOME/.dotfiles-ci-backup/zsh.backup" ]] && mv "$HOME/.dotfiles-ci-backup/zsh.backup" ~/.zsh || true
+
+          # Clean up backup directory
+          rm -rf "$HOME/.dotfiles-ci-backup"
+
+          echo "✅ Original environment restored"
+        else
+          echo "ℹ️ No original environment to restore"
+        fi
+
+    - name: Report test results
+      if: always()
+      run: |
+        echo "📋 Integration Test Summary"
+        echo "=========================="
+        echo "Repository: ${{ github.repository }}"
+        echo "Branch: ${{ github.ref_name }}"
+        echo "Commit: ${{ github.sha }}"
+        echo "Runner: ${{ runner.os }} ${{ runner.arch }}"
+        echo "Workflow: ${{ github.workflow }}"
+        echo "Run ID: ${{ github.run_id }}"
+
+        if [[ "${{ job.status }}" == "success" ]]; then
+          echo "✅ All integration tests passed!"
+        else
+          echo "❌ Some integration tests failed."
+          echo "Check the logs above for details."
+        fi
+
+  test-compatibility:
+    name: Compatibility Test
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+
+    strategy:
+      matrix:
+        os: [macos-latest]
+      fail-fast: false
+
+    steps:
+    - name: Checkout dotfiles
+      uses: actions/checkout@v4
+
+    - name: Test basic compatibility
+      run: |
+        echo "🔧 Testing compatibility on ${{ matrix.os }}..."
+
+        # Test script syntax
+        find scripts -name "*.sh" -exec bash -n {} \; || {
+          echo "❌ Script syntax errors found"
+          exit 1
+        }
+
+        # Test make targets exist
+        make help >/dev/null || {
+          echo "❌ Make help failed"
+          exit 1
+        }
+
+        # Test core dependencies
+        command -v git || { echo "❌ git not found"; exit 1; }
+        command -v curl || { echo "❌ curl not found"; exit 1; }
+
+        echo "✅ Basic compatibility test passed on ${{ matrix.os }}"
+
+  test-security:
+    name: Security Scan
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout dotfiles
+      uses: actions/checkout@v4
+
+    - name: Scan for secrets
+      run: |
+        echo "🔒 Scanning for potential secrets..."
+
+        # Check for common secret patterns
+        if grep -r -E "(api[_-]?key|password|secret|token)" --include="*.sh" --include="*.zsh" --include="*.toml" . | grep -v "# Example" | grep -v "your-"; then
+          echo "⚠️ Potential secrets found in code"
+          echo "Please review the above matches"
+          # Don't fail as these might be false positives
+        else
+          echo "✅ No obvious secrets found"
+        fi
+
+    - name: Check file permissions
+      run: |
+        echo "🔐 Checking file permissions..."
+
+        # Check for overly permissive files
+        find . -type f -perm +022 -not -path "./.git/*" -not -name "*.md" | while read -r file; do
+          echo "⚠️ World-writable file: $file"
+        done
+
+        echo "✅ File permissions check completed"

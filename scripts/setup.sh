@@ -276,9 +276,55 @@ install_homebrew() {
 # Install packages from Brewfile
 install_packages() {
     log_info "Installing packages from Brewfile..."
-    if [[ -f "install/Brewfile" ]]; then
-        brew bundle --file=install/Brewfile
-        log_success "Package installation completed"
+
+    # Use minimal Brewfile in CI for speed
+    local brewfile="install/Brewfile"
+    if [[ "$DOTFILES_CI" == "true" ]] && [[ -f "install/Brewfile.ci-minimal" ]]; then
+        brewfile="install/Brewfile.ci-minimal"
+        log_info "Using minimal CI Brewfile for faster installation"
+        
+        # Handle common CI package conflicts
+        log_info "Resolving package conflicts in CI environment..."
+        brew unlink openssl@1.1 2>/dev/null || true
+        brew unlink zsh 2>/dev/null || true
+        brew unlink pyenv 2>/dev/null || true
+    fi
+
+    if [[ -f "$brewfile" ]]; then
+        if ! brew bundle --file="$brewfile"; then
+            log_warning "Some packages failed to install, attempting to fix conflicts..."
+            # Force link packages that commonly conflict
+            brew link --overwrite --force openssl@3 2>/dev/null || true
+            brew link --overwrite --force pyenv 2>/dev/null || true
+            brew link --overwrite --force zsh 2>/dev/null || true
+            
+            # Try bundle again after fixing conflicts
+            if brew bundle --file="$brewfile"; then
+                log_success "Core packages installed after conflict resolution"
+            else
+                log_warning "Some packages may have failed to install, but continuing..."
+            fi
+        else
+            log_success "Core packages installed from $brewfile"
+        fi
+
+        # Install Mac App Store apps unless in CI environment
+        if [[ "$DOTFILES_CI" != "true" ]] && [[ -f "install/Brewfile.mas" ]]; then
+            log_info "Installing Mac App Store apps..."
+            if command -v mas >/dev/null 2>&1; then
+                brew bundle --file=install/Brewfile.mas
+                log_success "Mac App Store apps installed"
+            else
+                log_warning "mas CLI not found, skipping Mac App Store apps"
+                log_info "Install with: brew install mas"
+            fi
+        else
+            if [[ "$DOTFILES_CI" == "true" ]]; then
+                log_info "Skipping Mac App Store apps in CI environment"
+            else
+                log_warning "Brewfile.mas not found, skipping Mac App Store apps"
+            fi
+        fi
     else
         log_warning "Brewfile not found, skipping package installation"
     fi

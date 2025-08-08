@@ -114,6 +114,15 @@ if [[ -f ".config/nvim/.ideavimrc" ]]; then
   safe_ln "$(pwd)/.config/nvim/.ideavimrc" "$HOME/.ideavimrc"
 fi
 
+# Git configuration files
+if [[ -f "git/.gitconfig" ]]; then
+  safe_ln "$(pwd)/git/.gitconfig" "$HOME/.gitconfig"
+fi
+
+if [[ -f "git/.gitignore" ]]; then
+  safe_ln "$(pwd)/git/.gitignore" "$HOME/.gitignore"
+fi
+
 echo "✅ All symlinks set with new structure!"
 echo ""
 echo "📁 Structure summary:"

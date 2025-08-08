@@ -13,12 +13,7 @@ brew "git-filter-repo"        # Git repo filtering tool
 # Languages & Runtimes
 brew "node"                   # Node.js
 brew "python@3.13"            # Python 3.13
-brew "python@3.12"            # Python 3.12
-brew "python@3.11"            # Python 3.11 (for compatibility)
-brew "python@3.10"            # Python 3.10
-brew "python@3.8"             # Python 3.8
 brew "go"                     # Go programming language
-brew "rust"                   # Rust programming language
 brew "ruby"                   # Ruby programming language
 brew "lua"                    # Lua programming language
 brew "perl"                   # Perl programming language
@@ -26,11 +21,10 @@ brew "perl"                   # Perl programming language
 # Java & JVM
 brew "openjdk@21"             # Java 21 LTS
 brew "openjdk@17"             # Java 17 LTS
-brew "openjdk@11"             # Java 11 LTS
 brew "scala"                  # Scala programming language
 brew "sbt"                    # Scala build tool
 brew "maven"                  # Java build tool
-brew "mvnd"                   # Maven daemon for faster builds
+brew "mvndaemon/homebrew-mvnd/mvnd" # Maven daemon for faster builds
 cask "corretto@11"            # Amazon Corretto 11 JDK
 cask "corretto@17"            # Amazon Corretto 17 JDK
 
@@ -49,15 +43,13 @@ brew "htop"                   # Better top
 brew "procs"                  # Modern ps
 brew "eza"                    # Modern ls replacement
 brew "glow"                   # Markdown reader
-brew "git-delta"             # Enhanced git diff viewer (better than diff-so-fancy)
+brew "git-delta"              # Enhanced git diff viewer (better than diff-so-fancy)
 
 # File Management
 brew "zoxide"                 # Smart cd command
 brew "entr"                   # File watcher
-brew "f3"                     # Flash drive tester
 
 # Network & HTTP
-brew "httpie"                 # HTTP client
 brew "wget"                   # Web file downloader
 brew "nmap"                   # Network discovery
 brew "wifi-password"          # Get WiFi password
@@ -78,9 +70,6 @@ brew "pssh"                   # Parallel SSH
 
 # Editors & IDEs
 brew "neovim"                 # Modern vim replacement
-brew "vim"                    # Text editor (legacy, for compatibility)
-cask "intellij-idea"          # Java/Kotlin IDE
-cask "pycharm"                # Python IDE
 
 # Version Managers
 brew "pyenv"                  # Python version manager
@@ -97,7 +86,6 @@ brew "yarn"                   # JavaScript package manager
 # ============================================================================
 
 # Cloud Services
-cask "google-cloud-sdk"       # Google Cloud CLI
 cask "gcloud-cli"             # Google Cloud CLI (alternative)
 brew "kubectl"                # Kubernetes CLI
 brew "k9s"                    # Kubernetes TUI
@@ -130,7 +118,6 @@ brew "hyperfine"              # Performance measure tool
 
 # Media Players & Tools
 cask "vlc"                    # Media player
-cask "steam"                  # Gaming platform
 brew "flac"                   # FLAC audio codec
 
 # Fonts
@@ -152,19 +139,10 @@ cask "tuple"                  # Screen sharing for pair programming
 brew "starship"               # Cross-shell prompt
 brew "zsh"                    # Z shell
 cask "iterm2"                 # Terminal emulator
-cask "warp"                   # Modern terminal
 
 # ============================================================================
 # MAC APP STORE APPS
 # ============================================================================
-
-mas "Xcode", id: 497799835                # Apple's IDE
-mas "Airmail", id: 918858936              # Email client
-mas "Amphetamine", id: 937984704          # Keep Mac awake
-mas "iMovie", id: 408981434               # Video editing
-mas "Monosnap", id: 540348655             # Screenshot tool
-mas "Hidden Bar", id: 1452453066          # Hide menu bar items
-mas "Magnet", id: 441258766               # Window management
-mas "Keynote", id: 409183694              # Presentations
-mas "GarageBand", id: 682658836           # Music creation
+# Note: Mac App Store apps are stored in Brewfile.mas and included automatically
+# They are skipped during CI testing to avoid authentication requirements
 

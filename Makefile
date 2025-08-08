@@ -5,7 +5,7 @@
 # and safe to run multiple times.
 
 # Define all phony targets (targets that don't create files)
-.PHONY: all setup update validate test test-ci ci \
+.PHONY: all setup update validate test test-ci test-integration ci \
         lint symlink clean install uninstall \
         health profile \
         deps \
@@ -40,6 +40,7 @@ help:
 	@echo "  lint               Run shellcheck on all shell scripts"
 	@echo "  test               Run complete test suite"
 	@echo "  test-ci            Run CI-friendly tests (no symlink dependencies)"
+	@echo "  test-integration   Run full integration test (temporarily modifies config, should only be run on CI)"
 	@echo "  ci                 Run full CI pipeline (lint + test-ci)"
 	@echo ""
 	@echo "System Health:"
@@ -125,6 +126,15 @@ test-ci:
 ci: lint test-ci
 	@echo "✅ CI pipeline completed successfully"
 
+# Run integration tests (same as CI but locally)
+test-integration:
+	@echo "🧪 Running integration tests locally..."
+	@echo "⚠️  This will modify your dotfiles configuration temporarily"
+	@echo "Press Ctrl+C within 5 seconds to cancel..."
+	@sleep 5
+	@echo "🚀 Starting integration test..."
+	./scripts/tests/test_integration_local.sh
+
 # =============================================================================
 # SYSTEM HEALTH & DIAGNOSTICS
 # =============================================================================
@@ -160,6 +170,12 @@ packages:
 	@echo "📥 Installing packages from Brewfile..."
 	@if command -v brew >/dev/null 2>&1; then \
 		brew bundle --file=install/Brewfile; \
+		if [[ -f install/Brewfile.mas ]] && command -v mas >/dev/null 2>&1; then \
+			echo "📱 Installing Mac App Store apps..."; \
+			brew bundle --file=install/Brewfile.mas; \
+		else \
+			echo "⚠️  Skipping Mac App Store apps (mas not found or Brewfile.mas missing)"; \
+		fi; \
 	else \
 		echo "❌ Homebrew not found. Please install Homebrew first."; \
 		exit 1; \

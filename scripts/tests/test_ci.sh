@@ -56,7 +56,7 @@ DOTFILES_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 # Test source file syntax
 test_source_zsh_syntax() {
     local zshrc="$DOTFILES_DIR/.config/zsh/.zshrc"
-    
+
     if [[ ! -f "$zshrc" ]]; then
         echo "Source .zshrc not found at $zshrc"
         return 1
@@ -78,12 +78,12 @@ test_source_modular_syntax() {
 
     for config in "${configs[@]}"; do
         local config_file="$source_dir/$config"
-        
+
         if [[ ! -f "$config_file" ]]; then
             echo "Source config file not found: $config_file"
             return 1
         fi
-        
+
         # Test syntax
         if ! zsh -n "$config_file" 2>/dev/null; then
             echo "Syntax error in $config_file"
@@ -97,7 +97,7 @@ test_source_modular_syntax() {
 # Test znap plugins file syntax
 test_znap_plugins_syntax() {
     local plugins_file="$DOTFILES_DIR/.config/zsh/.znap-plugins.zsh"
-    
+
     if [[ ! -f "$plugins_file" ]]; then
         echo "znap plugins file not found at $plugins_file"
         return 1
@@ -115,7 +115,7 @@ test_znap_plugins_syntax() {
 # Test shell scripts syntax
 test_shell_scripts_syntax() {
     local scripts_found=false
-    
+
     # Test all shell scripts in the repository
     while IFS= read -r -d '' script; do
         scripts_found=true
@@ -124,12 +124,12 @@ test_shell_scripts_syntax() {
             return 1
         fi
     done < <(find "$DOTFILES_DIR" -name "*.sh" -type f -print0)
-    
+
     if [[ "$scripts_found" == false ]]; then
         echo "No shell scripts found to test"
         return 1
     fi
-    
+
     return 0
 }
 
@@ -137,14 +137,14 @@ test_shell_scripts_syntax() {
 test_directory_structure() {
     local required_dirs=(".config" "git" "install" "scripts" "bin")
     local required_config_dirs=("zsh" "nvim" "starship" "atuin")
-    
+
     for dir in "${required_dirs[@]}"; do
         if [[ ! -d "$DOTFILES_DIR/$dir" ]]; then
             echo "Required directory missing: $dir"
             return 1
         fi
     done
-    
+
     # Check .config subdirectories
     for config_dir in "${required_config_dirs[@]}"; do
         if [[ ! -d "$DOTFILES_DIR/.config/$config_dir" ]]; then
@@ -152,7 +152,7 @@ test_directory_structure() {
             return 1
         fi
     done
-    
+
     return 0
 }
 
@@ -170,32 +170,32 @@ test_essential_files() {
         "scripts/symlink.sh"
         "scripts/validate.sh"
     )
-    
+
     for file in "${required_files[@]}"; do
         if [[ ! -f "$DOTFILES_DIR/$file" ]]; then
             echo "Required file missing: $file"
             return 1
         fi
     done
-    
+
     return 0
 }
 
 # Test Brewfile syntax
 test_brewfile_syntax() {
     local brewfile="$DOTFILES_DIR/install/Brewfile"
-    
+
     if [[ ! -f "$brewfile" ]]; then
         echo "Brewfile not found at $brewfile"
         return 1
     fi
-    
+
     # Check for basic Brewfile syntax (brew/cask/tap/mas commands)
     if ! grep -E '^(brew|cask|tap|mas)' "$brewfile" > /dev/null; then
         echo "Brewfile appears invalid - no valid brew commands found"
         return 1
     fi
-    
+
     # Check Ruby syntax if ruby is available
     if command -v ruby > /dev/null 2>&1; then
         if ! ruby -c "$brewfile" > /dev/null 2>&1; then
@@ -203,7 +203,7 @@ test_brewfile_syntax() {
             return 1
         fi
     fi
-    
+
     return 0
 }
 

@@ -73,7 +73,8 @@ make deps                     # Check all dependencies
 ├── git/                        # Git configuration files
 ├── scripts/                    # Management and setup scripts
 │   ├── install/                # Installation scripts
-│   │   ├── Brewfile            # Homebrew packages
+│   │   ├── Brewfile            # Core Homebrew packages
+│   │   ├── Brewfile.mas        # Mac App Store apps (auto-included, skipped in CI)
 │   │   ├── brew.sh             # Homebrew installer
 │   │   └── zsh.sh              # Zsh setup
 │   ├── setup.sh                # Main setup script

@@ -1,0 +1,10 @@
+# Mac App Store apps
+# These require authentication and are skipped during CI testing
+
+mas "Xcode", id: 497799835                # Apple's IDE
+mas "Airmail", id: 918858936              # Email client
+mas "Amphetamine", id: 937984704          # Keep Mac awake
+mas "iMovie", id: 408981434               # Video editing
+mas "Monosnap", id: 540348655             # Screenshot tool
+mas "Hidden Bar", id: 1452453066          # Hide menu bar items
+mas "Magnet", id: 441258766               # Window management

@@ -1,0 +1,31 @@
+# Minimal CI Brewfile - Only essential packages for testing dotfiles functionality
+# This is used when we want super fast CI runs. The downside is that we need to keep this file up to date with the master ./Brewfile.
+
+# Essential CLI tools for dotfiles testing
+brew "git"
+brew "gh"
+brew "neovim"
+brew "starship"
+brew "zsh"
+brew "ripgrep"
+brew "bat"
+brew "fzf"
+brew "jq"
+brew "tree"
+brew "eza"
+brew "glow"
+brew "shellcheck"
+brew "coreutils"
+
+# Development essentials
+brew "node"
+brew "python@3.13"
+brew "go"
+
+# Required for dotfiles functionality
+brew "mas"
+brew "zoxide"
+brew "git-delta"
+brew "pyenv"
+brew "kubectl"
+brew "kubecolor"
