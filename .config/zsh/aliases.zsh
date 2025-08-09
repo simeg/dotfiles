@@ -80,7 +80,7 @@ alias ls="eza"  # Better modern ls alternative
 # 🐙 Git & Git Helpers
 ########################################
 
-alias gcom="git checkout master"
+alias gcom="git checkout master &>/dev/null || git checkout main"
 alias gap="git add --patch"
 alias gs="git-show"
 alias gf!="super-amend"
