@@ -182,6 +182,7 @@ require('lazy').setup({
           'jsonls',
           'marksman',
           'taplo', -- TOML
+          'lua_ls',
         },
         automatic_installation = true,
       })
