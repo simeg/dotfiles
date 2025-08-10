@@ -175,7 +175,14 @@ require('lazy').setup({
     dependencies = { 'williamboman/mason.nvim' },
     config = function()
       require('mason-lspconfig').setup({
-        ensure_installed = { 'pyright' },   -- <- auto-install
+        ensure_installed = {
+          'pyright',
+          'bashls',
+          'yamlls',
+          'jsonls',
+          'marksman',
+          'taplo', -- TOML
+        },
         automatic_installation = true,
       })
     end,
