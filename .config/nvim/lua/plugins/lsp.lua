@@ -1,89 +1,68 @@
 -- LSP Configuration
--- Language Server Protocol setup
 
-local status_ok, _ = pcall(require, 'lspconfig')
-if not status_ok then
+-- optional: bail if lspconfig missing
+local ok_lsp, lspconfig = pcall(require, 'lspconfig')
+if not ok_lsp then
   return
 end
 
--- Mason setup (LSP installer)
-require('mason').setup()
-require('mason-lspconfig').setup({
-  ensure_installed = {
-    'lua_ls',
-    'bashls',
-    'jsonls',
-    'yamlls',
-    'marksman', -- Markdown
-  },
-})
+-- Capability helper (nvim-cmp optional)
+local has_cmp, cmp_caps = pcall(require, 'cmp_nvim_lsp')
+local capabilities = has_cmp and cmp_caps.default_capabilities()
+  or vim.lsp.protocol.make_client_capabilities()
 
--- LSP settings
-local lspconfig = require('lspconfig')
-
--- Common on_attach function
-local on_attach = function(client, bufnr)
-  -- Enable completion triggered by <c-x><c-o>
-  vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
-
-  -- Buffer local mappings
-  local bufopts = { noremap = true, silent = true, buffer = bufnr }
-  vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, bufopts)
-  vim.keymap.set('n', 'gd', vim.lsp.buf.definition, bufopts)
-  vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
-  vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, bufopts)
-  vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, bufopts)
-  vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, bufopts)
-  vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, bufopts)
-  vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts)
-  vim.keymap.set('n', '<leader>rf', function() vim.lsp.buf.format { async = true } end, bufopts)
+-- Your keymaps etc.
+local on_attach = function(_, bufnr)
+  vim.bo[bufnr].omnifunc = 'v:lua.vim.lsp.omnifunc'
+  local map = function(lhs, rhs) vim.keymap.set('n', lhs, rhs, { buffer = bufnr, silent = true }) end
+  map('gD', vim.lsp.buf.declaration)
+  map('gd', vim.lsp.buf.definition)
+  map('K',  vim.lsp.buf.hover)
+  map('gi', vim.lsp.buf.implementation)
+  map('<C-k>', vim.lsp.buf.signature_help)
+  map('<leader>rn', vim.lsp.buf.rename)
+  map('<leader>ca', vim.lsp.buf.code_action)
+  map('gr', vim.lsp.buf.references)
+  map('<leader>rf', function() vim.lsp.buf.format({ async = true }) end)
 end
 
--- Common capabilities
-local capabilities = require('cmp_nvim_lsp').default_capabilities()
-
--- Lua LSP
-lspconfig.lua_ls.setup({
+-- Global defaults for ALL servers
+vim.lsp.config('*', {
   on_attach = on_attach,
   capabilities = capabilities,
+})
+
+-- Per‑server tweaks (override/extend)
+vim.lsp.config('lua_ls', {
   settings = {
     Lua = {
-      runtime = {
-        version = 'LuaJIT',
-      },
-      diagnostics = {
-        globals = { 'vim' },
-      },
+      runtime = { version = 'LuaJIT' },
+      diagnostics = { globals = { 'vim' } },
       workspace = {
+        checkThirdParty = false,
         library = vim.api.nvim_get_runtime_file('', true),
       },
-      telemetry = {
-        enable = false,
-      },
+      telemetry = { enable = false },
     },
   },
 })
 
--- Bash LSP
-lspconfig.bashls.setup({
-  on_attach = on_attach,
-  capabilities = capabilities,
+vim.lsp.config('yamlls', {
+  settings = { yaml = { keyOrdering = false } },
 })
 
--- JSON LSP
-lspconfig.jsonls.setup({
-  on_attach = on_attach,
-  capabilities = capabilities,
-})
+-- Mason bootstrap + auto‑enable installed servers
+require('mason').setup()
 
--- YAML LSP
-lspconfig.yamlls.setup({
-  on_attach = on_attach,
-  capabilities = capabilities,
-})
-
--- Markdown LSP
-lspconfig.marksman.setup({
-  on_attach = on_attach,
-  capabilities = capabilities,
+require('mason-lspconfig').setup({
+  ensure_installed = {
+    'pyright',
+    'bashls',
+    'yamlls',
+    'jsonls',
+    'marksman',
+    'taplo',   -- TOML
+    'lua_ls',
+  },
+  automatic_enable = true,
 })

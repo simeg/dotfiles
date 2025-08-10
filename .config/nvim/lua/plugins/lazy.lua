@@ -93,7 +93,7 @@ require('lazy').setup({
     priority = 900,
     config = function()
       require('nvim-treesitter.configs').setup({
-        ensure_installed = { 'lua', 'vim', 'vimdoc', 'html', 'css', 'javascript', 'python', 'bash', 'json', 'yaml', 'markdown' },
+        ensure_installed = { 'lua','vim','vimdoc','html','css','javascript','python','bash','json','yaml','markdown','markdown_inline','toml' },
         sync_install = false,
         auto_install = true,
         highlight = {
@@ -147,45 +147,7 @@ require('lazy').setup({
       'hrsh7th/cmp-nvim-lsp',
     },
     config = function()
-      local lspconfig = require('lspconfig')
-
-      -- If you use nvim-cmp:
-      local ok, cmp_caps = pcall(require, 'cmp_nvim_lsp')
-      local capabilities = ok and cmp_caps.default_capabilities() or nil
-
-      lspconfig.pyright.setup({
-        capabilities = capabilities,
-        -- on_attach = function(client, bufnr) ... keymaps ... end,
-        -- settings = { python = { analysis = { typeCheckingMode = "basic" } } },
-      })
-    end,
-  },
-
-  -- mason
-  {
-    'williamboman/mason.nvim',
-    config = function()
-      require('mason').setup()
-    end,
-  },
-
-  -- mason-lspconfig: ensure pyright gets installed
-  {
-    'williamboman/mason-lspconfig.nvim',
-    dependencies = { 'williamboman/mason.nvim' },
-    config = function()
-      require('mason-lspconfig').setup({
-        ensure_installed = {
-          'pyright',
-          'bashls',
-          'yamlls',
-          'jsonls',
-          'marksman',
-          'taplo', -- TOML
-          'lua_ls',
-        },
-        automatic_installation = true,
-      })
+      require('plugins.lsp') -- <— all the real work lives here now
     end,
   },
 
