@@ -202,29 +202,6 @@ require('lazy').setup({
     },
   },
 
-  -- Language support
-  {
-    'pangloss/vim-javascript',
-    ft = 'javascript',
-  },
-
-  {
-    'plasticboy/vim-markdown',
-    ft = 'markdown',
-  },
-
-  -- CSS
-  {
-    'hail2u/vim-css3-syntax',
-    ft = 'css',
-  },
-
-  -- HTML
-  {
-    'othree/html5.vim',
-    ft = 'html',
-  },
-
   -- Markdown preview
   {
     'iamcco/markdown-preview.nvim',
@@ -238,7 +215,7 @@ require('lazy').setup({
     'folke/which-key.nvim', -- Show available keybindings
     config = function()
       vim.o.timeout = true
-      vim.o.timeoutlen = 300
+      vim.o.timeoutlen = 300 -- This is the sweet spot
       require('which-key').setup()
     end,
   },
@@ -308,7 +285,7 @@ require('lazy').setup({
   -- Rust Cargo.toml helper
   {
     'saecki/crates.nvim',
-    event = { 'BufRead Cargo.toml' },
+    ft = 'toml',
     config = function()
       require('crates').setup({
         lsp = {
