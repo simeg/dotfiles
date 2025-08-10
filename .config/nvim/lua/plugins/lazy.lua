@@ -272,14 +272,11 @@ require('lazy').setup({
     event = { 'BufRead Cargo.toml' },
     config = function()
       require('crates').setup({
-        src = {
-          cmp = {
-            enabled = true,
-          },
-        },
-        null_ls = {
+        lsp = {
           enabled = true,
-          name = 'crates.nvim',
+          actions = true,
+          completion = true,
+          hover = true,
         },
         popup = {
           autofocus = true,
@@ -292,7 +289,7 @@ require('lazy').setup({
           max_height = 30,
           min_width = 20,
           padding = 1,
-        },
+        }
       })
     end,
   },
