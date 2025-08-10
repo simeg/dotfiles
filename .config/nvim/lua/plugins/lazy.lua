@@ -140,14 +140,45 @@ require('lazy').setup({
   -- LSP Configuration
   {
     'neovim/nvim-lspconfig',
+    dependencies = {
+      'williamboman/mason.nvim',
+      'williamboman/mason-lspconfig.nvim',
+      'hrsh7th/nvim-cmp',
+      'hrsh7th/cmp-nvim-lsp',
+    },
+    config = function()
+      local lspconfig = require('lspconfig')
+
+      -- If you use nvim-cmp:
+      local ok, cmp_caps = pcall(require, 'cmp_nvim_lsp')
+      local capabilities = ok and cmp_caps.default_capabilities() or nil
+
+      lspconfig.pyright.setup({
+        capabilities = capabilities,
+        -- on_attach = function(client, bufnr) ... keymaps ... end,
+        -- settings = { python = { analysis = { typeCheckingMode = "basic" } } },
+      })
+    end,
   },
 
-  -- Mason (LSP installer)
+  -- mason
   {
     'williamboman/mason.nvim',
+    config = function()
+      require('mason').setup()
+    end,
   },
+
+  -- mason-lspconfig: ensure pyright gets installed
   {
     'williamboman/mason-lspconfig.nvim',
+    dependencies = { 'williamboman/mason.nvim' },
+    config = function()
+      require('mason-lspconfig').setup({
+        ensure_installed = { 'pyright' },   -- <- auto-install
+        automatic_installation = true,
+      })
+    end,
   },
 
   -- Completion (completor.vim replacement)
