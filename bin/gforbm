@@ -1,7 +1,48 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-# Get the current branch
+# Ensure we're on a branch (not detached)
 current_branch="$(git rev-parse --abbrev-ref HEAD)"
-readonly current_branch
+if [[ "$current_branch" == "HEAD" ]]; then
+  echo "Detached HEAD; refusing to rebase."
+  exit 1
+fi
 
-git fetch origin && git rebase --autostash origin/"${current_branch}"
+# Ensure 'origin' exists
+if ! git remote get-url origin >/dev/null 2>&1; then
+  echo "Remote 'origin' not found."
+  exit 1
+fi
+
+# Update remote refs and drop stale ones
+git fetch origin --prune
+
+# Discover remote default branch from origin/HEAD
+default_ref="$(git symbolic-ref -q --short refs/remotes/origin/HEAD || true)"  # e.g. "origin/main"
+if [[ -n "${default_ref}" ]]; then
+  base_branch="${default_ref#origin/}"  # strip "origin/" prefix
+else
+  # Fallback if origin/HEAD isn't set (some self-hosted remotes)
+  if git show-ref --verify --quiet refs/remotes/origin/master; then
+    base_branch="master"
+  elif git show-ref --verify --quiet refs/remotes/origin/main; then
+    base_branch="main"
+  elif git show-ref --verify --quiet refs/heads/master; then
+    base_branch="master"
+  elif git show-ref --verify --quiet refs/heads/main; then
+    base_branch="main"
+  else
+    echo "Couldn't determine base branch (no origin/HEAD, no master/main)."
+    exit 1
+  fi
+fi
+readonly base_branch
+
+# Abort if you're on the base branch
+if [[ "$current_branch" == "$base_branch" ]]; then
+  echo "You're on '$base_branch'. Refusing to rebase the base branch onto itself."
+  exit 1
+fi
+
+# Rebase current branch onto the remote's default branch
+git rebase --autostash "origin/${base_branch}"
