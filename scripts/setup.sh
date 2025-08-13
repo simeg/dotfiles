@@ -94,6 +94,12 @@ CREATE_SYMLINKS=true
 BACKUP_EXISTING=true
 ENABLE_ANALYTICS=false
 
+# Auto-detect CI environments and disable interactive mode
+if [[ "$DOTFILES_CI" == "true" ]] || [[ -n "$CI" ]] || [[ -n "$GITHUB_ACTIONS" ]]; then
+    log_info "CI environment detected, enabling non-interactive mode"
+    INTERACTIVE_MODE=false
+fi
+
 # Interactive prompts (enhanced with shared confirm function)
 ask_yes_no() {
     local question="$1"
