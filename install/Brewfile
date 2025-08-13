@@ -2,6 +2,12 @@
 # This includes tools you currently have installed that would be useful for a new setup
 
 # ============================================================================
+# THIRD-PARTY TAPS
+# ============================================================================
+
+tap "nahive/spotify-notify"     # Spotify notification tool
+
+# ============================================================================
 # CORE DEVELOPMENT TOOLS
 # ============================================================================
 
@@ -120,6 +126,7 @@ brew "hyperfine"              # Performance measure tool
 # Media Players & Tools
 cask "vlc"                    # Media player
 brew "flac"                   # FLAC audio codec
+cask "spotify-notify", args: ["no-quarantine"] # Spotify notification tool
 
 # Fonts
 cask "font-fira-code"         # Programming font with ligatures
