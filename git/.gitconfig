@@ -20,13 +20,6 @@
   minus-emph-style = bold red
   plus-emph-style = bold green
   hunk-header-decoration-style = underline purple
-[delta "diff-so-fancy"]
-  file-style = bold yellow
-  file-decoration-style = none
-  hunk-header-style = bold purple
-  minus-style = red
-  plus-style = green
-  line-numbers = true
 
 [merge]
 	conflictstyle = diff3
