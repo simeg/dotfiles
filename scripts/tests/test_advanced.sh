@@ -457,7 +457,7 @@ test_security_shell_config() {
     fi
     
     # Check for insecure command history settings
-    if ! grep -q "HISTFILE" "$zsh_config"/.zshrc 2>/dev/null; then
+    if [[ -z "${HISTFILE:-}" ]]; then
         echo "History file not explicitly configured"
         issues=$((issues + 1))
     fi

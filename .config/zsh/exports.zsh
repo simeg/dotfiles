@@ -22,3 +22,6 @@ export skip_global_compinit=1
 # Shell history size
 export SAVEHIST=10000000
 
+# umask (default macOS value)
+umask 022
+
