@@ -8,6 +8,7 @@ set -e
 # Source common utilities
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=../scripts/lib/common.sh
+# shellcheck disable=SC1091
 source "$SCRIPT_DIR/../scripts/lib/common.sh"
 
 # Configuration

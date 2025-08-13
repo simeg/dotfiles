@@ -6,12 +6,16 @@
 # Source shared libraries
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=scripts/lib/common.sh
+# shellcheck disable=SC1091
 source "$SCRIPT_DIR/lib/common.sh"
 # shellcheck source=scripts/lib/brew-utils.sh
+# shellcheck disable=SC1091
 source "$SCRIPT_DIR/lib/brew-utils.sh"
 # shellcheck source=scripts/lib/validation-utils.sh
+# shellcheck disable=SC1091
 source "$SCRIPT_DIR/lib/validation-utils.sh"
 # shellcheck source=scripts/lib/error-handling.sh
+# shellcheck disable=SC1091
 source "$SCRIPT_DIR/lib/error-handling.sh"
 
 # Note: Not using error handling setup since we want to continue validation even if some checks fail

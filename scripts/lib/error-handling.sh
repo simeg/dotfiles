@@ -7,6 +7,7 @@
 if [[ -z "${_COMMON_SOURCED:-}" ]]; then
     SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
     # shellcheck source=scripts/lib/common.sh
+    # shellcheck disable=SC1091
     source "$SCRIPT_DIR/common.sh"
 fi
 

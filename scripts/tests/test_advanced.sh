@@ -294,6 +294,7 @@ test_startup_performance_regression() {
     
     # Measure current startup time (average of 5 runs)
     local total_time=0
+    # shellcheck disable=SC2034  # i is used implicitly by bash for loop
     for i in {1..5}; do
         local single_time
         single_time=$(time (zsh -c 'exit') 2>&1 | grep real | sed 's/real[[:space:]]*//' | sed 's/s//')

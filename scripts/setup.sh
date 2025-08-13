@@ -5,6 +5,15 @@
 
 set -e
 
+# Source shared utilities
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=scripts/lib/common.sh
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/lib/common.sh"
+# shellcheck source=scripts/lib/brew-utils.sh
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/lib/brew-utils.sh"
+
 # Global error handling
 # shellcheck disable=SC2034  # SETUP_FAILED is used in error handler
 SETUP_FAILED=false
@@ -56,25 +65,7 @@ handle_error() {
 # Set error trap
 trap 'handle_error' ERR
 
-# Color output
-# RED='\033[0;31m'  # Unused - keeping for potential future use
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
-# Logging functions
-log_info() {
-    echo -e "${BLUE}[INFO]${NC} $1"
-}
-
-log_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
-}
-
-log_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
-}
+# Note: Color output and logging functions are now sourced from common.sh
 
 # Custom cleanup function for setup-specific cleanup
 cleanup_on_error() {

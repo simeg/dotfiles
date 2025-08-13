@@ -6,12 +6,16 @@
 # Source shared libraries
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=scripts/lib/common.sh
+# shellcheck disable=SC1091
 source "$SCRIPT_DIR/lib/common.sh"
 # shellcheck source=scripts/lib/brew-utils.sh
+# shellcheck disable=SC1091
 source "$SCRIPT_DIR/lib/brew-utils.sh"
 # shellcheck source=scripts/lib/validation-utils.sh
+# shellcheck disable=SC1091
 source "$SCRIPT_DIR/lib/validation-utils.sh"
 # shellcheck source=scripts/lib/error-handling.sh
+# shellcheck disable=SC1091
 source "$SCRIPT_DIR/lib/error-handling.sh"
 
 # Initialize error handling
@@ -213,7 +217,10 @@ main_update() {
     log_info "Starting dotfiles update..."
 
     # Change to dotfiles root directory
-    cd "$(dirname "$0")/.."
+    cd "$(dirname "$0")/.." || {
+        log_error "Failed to change to dotfiles root directory"
+        exit 1
+    }
 
     # Pre-update checks
     check_git_repo
