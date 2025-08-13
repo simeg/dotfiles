@@ -9,8 +9,8 @@ These are my dotfiles. There are many like them, but these ones are mine. My dot
 
 ```bash
 # Clone the repository
-git clone https://github.com/simeg/dotfiles.git simeg-dotfiles
-cd ~/simeg-dotfiles
+git clone https://github.com/simeg/dotfiles.git dotfiles
+cd dotfiles
 
 # Run the complete setup
 make setup
@@ -88,11 +88,15 @@ make profile                  # → make health-profile
 │   └── atuin/                  # Shell history sync configuration (moved to .config/atuin/)
 ├── bin/                        # Custom utility scripts
 ├── git/                        # Git configuration files
+├── install/                    # Package installation files
+│   ├── Brewfile                # Core Homebrew packages
+│   ├── Brewfile.mas            # Mac App Store apps (auto-included, skipped in CI)
+│   ├── Brewfile.ci-minimal     # Minimal packages for CI
+│   └── macOS/                  # macOS-specific configurations
 ├── scripts/                    # Management and setup scripts
 │   ├── install/                # Installation scripts
-│   │   ├── Brewfile            # Core Homebrew packages
-│   │   ├── Brewfile.mas        # Mac App Store apps (auto-included, skipped in CI)
 │   │   ├── brew.sh             # Homebrew installer
+│   │   ├── rust.sh             # Rust toolchain installer
 │   │   └── zsh.sh              # Zsh setup
 │   ├── setup.sh                # Main setup script
 │   ├── update.sh               # Update script
@@ -107,15 +111,18 @@ Located in `bin/` directory, these scripts enhance your development workflow:
 - **`backup`** - Backup utility
 - **`cpwd`** - Copy current working directory to clipboard
 - **`fixup`** - Interactive Git fixup commits
+- **`gcl`** - Git clone utility
 - **`gforbm`** - Git fetch and rebase from main branch
 - **`git-show`** - Enhanced git show with formatting
+- **`perf-dashboard`** - Performance monitoring dashboard
 - **`rssh`** - Remote SSH utilities
+- **`smart-cat`** - Smart `cat` that uses `glow` for markdown files
 - **`spuri`** - Python script for special URI handling
 - **`squash`** - Interactive Git commit squashing
-- **`super-amend`** - Enhanced Git amend workflow
 - **`starship-theme`** - Easy starship theme switcher
-- **`smart-cat`** - Smart `cat` that uses `glow` for markdown files
-- **`perf-dashboard`** - Performance monitoring dashboard
+- **`super-amend`** - Enhanced Git amend workflow
+- **`system-monitor`** - Real-time system monitoring
+- **`use-private-git`** - Private Git configuration utility
 
 For detailed information about all available commands and targets, see the [Make Targets Documentation](docs/MAKE_TARGETS.md).
 
