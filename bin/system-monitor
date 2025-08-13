@@ -1,0 +1,756 @@
+#!/usr/bin/env bash
+
+# Enhanced System Monitor Dashboard
+# Real-time monitoring system building on existing health check infrastructure
+
+set -e
+
+# Source common utilities
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=scripts/lib/common.sh
+source "$SCRIPT_DIR/../scripts/lib/common.sh"
+
+# Configuration
+REFRESH_INTERVAL=2
+ANALYTICS_DIR="$HOME/.config/dotfiles"
+MONITOR_DATA="$ANALYTICS_DIR/monitor-data.json"
+UPDATE_MODE="real-time"
+
+# Monitoring state
+DASHBOARD_PID=""
+MONITOR_ACTIVE=false
+
+# Logging functions are now provided by common.sh
+
+# =============================================================================
+# SYSTEM METRICS COLLECTION
+# =============================================================================
+
+get_system_metrics() {
+    local metrics="{}"
+    
+    # CPU Usage
+    local cpu_usage
+    if check_command_exists "top"; then
+        cpu_usage=$(top -l 1 | awk '/CPU usage/ {print $3}' | sed 's/%//' 2>/dev/null || echo "0")
+    else
+        cpu_usage="N/A"
+    fi
+    
+    # Memory Usage - align with Activity Monitor calculation
+    local memory_info
+    if check_command_exists "vm_stat"; then
+        local pages_free pages_active pages_inactive pages_wired pages_compressed page_size
+        pages_free=$(vm_stat | awk '/Pages free/ {print $3}' | sed 's/\.//')
+        pages_active=$(vm_stat | awk '/Pages active/ {print $3}' | sed 's/\.//')
+        pages_inactive=$(vm_stat | awk '/Pages inactive/ {print $3}' | sed 's/\.//')
+        pages_wired=$(vm_stat | awk '/Pages wired down/ {print $4}' | sed 's/\.//')
+        pages_compressed=$(vm_stat | awk '/Pages stored in compressor/ {print $5}' | sed 's/\.//')
+        page_size=$(vm_stat | awk '/Mach Virtual Memory Statistics/ {getline; print $8}' | sed 's/\.//')
+        
+        # Calculate total physical memory
+        local total_pages=$((pages_free + pages_active + pages_inactive + pages_wired))
+        
+        # App Memory = active pages (apps currently using memory)
+        # Wired Memory = wired pages (kernel and essential system memory)
+        # This matches Activity Monitor's "Memory Used" calculation
+        local used_pages=$((pages_active + pages_wired + pages_compressed))
+        local memory_usage_percent=$((used_pages * 100 / total_pages))
+        
+        memory_info="$memory_usage_percent"
+    else
+        memory_info="N/A"
+    fi
+    
+    # Disk Usage
+    local disk_usage
+    disk_usage=$(df -h "$HOME" | awk 'NR==2 {print $5}' | sed 's/%//' 2>/dev/null || echo "N/A")
+    
+    # Load Average
+    local load_avg
+    load_avg=$(uptime | awk -F'load averages: ' '{print $2}' | awk '{print $1}' 2>/dev/null || echo "N/A")
+    
+    # Network Activity (simplified)
+    local network_active="false"
+    if netstat -i | grep -q "en0.*[1-9]" 2>/dev/null; then
+        network_active="true"
+    fi
+    
+    # Process Count
+    local process_count
+    process_count=$(ps aux 2>/dev/null | wc -l | tr -d ' ' || echo "N/A")
+    
+    # Create JSON metrics
+    cat << EOF
+{
+    "timestamp": "$(date -Iseconds)",
+    "cpu_usage": "$cpu_usage",
+    "memory_usage": "$memory_info", 
+    "disk_usage": "$disk_usage",
+    "load_average": "$load_avg",
+    "network_active": $network_active,
+    "process_count": $process_count
+}
+EOF
+}
+
+# Get dotfiles-specific metrics
+get_dotfiles_metrics() {
+    local metrics="{}"
+    
+    # Shell startup time (quick test)
+    local startup_time
+    local time_output
+    time_output=$( (time zsh -c 'exit') 2>&1)
+    
+    # Handle different time output formats (bash vs zsh)
+    if echo "$time_output" | grep -q "real"; then
+        # Multi-line format: real 0m0.014s
+        startup_time=$(echo "$time_output" | grep real | awk '{print $2}' | sed 's/s$//' | sed 's/.*m//')
+    elif echo "$time_output" | grep -q "total"; then
+        # Single-line format: ... 0.009 total
+        startup_time=$(echo "$time_output" | grep total | awk '{print $10}')
+    else
+        startup_time="N/A"
+    fi
+    
+    [[ -z "$startup_time" ]] && startup_time="N/A"
+    
+    # Plugin count - check both installed location and source location
+    local plugin_count=0
+    if [[ -f "$HOME/.config/zsh/.znap-plugins.zsh" ]]; then
+        plugin_count=$(grep -c "znap source\|znap eval\|znap install" "$HOME/.config/zsh/.znap-plugins.zsh" 2>/dev/null || echo "0")
+    elif [[ -f "$HOME/.znap-plugins.zsh" ]]; then
+        plugin_count=$(grep -c "znap source\|znap eval\|znap install" "$HOME/.znap-plugins.zsh" 2>/dev/null || echo "0")
+    else
+        # Check dotfiles source if symlinks aren't set up
+        local dotfiles_root
+        dotfiles_root="$SCRIPT_DIR/.."
+        local dotfiles_plugins="$dotfiles_root/.config/zsh/.znap-plugins.zsh"
+        if [[ -f "$dotfiles_plugins" ]]; then
+            plugin_count=$(grep -c "znap source\|znap eval\|znap install" "$dotfiles_plugins" 2>/dev/null || echo "0")
+        fi
+    fi
+    
+    # Git status (if in a git repo)
+    local git_status="clean"
+    if git rev-parse --git-dir >/dev/null 2>&1; then
+        if ! git diff-index --quiet HEAD -- 2>/dev/null; then
+            git_status="dirty"
+        fi
+    fi
+    
+    # Package count
+    local package_count=0
+    if check_command_exists "brew"; then
+        package_count=$(brew list --formula 2>/dev/null | wc -l | tr -d ' ' || echo "0")
+    fi
+    
+    # Analytics data availability
+    local analytics_available="false"
+    if [[ -f "$ANALYTICS_DIR/command-usage.log" ]] && [[ -s "$ANALYTICS_DIR/command-usage.log" ]]; then
+        analytics_available="true"
+    fi
+    
+    cat << EOF
+{
+    "shell_startup_ms": "$startup_time",
+    "plugin_count": $plugin_count,
+    "git_status": "$git_status",
+    "package_count": $package_count,
+    "analytics_available": $analytics_available
+}
+EOF
+}
+
+# Health check integration
+get_health_status() {
+    local health_output
+    local health_score=0
+    local total_checks=0
+    
+    # Run health check and capture output
+    local dotfiles_root
+    dotfiles_root="$SCRIPT_DIR/.."
+    local health_script="$dotfiles_root/scripts/health-check.sh"
+    
+    if [[ -f "$health_script" ]]; then
+        health_output=$(bash "$health_script" 2>/dev/null || echo "Health check failed")
+        
+        # Parse health check results
+        local passed failed warnings
+        passed=$(echo "$health_output" | grep -c "✓" 2>/dev/null | head -1 || echo "0")
+        failed=$(echo "$health_output" | grep -c "✗" 2>/dev/null | head -1 || echo "0")
+        warnings=$(echo "$health_output" | grep -c "!" 2>/dev/null | head -1 || echo "0")
+        
+        # Ensure we have clean integers
+        passed=${passed%%[^0-9]*}
+        failed=${failed%%[^0-9]*}
+        warnings=${warnings%%[^0-9]*}
+        
+        total_checks=$((passed + failed + warnings))
+        if [[ $total_checks -gt 0 ]]; then
+            health_score=$((passed * 100 / total_checks))
+        fi
+    fi
+    
+    cat << EOF
+{
+    "health_score": $health_score,
+    "total_checks": $total_checks,
+    "last_check": "$(date -Iseconds)"
+}
+EOF
+}
+
+# =============================================================================
+# DASHBOARD DISPLAY
+# =============================================================================
+
+draw_header() {
+    local width=80
+    echo -e "${BOLD}${PURPLE}$(printf '═%.0s' $(seq 1 $width))${NC}"
+    echo -e "${BOLD}${WHITE}$(printf '%*s' $(((width + 28)/2)) '🚀 Dotfiles System Monitor Dashboard')${NC}"
+    echo -e "${BOLD}${PURPLE}$(printf '═%.0s' $(seq 1 $width))${NC}"
+    echo -e "${DIM}Last updated: $(date '+%Y-%m-%d %H:%M:%S') | Press 'q' to quit | Refresh: ${REFRESH_INTERVAL}s${NC}"
+    echo
+}
+
+draw_metrics_section() {
+    local system_metrics="$1"
+    local dotfiles_metrics="$2"
+    local health_status="$3"
+    
+    echo -e "${BOLD}${CYAN}📊 System Metrics${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    
+    # Parse metrics (improved JSON parsing)
+    local cpu_usage memory_usage disk_usage load_avg process_count
+    cpu_usage=$(echo "$system_metrics" | grep '"cpu_usage"' | sed 's/.*"cpu_usage": *"\([^"]*\)".*/\1/')
+    memory_usage=$(echo "$system_metrics" | grep '"memory_usage"' | sed 's/.*"memory_usage": *"\([^"]*\)".*/\1/')
+    disk_usage=$(echo "$system_metrics" | grep '"disk_usage"' | sed 's/.*"disk_usage": *"\([^"]*\)".*/\1/')
+    load_avg=$(echo "$system_metrics" | grep '"load_average"' | sed 's/.*"load_average": *"\([^"]*\)".*/\1/')
+    process_count=$(echo "$system_metrics" | grep '"process_count"' | sed 's/.*"process_count": *\([0-9]*\).*/\1/')
+    
+    # System metrics display
+    printf "  %-20s %s\n" "💻 CPU Usage:" "$(format_percentage "$cpu_usage")"
+    printf "  %-20s %s\n" "🧠 Memory Usage:" "$(format_percentage "$memory_usage")"
+    printf "  %-20s %s\n" "💾 Disk Usage:" "$(format_percentage "$disk_usage")"
+    printf "  %-20s %s\n" "⚡ Load Average:" "$(format_load_average "$load_avg")"
+    printf "  %-20s %s\n" "🔄 Processes:" "${process_count:-N/A}"
+    
+    echo
+    echo -e "${BOLD}${GREEN}🔧 Dotfiles Health${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    
+    # Parse dotfiles metrics (improved JSON parsing)
+    local startup_time plugin_count package_count git_status
+    startup_time=$(echo "$dotfiles_metrics" | grep '"shell_startup_ms"' | sed 's/.*"shell_startup_ms": *"\([^"]*\)".*/\1/')
+    plugin_count=$(echo "$dotfiles_metrics" | grep '"plugin_count"' | sed 's/.*"plugin_count": *\([0-9]*\).*/\1/')
+    package_count=$(echo "$dotfiles_metrics" | grep '"package_count"' | sed 's/.*"package_count": *\([0-9]*\).*/\1/')
+    git_status=$(echo "$dotfiles_metrics" | grep '"git_status"' | sed 's/.*"git_status": *"\([^"]*\)".*/\1/')
+    
+    # Health score (improved JSON parsing)
+    local health_score
+    health_score=$(echo "$health_status" | grep '"health_score"' | sed 's/.*"health_score": *\([0-9]*\).*/\1/')
+    
+    printf "  %-20s %s\n" "🚀 Shell Startup:" "$(format_startup_time "$startup_time")"
+    printf "  %-20s %s\n" "🔌 Plugins Loaded:" "${plugin_count:-0}"
+    printf "  %-20s %s\n" "📦 Packages:" "${package_count:-0}"
+    printf "  %-20s %s\n" "🐙 Git Status:" "$(format_git_status "$git_status")"
+    printf "  %-20s %s\n" "💚 Health Score:" "$(format_health_score "$health_score")"
+}
+
+draw_analytics_section() {
+    echo
+    echo -e "${BOLD}${YELLOW}📈 Analytics Summary${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    
+    # Get recent command stats
+    if [[ -f "$ANALYTICS_DIR/command-usage.log" ]]; then
+        local total_commands recent_commands
+        total_commands=$(wc -l < "$ANALYTICS_DIR/command-usage.log" 2>/dev/null || echo "0")
+        recent_commands=$(tail -100 "$ANALYTICS_DIR/command-usage.log" 2>/dev/null | wc -l || echo "0")
+        
+        printf "  %-20s %s\n" "📊 Total Commands:" "$total_commands"
+        printf "  %-20s %s\n" "🕒 Recent Activity:" "$recent_commands (last 100)"
+        
+        # Top commands
+        local top_commands
+        top_commands=$(tail -100 "$ANALYTICS_DIR/command-usage.log" 2>/dev/null | cut -d',' -f2 | sort | uniq -c | sort -nr | head -3)
+        
+        if [[ -n "$top_commands" ]]; then
+            echo "  📈 Top Commands:"
+            echo "$top_commands" | while read -r count cmd; do
+                printf "     %-15s %s\n" "$cmd" "($count uses)"
+            done
+        fi
+    else
+        echo "  📊 No analytics data available"
+        echo "  💡 Run commands to start collecting analytics"
+    fi
+}
+
+draw_performance_section() {
+    echo
+    echo -e "${BOLD}${PURPLE}⚡ Performance Monitor${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    
+    # Performance data from analytics
+    if [[ -f "$ANALYTICS_DIR/perf-data.csv" ]]; then
+        local avg_startup recent_commands
+        avg_startup=$(grep "shell_startup" "$ANALYTICS_DIR/perf-data.csv" | tail -5 | awk -F',' '{sum+=$3} END {if(NR>0) print sum/NR/1000000; else print "N/A"}' 2>/dev/null || echo "N/A")
+        
+        printf "  %-20s %s\n" "🚀 Avg Startup:" "$(format_startup_time "$avg_startup")"
+        
+        # Recent performance trend
+        local trend_data
+        trend_data=$(grep "shell_startup" "$ANALYTICS_DIR/perf-data.csv" | tail -7 | awk -F',' '{print $3/1000000}')
+        
+        if [[ -n "$trend_data" ]]; then
+            echo "  📈 Performance Trend (last 7):"
+            echo "$trend_data" | awk '{
+                if ($1 < 300) symbol="▁"
+                else if ($1 < 500) symbol="▂"
+                else if ($1 < 700) symbol="▃"
+                else if ($1 < 1000) symbol="▅"
+                else symbol="▇"
+                printf "     %.0fms %s\n", $1, symbol
+            }'
+        fi
+    else
+        echo "  ⚡ No performance data available"
+        echo "  💡 Run 'make analytics' to start monitoring"
+    fi
+}
+
+# =============================================================================
+# FORMATTING FUNCTIONS
+# =============================================================================
+
+format_percentage() {
+    local value="$1"
+    if [[ "$value" == "N/A" ]] || [[ -z "$value" ]]; then
+        echo -e "${DIM}N/A${NC}"
+        return
+    fi
+    
+    # Convert to integer for comparison
+    local int_value
+    int_value=$(printf "%.0f" "$value" 2>/dev/null || echo "0")
+    
+    if (( int_value < 50 )); then
+        echo -e "${GREEN}${int_value}%${NC}"
+    elif (( int_value < 80 )); then
+        echo -e "${YELLOW}${int_value}%${NC}"
+    else
+        echo -e "${RED}${int_value}%${NC}"
+    fi
+}
+
+format_startup_time() {
+    local time="$1"
+    if [[ "$time" == "N/A" ]] || [[ -z "$time" ]]; then
+        echo -e "${DIM}N/A${NC}"
+        return
+    fi
+    
+    # Convert to milliseconds - time is already in seconds from shell
+    local ms_time
+    ms_time=$(printf "%.0f" "$(echo "$time * 1000" | bc -l 2>/dev/null || echo "1000")")
+    
+    # Use arithmetic expansion for comparison (safer with integers)
+    if (( ms_time < 100 )); then
+        echo -e "${GREEN}${ms_time}ms ⚡${NC}"
+    elif (( ms_time < 500 )); then
+        echo -e "${YELLOW}${ms_time}ms ⚠️${NC}"
+    else
+        echo -e "${RED}${ms_time}ms 🐌${NC}"
+    fi
+}
+
+format_git_status() {
+    local status="$1"
+    case "$status" in
+        "clean")
+            echo -e "${GREEN}Clean ✓${NC}"
+            ;;
+        "dirty")
+            echo -e "${YELLOW}Modified ⚠️${NC}"
+            ;;
+        *)
+            echo -e "${DIM}N/A${NC}"
+            ;;
+    esac
+}
+
+format_load_average() {
+    local load="$1"
+
+    if [[ "$load" == "N/A" ]] || [[ -z "$load" ]]; then
+        echo -e "${DIM}N/A${NC}"
+        return
+    fi
+    
+    # Get number of CPU cores for proper load assessment
+    local cores
+    if is_macos; then
+        cores=$(sysctl -n hw.ncpu 2>/dev/null || echo "1")
+    else
+        cores=$(nproc 2>/dev/null || echo "1")
+    fi
+    
+    # Calculate load percentage relative to number of cores
+    local load_percent
+    load_percent=$(echo "scale=0; $load * 100 / $cores" | bc -l 2>/dev/null || echo "100")
+    
+    # Color code based on load percentage relative to cores
+    if (( load_percent < 70 )); then
+        echo -e "${GREEc}${load}${NC}"
+    elif (( load_percent < 100 )); then
+        echo -e "${YELLOW}${load}${NC}"
+    else
+        echo -e "${RED}${load}${NC}"
+    fi
+}
+
+format_process_count() {
+    local count="$1"
+    if [[ "$count" == "N/A" ]] || [[ -z "$count" ]]; then
+        echo -e "${DIM}N/A${NC}"
+        return
+    fi
+    
+    # Process count doesn't need color coding, just consistent formatting
+    echo -e "${NC}${count}${NC}"
+}
+
+format_health_score() {
+    local score="$1"
+    if [[ "$score" == "0" ]] || [[ -z "$score" ]]; then
+        echo -e "${DIM}N/A${NC}"
+        return
+    fi
+    
+    if [[ $score -ge 90 ]]; then
+        echo -e "${GREEN}${score}% 💚${NC}"
+    elif [[ $score -ge 70 ]]; then
+        echo -e "${YELLOW}${score}% ⚠️${NC}"
+    else
+        echo -e "${RED}${score}% ❌${NC}"
+    fi
+}
+
+# =============================================================================
+# INTERACTIVE FEATURES
+# =============================================================================
+
+show_detailed_health() {
+    clear
+    echo -e "${BOLD}${CYAN}🔍 Detailed Health Report${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo
+    
+    # Run health check
+    if check_command_exists "make"; then
+        make health 2>/dev/null || log_error "Health check failed"
+    else
+        log_warning "Make command not available"
+    fi
+    
+    echo
+    echo -e "${DIM}Press any key to return to dashboard...${NC}"
+    read -n 1 -s
+}
+
+show_analytics_detail() {
+    clear
+    echo -e "${BOLD}${YELLOW}📊 Detailed Analytics${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo
+    
+    # Run analytics
+    if check_command_exists "make"; then
+        make analytics-enhanced 2>/dev/null || log_error "Analytics failed"
+    else
+        log_warning "Make command not available"
+    fi
+    
+    echo
+    echo -e "${DIM}Press any key to return to dashboard...${NC}"
+    read -n 1 -s
+}
+
+show_performance_detail() {
+    clear
+    echo -e "${BOLD}${PURPLE}⚡ Performance Dashboard${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo
+    
+    # Run performance dashboard
+    if [[ -f "$HOME/repos/dotfiles/bin/perf-dashboard" ]]; then
+        "$HOME/repos/dotfiles/bin/perf-dashboard" 2>/dev/null || log_error "Performance dashboard failed"
+    else
+        log_warning "Performance dashboard not available"
+    fi
+    
+    echo
+    echo -e "${DIM}Press any key to return to dashboard...${NC}"
+    read -n 1 -s
+}
+
+# =============================================================================
+# REAL-TIME DASHBOARD
+# =============================================================================
+
+run_realtime_dashboard() {
+    local dotfiles_root
+    dotfiles_root="$SCRIPT_DIR/.."
+    export DOTFILES_DIR="$dotfiles_root"
+    
+    # Ensure analytics directory exists
+    mkdir -p "$ANALYTICS_DIR"
+    
+    while true; do
+        clear
+        
+        # Collect metrics
+        local system_metrics dotfiles_metrics health_status
+        system_metrics=$(get_system_metrics)
+        dotfiles_metrics=$(get_dotfiles_metrics)
+        health_status=$(get_health_status)
+        
+        # Store metrics
+        echo "{\"system\": $system_metrics, \"dotfiles\": $dotfiles_metrics, \"health\": $health_status}" > "$MONITOR_DATA"
+        
+        # Draw dashboard
+        draw_header
+        draw_metrics_section "$system_metrics" "$dotfiles_metrics" "$health_status"
+        draw_analytics_section
+        draw_performance_section
+        
+        # Interactive commands
+        echo
+        echo -e "${BOLD}${WHITE}🎛️  Interactive Commands${NC}"
+        echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo -e "  ${CYAN}h${NC} - Detailed Health Report    ${CYAN}a${NC} - Analytics Dashboard    ${CYAN}p${NC} - Performance Monitor"
+        echo -e "  ${CYAN}r${NC} - Refresh Rate Settings     ${CYAN}q${NC} - Quit Dashboard"
+        echo
+        
+        # Non-blocking input with timeout
+        if read -t "$REFRESH_INTERVAL" -n 1 key 2>/dev/null; then
+            case "$key" in
+                'h'|'H')
+                    show_detailed_health
+                    ;;
+                'a'|'A')
+                    show_analytics_detail
+                    ;;
+                'p'|'P')
+                    show_performance_detail
+                    ;;
+                'r'|'R')
+                    echo
+                    echo -n "Enter refresh interval (1-60 seconds): "
+                    read -r new_interval
+                    if [[ "$new_interval" =~ ^[1-9][0-9]?$ ]] && [[ $new_interval -le 60 ]]; then
+                        REFRESH_INTERVAL="$new_interval"
+                        log_success "Refresh interval set to ${new_interval}s"
+                    else
+                        log_error "Invalid interval. Using default ${REFRESH_INTERVAL}s"
+                    fi
+                    sleep 1
+                    ;;
+                'q'|'Q')
+                    echo
+                    log_info "Shutting down dashboard..."
+                    exit 0
+                    ;;
+                *)
+                    # Ignore other keys
+                    ;;
+            esac
+        fi
+    done
+}
+
+# =============================================================================
+# SPINNER AND LOADING FUNCTIONS
+# =============================================================================
+# Note: These use enhanced spinner with Unicode chars (more advanced than common.sh version)
+
+# Show a loading spinner
+show_spinner() {
+    local pid=$1
+    local message="$2"
+    local spinner="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
+    local i=0
+    
+    echo -n "$message "
+    while kill -0 $pid 2>/dev/null; do
+        printf "\b${spinner:$i:1}"
+        i=$(( (i + 1) % ${#spinner} ))
+        sleep 0.1
+    done
+    printf "\b✓\n"
+}
+
+# Run a command with a spinner
+run_with_spinner() {
+    local message="$1"
+    shift
+    
+    # Run the command in background
+    "$@" &
+    local pid=$!
+    
+    # Show spinner while command runs
+    show_spinner $pid "$message"
+    
+    # Wait for command to complete and return its exit code
+    wait $pid
+    return $?
+}
+
+# =============================================================================
+# COMMAND LINE INTERFACE
+# =============================================================================
+
+show_help() {
+    echo "Enhanced System Monitor Dashboard"
+    echo ""
+    echo "Usage: $0 [COMMAND] [OPTIONS]"
+    echo ""
+    echo "Commands:"
+    echo "  dashboard           Start real-time monitoring dashboard (default)"
+    echo "  snapshot            Take single snapshot of system metrics"
+    echo "  health              Show detailed health report"
+    echo "  analytics           Show analytics summary"
+    echo "  performance         Show performance metrics"
+    echo "  export [file]       Export metrics to file"
+    echo ""
+    echo "  Note: Commands can also be used with -- prefix (e.g., --snapshot, --health)"
+    echo ""
+    echo "Options:"
+    echo "  --interval N        Set refresh interval (1-60 seconds, default: 2)"
+    echo "  --help              Show this help message"
+    echo ""
+    echo "Interactive Dashboard Controls:"
+    echo "  h - Detailed Health Report"
+    echo "  a - Analytics Dashboard"
+    echo "  p - Performance Monitor"
+    echo "  r - Change Refresh Rate"
+    echo "  q - Quit"
+}
+
+take_snapshot() {
+    local system_metrics dotfiles_metrics health_status
+    
+    # Function to collect all metrics
+    collect_metrics() {
+        local temp_dir="/tmp"
+        get_system_metrics > "$temp_dir/system_metrics.json"
+        get_dotfiles_metrics > "$temp_dir/dotfiles_metrics.json" 
+        get_health_status > "$temp_dir/health_status.json"
+    }
+    
+    # Show loading message with spinner
+    echo -e "${BLUE}📸 Taking system metrics snapshot...${NC}"
+    run_with_spinner "Collecting metrics " collect_metrics
+    
+    # Read collected metrics
+    system_metrics=$(cat "/tmp/system_metrics.json" 2>/dev/null)
+    dotfiles_metrics=$(cat "/tmp/dotfiles_metrics.json" 2>/dev/null)
+    health_status=$(cat "/tmp/health_status.json" 2>/dev/null)
+    
+    # Cleanup temp files
+    rm -f "/tmp/system_metrics.json" "/tmp/dotfiles_metrics.json" "/tmp/health_status.json" 2>/dev/null
+    
+    # Display results
+    echo -e "${BOLD}${CYAN}📸 System Snapshot - $(date)${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    
+    draw_metrics_section "$system_metrics" "$dotfiles_metrics" "$health_status"
+}
+
+export_metrics() {
+    local output_file="${1:-$HOME/dotfiles-metrics-$(date +%Y%m%d-%H%M%S).json}"
+    
+    local system_metrics dotfiles_metrics health_status
+    system_metrics=$(get_system_metrics)
+    dotfiles_metrics=$(get_dotfiles_metrics)
+    health_status=$(get_health_status)
+    
+    echo "{\"system\": $system_metrics, \"dotfiles\": $dotfiles_metrics, \"health\": $health_status}" > "$output_file"
+    log_success "Metrics exported to: $output_file"
+}
+
+# Main function
+main() {
+    # Parse options
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --interval)
+                if [[ "$2" =~ ^[1-9][0-9]?$ ]] && [[ $2 -le 60 ]]; then
+                    REFRESH_INTERVAL="$2"
+                    shift 2
+                else
+                    log_error "Invalid interval. Must be 1-60 seconds."
+                    exit 1
+                fi
+                ;;
+            --help|help)
+                show_help
+                exit 0
+                ;;
+            --snapshot|snapshot)
+                take_snapshot
+                exit 0
+                ;;
+            --health|health)
+                show_detailed_health
+                exit 0
+                ;;
+            --analytics|analytics)
+                show_analytics_detail
+                exit 0
+                ;;
+            --performance|performance)
+                show_performance_detail
+                exit 0
+                ;;
+            --dashboard|dashboard|"")
+                run_realtime_dashboard
+                ;;
+            --export|export)
+                export_metrics "$2"
+                exit 0
+                ;;
+            *)
+                log_error "Unknown command: $1"
+                show_help
+                exit 1
+                ;;
+        esac
+        shift
+    done
+    
+    # Default to dashboard if no command specified
+    run_realtime_dashboard
+}
+
+# Cleanup on exit
+cleanup() {
+    if [[ -n "$DASHBOARD_PID" ]]; then
+        kill "$DASHBOARD_PID" 2>/dev/null || true
+    fi
+    echo
+    log_info "Dashboard stopped"
+}
+
+trap cleanup EXIT
+
+# Run if script is executed directly
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+fi
