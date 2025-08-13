@@ -30,9 +30,9 @@ UPDATE_FAILED=false
 cleanup_on_error() {
     # shellcheck disable=SC2034  # UPDATE_FAILED is used for error tracking
     UPDATE_FAILED=true
-    
+
     log_warning "Performing update-specific cleanup..."
-    
+
     # If we were pulling changes and it failed, offer to reset
     if [[ -n "$ORIGINAL_BRANCH" ]] && git rev-parse --git-dir > /dev/null 2>&1; then
         if confirm "❌ Git update failed. Reset to original state?" "y"; then
@@ -61,6 +61,13 @@ check_git_repo() {
 check_uncommitted_changes() {
     if ! git diff-index --quiet HEAD --; then
         log_warning "You have uncommitted changes in your dotfiles repository"
+
+        # Skip interactive prompt in CI environments
+        if [[ "$DOTFILES_CI" == "true" ]] || [[ -n "$CI" ]] || [[ -n "$GITHUB_ACTIONS" ]]; then
+            log_info "CI environment detected, continuing with uncommitted changes"
+            return 0
+        fi
+
         read -p "Do you want to continue? (y/N): " -n 1 -r
         echo
         if [[ ! $REPLY =~ ^[Yy]$ ]]; then
@@ -107,11 +114,11 @@ update_homebrew() {
             log_warning "Failed to update Homebrew packages"
             return 1
         fi
-        
+
         if [[ -f "install/Brewfile" ]]; then
             install_brewfile_packages "install/Brewfile"
             log_success "Core packages updated from Brewfile"
-            
+
             # Update Mac App Store apps using shared utilities
             if [[ -f "install/Brewfile.mas" ]]; then
                 install_mas_apps "install/Brewfile.mas"

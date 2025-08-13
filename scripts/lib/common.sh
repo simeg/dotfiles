@@ -85,7 +85,7 @@ get_config_dir() {
 backup_file() {
     local file="$1"
     local backup_dir="${2:-${HOME}/.dotfiles-backup}"
-    
+
     if [[ -f "$file" ]]; then
         mkdir -p "$backup_dir"
         cp "$file" "$backup_dir/$(basename "$file").$(date +%s)"
@@ -99,7 +99,7 @@ show_spinner() {
     local message="$2"
     local spinner="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
     local i=0
-    
+
     echo -n "$message "
     while kill -0 "$pid" 2>/dev/null; do
         printf "\b%s" "${spinner:$i:1}"
@@ -113,14 +113,14 @@ show_spinner() {
 run_with_spinner() {
     local message="$1"
     shift
-    
+
     # Run the command in background
     "$@" &
     local pid=$!
-    
+
     # Show spinner while command runs
     show_spinner $pid "$message"
-    
+
     # Wait for command to complete and return its exit code
     wait $pid
     return $?
@@ -140,7 +140,16 @@ to_lowercase() {
 confirm() {
     local prompt="${1:-Are you sure?}"
     local default="${2:-n}"
-    
+
+    # In CI environments, use the default without prompting
+    if [[ "$DOTFILES_CI" == "true" ]] || [[ -n "$CI" ]] || [[ -n "$GITHUB_ACTIONS" ]]; then
+        log_info "CI environment detected, using default response: $default"
+        case "$(to_lowercase "$default")" in
+            y|yes) return 0 ;;
+            *) return 1 ;;
+        esac
+    fi
+
     while true; do
         if [[ "$default" == "y" ]]; then
             read -p "$prompt [Y/n]: " -r response
@@ -149,7 +158,7 @@ confirm() {
             read -p "$prompt [y/N]: " -r response
             response="${response:-n}"
         fi
-        
+
         case "$(to_lowercase "$response")" in
             y|yes) return 0 ;;
             n|no) return 1 ;;
