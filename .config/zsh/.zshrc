@@ -49,7 +49,10 @@ export VERTEX_REGION_CLAUDE_4_0_OPUS='europe-west4'
 ########################################
 # ☕ Java
 ########################################
-export JAVA_HOME=$(/usr/libexec/java_home -v 17)
+if [[ -z "$JAVA_HOME" || "$JAVA_HOME" != "/Users/segersand/.sdkman/candidates/java/current" ]]; then
+  export JAVA_HOME="$("/usr/libexec/java_home" -v 21)"
+fi
+
 
 ########################################
 # 🐍 Python
