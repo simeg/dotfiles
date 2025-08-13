@@ -155,9 +155,61 @@ Themes are stored in `.config/starship/themes/` as `.toml` files. Each theme fil
 - Be a valid starship configuration
 - Include appropriate module settings
 
-## 🔍 Validation & Troubleshooting
+## 🧪 Testing & Validation
 
-The `validate.sh` script checks:
+This dotfiles repository includes a comprehensive testing framework to ensure configuration integrity, performance monitoring, and security compliance.
+
+### Quick Testing
+
+```bash
+# Run essential validation tests (recommended for development)
+make test-quick
+
+# Pre-commit validation (syntax + configuration checks)
+make test-precommit
+
+# Full test suite (basic + CI + advanced tests)
+make test
+```
+
+### Advanced Testing Framework
+
+The advanced testing system provides three categories of validation:
+
+**🔧 Configuration Validation**
+- Zsh modular configuration structure and syntax
+- Neovim Lua configuration validation
+- Git security settings and credential configuration
+- Starship prompt theme validation
+- Package management (Brewfile) validation
+
+**⚡ Performance Regression Testing**
+- Shell startup time monitoring with baseline tracking
+- Memory usage regression detection
+- Plugin load time analysis
+- Automatic performance baseline creation
+
+**🔒 Security Compliance Checks**
+- Intelligent secrets scanning (avoids false positives)
+- File permissions security validation
+- Shell security configuration audit
+- Git security protocol verification
+- Dependency source security analysis
+
+```bash
+# Individual test categories
+make test-advanced          # Run all advanced tests
+./scripts/tests/test_advanced.sh config      # Configuration validation only
+./scripts/tests/test_advanced.sh performance # Performance regression tests
+./scripts/tests/test_advanced.sh security    # Security compliance checks
+
+# Create performance baselines for future regression testing
+./scripts/tests/test_advanced.sh baseline
+```
+
+### Legacy Validation
+
+The original `validate.sh` script provides basic checks:
 - ✅ All symlinks are correctly created
 - ✅ Required tools are installed
 - ✅ Zsh plugins are loaded

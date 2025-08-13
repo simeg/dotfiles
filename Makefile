@@ -5,7 +5,7 @@
 # and safe to run multiple times.
 
 # Define all phony targets (targets that don't create files)
-.PHONY: all setup update validate test test-ci test-integration ci \
+.PHONY: all setup update validate test test-ci test-integration test-advanced test-quick test-precommit ci \
         lint symlink clean install uninstall \
         health profile \
         deps \
@@ -41,6 +41,9 @@ help:
 	@echo "  test               Run complete test suite"
 	@echo "  test-ci            Run CI-friendly tests (no symlink dependencies)"
 	@echo "  test-integration   Run full integration test (temporarily modifies config, should only be run on CI)"
+	@echo "  test-advanced      Run advanced tests (config validation + performance + security)"
+	@echo "  test-quick         Run quick validation tests (essential only)"
+	@echo "  test-precommit     Run pre-commit validation tests"
 	@echo "  ci                 Run full CI pipeline (lint + test-ci)"
 	@echo ""
 	@echo "System Health:"
@@ -115,13 +118,27 @@ lint:
 # Run complete test suite including integration tests
 test:
 	@echo "🧪 Running complete test suite..."
-	./scripts/tests/test_dotfiles.sh
-
+	./scripts/tests/test_comprehensive.sh full
 
 # Run CI-friendly tests (no symlink dependencies)
 test-ci:
 	@echo "🤖 Running CI-compatible tests..."
 	./scripts/tests/test_ci.sh
+
+# Run advanced tests (configuration validation, performance regression, security compliance)
+test-advanced:
+	@echo "🚀 Running advanced test suite..."
+	./scripts/tests/test_advanced.sh all
+
+# Run quick validation tests (essential only)
+test-quick:
+	@echo "⚡ Running quick validation tests..."
+	./scripts/tests/test_comprehensive.sh quick
+
+# Run pre-commit validation tests
+test-precommit:
+	@echo "🔍 Running pre-commit tests..."
+	./scripts/tests/test_comprehensive.sh precommit
 
 # Complete CI pipeline: linting + testing
 ci: lint test-ci

@@ -107,14 +107,44 @@ make analytics               # Comprehensive analytics and monitoring
 **When to use**: Before committing changes or when developing new scripts
 
 ### `make test`
-**Purpose**: Run complete test suite  
+**Purpose**: Run complete test suite (basic + CI + advanced)  
 **What it does**:
-- Executes comprehensive integration tests
-- Tests all major functionality end-to-end
-- Validates symlink creation, package installation, and configuration loading
-- Includes performance regression tests
+- Executes comprehensive test suite including all test categories
+- Validates basic functionality, configuration, performance, and security
+- Includes regression testing and compliance checks
+- Provides detailed reporting on all aspects
 
 **When to use**: Before releasing changes or when validating major modifications
+
+### `make test-quick`
+**Purpose**: Run essential validation tests  
+**What it does**:
+- Executes core functionality tests for rapid feedback
+- Tests syntax validation and basic configuration
+- Skips time-intensive performance and security scans
+- Ideal for development workflow
+
+**When to use**: During development for quick validation
+
+### `make test-precommit`
+**Purpose**: Run pre-commit validation tests  
+**What it does**:
+- Fast syntax and configuration validation
+- CI tests plus configuration validation
+- Optimized for pre-commit hook usage
+- Catches common issues before committing
+
+**When to use**: In pre-commit hooks or before committing changes
+
+### `make test-advanced`
+**Purpose**: Run advanced validation tests  
+**What it does**:
+- Configuration validation (syntax, structure, completeness)
+- Performance regression testing with baseline tracking
+- Security compliance checks and vulnerability scanning
+- Provides optimization recommendations
+
+**When to use**: Weekly validation, security audits, or performance monitoring
 
 ### `make test-ci`
 **Purpose**: Run CI-friendly tests  

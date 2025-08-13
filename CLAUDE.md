@@ -11,6 +11,9 @@ make update                # Update all components (git, packages, plugins)
 make validate              # Verify configuration is working
 make lint                  # Run shellcheck on all shell scripts
 make test                  # Run complete test suite
+make test-quick            # Run quick validation tests (essential only)
+make test-precommit        # Run pre-commit validation tests
+make test-advanced         # Run advanced tests (config + performance + security)
 make health                # Comprehensive system health check
 make deps                  # Check all dependencies
 make packages              # Analyze and sync package usage
@@ -135,3 +138,7 @@ This dotfiles repository includes 8 major feature areas, each with comprehensive
 ### 8. Custom Utilities and Bin Tools
 **File**: [`docs/development/features/CUSTOM_UTILITIES.md`](docs/development/features/CUSTOM_UTILITIES.md)  
 **Summary**: Collection of custom command-line tools for file operations, Git workflow, and productivity
+
+### 9. Advanced Testing Framework
+**File**: [`docs/development/TESTING_FRAMEWORK.md`](docs/development/TESTING_FRAMEWORK.md)  
+**Summary**: Comprehensive testing system with configuration validation, performance regression testing, and security compliance checks
