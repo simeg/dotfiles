@@ -108,6 +108,7 @@ alias ggpush="git push origin \$(git branch --show-current)"
 alias ggpull="git pull origin \$(git branch --show-current)"
 alias gst="git status"
 alias gss="git status --short"
+alias grb="git rebase"
 
 # Branch management
 alias gb="git branch"
@@ -139,6 +140,7 @@ alias grv="git remote --verbose"
 
 # Fetch and merge
 alias gf="git fetch"
+alias gfo="git fetch origin"
 alias gfa="git fetch --all"
 alias gm="git merge"
 
