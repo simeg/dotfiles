@@ -55,7 +55,7 @@ analyze_startup_performance() {
     fi
     
     echo "📈 Startup Time Statistics (last 50 shells):"
-    echo "$startup_data" | awk -F',' '{
+    echo "$startup_data" | gawk -F',' '{
         times[NR] = $3/1000000
         sum += $3/1000000
         if (NR == 1 || $3/1000000 < min) min = $3/1000000
