@@ -32,22 +32,22 @@ jobs:
         mkdir -p ~/.config/zsh
         
         # Run health check
-        ./scripts/health-check.sh --quick
+        make health
         
     - name: Check for security issues
       run: |
         # Check for potential security issues
-        ./scripts/health-check.sh --security || echo "Security check completed with warnings"
+        make health || echo "Security check completed with warnings"
         
     - name: Performance baseline
       run: |
         # Check performance metrics
-        ./scripts/profile-shell.sh --startup || echo "Performance check completed"
+        make health-profile || echo "Performance check completed"
         
     - name: Dependency audit
       run: |
         # Check dependency health
-        ./scripts/check-deps.sh --core
+        make deps
         
     - name: Generate health report
       run: |
@@ -59,16 +59,16 @@ jobs:
           echo "## Test Results"
           echo ""
           echo "### Configuration Health"
-          ./scripts/health-check.sh --config || echo "Configuration issues detected"
+          make health || echo "Configuration issues detected"
           echo ""
           echo "### Security Health"  
-          ./scripts/health-check.sh --security || echo "Security issues detected"
+          make health || echo "Security issues detected"
           echo ""
           echo "### Performance Health"
-          ./scripts/profile-shell.sh --startup || echo "Performance issues detected"
+          make health-profile || echo "Performance issues detected"
           echo ""
           echo "### Dependencies"
-          ./scripts/check-deps.sh --core || echo "Dependency issues detected"
+          make deps || echo "Dependency issues detected"
         } > health-report.md
         
     - name: Upload health report

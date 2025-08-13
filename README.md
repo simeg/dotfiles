@@ -30,26 +30,43 @@ make validate
 
 ## 🛠 Management Commands
 
-### Setup & Installation
+### Essential Commands
 ```bash
-make setup                    # Complete initial setup
-make install                  # Install packages only
+make setup                    # Complete dotfiles setup (symlinks, packages, validation)
+make update                   # Update all components (git, packages, plugins)
+make validate                 # Verify all configurations are working correctly
+make test                     # Run complete test suite
+make packages                 # Install and sync packages from Brewfile
+make health                   # System diagnostics and health checks
+make clean                    # Remove broken symlinks and temporary files
+make deps                     # Check all dependencies are installed
+make lint                     # Run shellcheck on all shell scripts
+make help                     # Show all available commands
+```
+
+### Advanced Usage
+```bash
+# Test variants
+make test-quick               # Quick validation tests only
+make test-advanced            # Advanced tests (performance + security)
+make test-ci                  # CI-compatible tests (no symlink dependencies)
+
+# Health diagnostics
+make health-monitor           # Real-time system monitoring dashboard
+make health-analytics         # Package usage and performance analytics
+make health-profile           # Shell startup performance profiling
+make snapshot                 # Take system metrics snapshot
+
+# Setup variants
+make setup-minimal            # Essential setup only (faster)
+```
+
+### Legacy Commands (Still Supported)
+```bash
+make install                  # → make packages
 make symlink                  # Create symlinks only
-```
-
-### Updates & Maintenance
-```bash
-make update                   # Update everything (git, packages, plugins)
-make validate                 # Verify configuration is working
-make health                   # Comprehensive system health check
-make lint                     # Run shellcheck on all scripts
-```
-
-### Package & Analytics
-```bash
-make packages                 # Analyze and sync package usage
-make analytics                # Comprehensive analytics (packages + performance)
-make deps                     # Check all dependencies
+make analytics                # → make health-analytics
+make profile                  # → make health-profile
 ```
 
 ## 📁 Directory Structure

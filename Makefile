@@ -4,14 +4,40 @@
 # updates, testing, and maintenance. All targets are designed to be idempotent
 # and safe to run multiple times.
 
+# =============================================================================
+# VARIABLES & CONFIGURATION
+# =============================================================================
+
+# Common script paths to reduce duplication
+SCRIPTS_DIR := ./scripts
+TESTS_DIR := $(SCRIPTS_DIR)/tests
+BIN_DIR := ./bin
+
+# Brewfile paths
+BREWFILE := install/Brewfile
+BREWFILE_MAS := install/Brewfile.mas
+
+# Test suite configurations
+TEST_COMPREHENSIVE := $(TESTS_DIR)/test_comprehensive.sh
+TEST_CI := $(TESTS_DIR)/test_ci.sh
+TEST_ADVANCED := $(TESTS_DIR)/test_advanced.sh
+TEST_INTEGRATION := $(TESTS_DIR)/test_integration_local.sh
+
+# Analytics and monitoring scripts
+ANALYTICS_PACKAGE := $(SCRIPTS_DIR)/analyze-package-usage.sh
+ANALYTICS_PERFORMANCE := $(SCRIPTS_DIR)/performance-report.sh
+ANALYTICS_ENHANCED := $(SCRIPTS_DIR)/enhanced-analytics.sh
+MONITOR_HEALTH := $(SCRIPTS_DIR)/health-check.sh
+MONITOR_SYSTEM := $(BIN_DIR)/system-monitor
+PROFILE_SHELL := $(SCRIPTS_DIR)/profile-shell.sh
+
+# Common conditional checks
+check_brew := command -v brew >/dev/null 2>&1
+check_mas := command -v mas >/dev/null 2>&1
+
 # Define all phony targets (targets that don't create files)
-.PHONY: all setup update validate test test-ci test-integration test-advanced test-quick test-precommit ci \
-        lint symlink clean install uninstall \
-        health profile \
-        deps \
-        packages \
-        analytics analytics-enhanced \
-        help
+.PHONY: all setup setup-minimal update validate test test-quick test-advanced test-ci lint clean packages deps health help \
+        health-monitor health-analytics health-profile snapshot
 
 # =============================================================================
 # MAIN TARGETS
@@ -25,75 +51,91 @@ help:
 	@echo "Dotfiles Management Commands"
 	@echo "============================"
 	@echo ""
-	@echo "Setup & Installation:"
+	@echo "Essential Commands:"
 	@echo "  setup              Complete dotfiles setup (symlinks, packages, validation)"
-	@echo "  install            Install packages and dependencies"
-	@echo "  uninstall          Remove symlinks and clean up"
-	@echo "  symlink            Create symbolic links only"
-	@echo ""
-	@echo "Updates & Maintenance:"
+	@echo "  setup-minimal      Essential setup only (faster)"
 	@echo "  update             Update all components (git, packages, plugins)"
 	@echo "  validate           Verify all configurations are working correctly"
-	@echo "  clean              Remove broken symlinks and temporary files"
-	@echo ""
-	@echo "Quality Assurance:"
-	@echo "  lint               Run shellcheck on all shell scripts"
 	@echo "  test               Run complete test suite"
-	@echo "  test-ci            Run CI-friendly tests (no symlink dependencies)"
-	@echo "  test-integration   Run full integration test (temporarily modifies config, should only be run on CI)"
-	@echo "  test-advanced      Run advanced tests (config validation + performance + security)"
-	@echo "  test-quick         Run quick validation tests (essential only)"
-	@echo "  test-precommit     Run pre-commit validation tests"
-	@echo "  ci                 Run full CI pipeline (lint + test-ci)"
+	@echo "  test-quick         Quick validation tests only"
+	@echo "  test-advanced      Advanced tests (performance + security)"
+	@echo "  test-ci            CI-compatible tests (no symlink dependencies)"
+	@echo "  packages           Install and sync packages from Brewfile"
+	@echo "  health             System diagnostics and health checks"
+	@echo "  health-monitor     Real-time system monitoring dashboard"
+	@echo "  health-analytics   Package usage and performance analytics"
+	@echo "  health-profile     Shell startup performance profiling"
+	@echo "  snapshot           Take system metrics snapshot"
+	@echo "  clean              Remove broken symlinks and temporary files"
+	@echo "  deps               Check all dependencies are installed"
+	@echo "  lint               Run shellcheck on all shell scripts"
+	@echo "  help               Show this help message"
 	@echo ""
-	@echo "System Health:"
-	@echo "  health             Complete system health check"
-	@echo "  profile            Profile shell startup performance"
-	@echo "  deps               Check all dependencies"
+	@echo "Advanced Usage Examples:"
+	@echo "  make test-quick         # Quick validation tests only"
+	@echo "  make test-advanced      # Advanced tests (performance + security)"
+	@echo "  make test-ci            # CI-compatible tests (no symlink dependencies)"
+	@echo "  make health-monitor     # Real-time system monitoring dashboard"
+	@echo "  make health-analytics   # Package usage and performance analytics"
+	@echo "  make health-profile     # Shell startup performance profiling"
+	@echo "  make snapshot           # Take system metrics snapshot"
+	@echo "  make setup-minimal      # Essential setup only (faster)"
 	@echo ""
-	@echo "Package Management:"
-	@echo "  packages           Analyze and sync package usage"
-	@echo ""
-	@echo "Analytics & Performance:"
-	@echo "  analytics          Run comprehensive analytics (packages + performance)"
-	@echo "  analytics-enhanced Run enhanced analytics (productivity + frequency + optimization)"
+	@echo "Development & CI:"
+	@echo "  DOTFILES_CI=true make test  # Force CI mode for integration tests"
 
 # =============================================================================
-# SETUP & INSTALLATION
+# CORE TARGETS
 # =============================================================================
 
 # Complete setup process for new dotfiles installation
-# Includes: symlinks, package installation, and validation
 setup:
 	@echo "🚀 Starting complete dotfiles setup..."
-	./scripts/setup.sh
+	$(SCRIPTS_DIR)/setup.sh
 
-# Install packages and dependencies from Brewfile
-install: packages
-
-# Remove symlinks and perform cleanup
-uninstall: clean
-	@echo "🗑️  Uninstalling dotfiles..."
-	@echo "Note: This removes symlinks but preserves your original files"
-
-# Create symbolic links from dotfiles to home directory
-symlink:
-	@echo "🔗 Creating symbolic links..."
-	./scripts/symlink.sh
-
-# =============================================================================
-# UPDATES & MAINTENANCE
-# =============================================================================
+# Minimal setup (essential only, faster)
+setup-minimal:
+	@echo "🔧 Running minimal setup (essential only)..."
+	DOTFILES_MINIMAL=true $(SCRIPTS_DIR)/setup.sh
 
 # Update all components: git repos, packages, plugins, and configurations
 update:
 	@echo "🔄 Updating all dotfiles components..."
-	./scripts/update.sh
+	$(SCRIPTS_DIR)/update.sh
 
 # Validate that all configurations are working correctly
 validate:
 	@echo "✅ Validating dotfiles configuration..."
-	./scripts/validate.sh
+	$(SCRIPTS_DIR)/validate.sh
+
+# Comprehensive test suite
+test:
+	@echo "🧪 Running complete test suite..."
+	$(TEST_COMPREHENSIVE) full
+
+# Quick validation tests
+test-quick:
+	@echo "⚡ Running quick validation tests..."
+	$(TEST_COMPREHENSIVE) quick
+
+# Advanced test suite (performance + security)
+test-advanced:
+	@echo "🚀 Running advanced test suite..."
+	$(TEST_ADVANCED) all
+
+# CI-compatible tests
+test-ci:
+	@echo "🤖 Running CI-compatible tests..."
+	$(TEST_CI)
+	@if [[ "$${CI:-false}" == "true" ]] || [[ -n "$${GITHUB_ACTIONS:-}" ]] || [[ "$${DOTFILES_CI:-false}" == "true" ]]; then \
+		echo "🧪 Running integration tests in CI..."; \
+		$(TEST_INTEGRATION); \
+	fi
+
+# Run shellcheck linting on all shell scripts
+lint:
+	@echo "🔍 Running shellcheck on all shell scripts..."
+	$(SCRIPTS_DIR)/shellcheck.sh
 
 # Clean up broken symlinks, temporary files, and caches
 clean:
@@ -104,93 +146,19 @@ clean:
 	@rm -f ~/.zshrc ~/.znap-plugins.zsh ~/.gitconfig ~/.gitignore ~/.ideavimrc ~/.bin
 	@rm -f ~/.config/nvim ~/.config/starship ~/.config/atuin
 	@rm -f ~/.config/zsh/aliases.zsh ~/.config/zsh/exports.zsh ~/.config/zsh/functions.zsh ~/.config/zsh/misc.zsh ~/.config/zsh/path.zsh ~/.config/zsh/completions
-	@echo "Cleanup completed. If things broke, run 'make symlink'"
-
-# =============================================================================
-# QUALITY ASSURANCE
-# =============================================================================
-
-# Run shellcheck linting on all shell scripts
-lint:
-	@echo "🔍 Running shellcheck on all shell scripts..."
-	./scripts/shellcheck.sh
-
-# Run complete test suite including integration tests
-test:
-	@echo "🧪 Running complete test suite..."
-	./scripts/tests/test_comprehensive.sh full
-
-# Run CI-friendly tests (no symlink dependencies)
-test-ci:
-	@echo "🤖 Running CI-compatible tests..."
-	./scripts/tests/test_ci.sh
-
-# Run advanced tests (configuration validation, performance regression, security compliance)
-test-advanced:
-	@echo "🚀 Running advanced test suite..."
-	./scripts/tests/test_advanced.sh all
-
-# Run quick validation tests (essential only)
-test-quick:
-	@echo "⚡ Running quick validation tests..."
-	./scripts/tests/test_comprehensive.sh quick
-
-# Run pre-commit validation tests
-test-precommit:
-	@echo "🔍 Running pre-commit tests..."
-	./scripts/tests/test_comprehensive.sh precommit
-
-# Complete CI pipeline: linting + testing
-ci: lint test-ci
-	@echo "✅ CI pipeline completed successfully"
-
-# Run integration tests (same as CI but locally)
-test-integration:
-	@echo "🧪 Running integration tests locally..."
-	@echo "⚠️  This will modify your dotfiles configuration temporarily"
-	@echo "Press Ctrl+C within 5 seconds to cancel..."
-	@sleep 5
-	@echo "🚀 Starting integration test..."
-	./scripts/tests/test_integration_local.sh
-
-# =============================================================================
-# SYSTEM HEALTH & DIAGNOSTICS
-# =============================================================================
-
-# Comprehensive system health check
-health:
-	@echo "🏥 Running comprehensive system health check..."
-	./scripts/health-check.sh
-
-# Profile shell startup performance with detailed analysis
-profile:
-	@echo "📊 Profiling shell startup performance..."
-	./scripts/profile-shell.sh
-
-# =============================================================================
-# DEPENDENCY MANAGEMENT
-# =============================================================================
-
-# Check all dependencies are installed and properly configured
-deps:
-	@echo "🔧 Checking all dependencies..."
-	./scripts/check-deps.sh
-
-# =============================================================================
-# PACKAGE MANAGEMENT
-# =============================================================================
+	@echo "Cleanup completed. If things broke, run 'make setup'"
 
 # Comprehensive package management: analyze, sync, and install
 packages:
 	@echo "📦 Managing packages..."
 	@echo "📊 Analyzing package differences..."
-	@./scripts/sync-packages.sh analyze
+	@$(SCRIPTS_DIR)/sync-packages.sh analyze
 	@echo "📥 Installing packages from Brewfile..."
-	@if command -v brew >/dev/null 2>&1; then \
-		brew bundle --file=install/Brewfile; \
-		if [[ -f install/Brewfile.mas ]] && command -v mas >/dev/null 2>&1; then \
+	@if $(check_brew); then \
+		brew bundle --file=$(BREWFILE); \
+		if [[ -f $(BREWFILE_MAS) ]] && $(check_mas); then \
 			echo "📱 Installing Mac App Store apps..."; \
-			brew bundle --file=install/Brewfile.mas; \
+			brew bundle --file=$(BREWFILE_MAS); \
 		else \
 			echo "⚠️  Skipping Mac App Store apps (mas not found or Brewfile.mas missing)"; \
 		fi; \
@@ -199,24 +167,62 @@ packages:
 		exit 1; \
 	fi
 
-# =============================================================================
-# ANALYTICS & PERFORMANCE MONITORING
-# =============================================================================
+# Check all dependencies are installed and properly configured
+deps:
+	@echo "🔧 Checking all dependencies..."
+	$(SCRIPTS_DIR)/check-deps.sh
 
-# Run comprehensive analytics (both package usage and performance)
-analytics:
+# System health and diagnostics
+health:
+	@echo "🏥 Running comprehensive system health check..."
+	$(MONITOR_HEALTH)
+	@echo ""
+	@echo "💡 Tip: Use 'make health-monitor', 'make health-analytics', or 'make health-profile' for specialized diagnostics"
+
+# Real-time system monitoring dashboard
+health-monitor:
+	@echo "📊 Starting real-time system monitoring dashboard..."
+	$(MONITOR_SYSTEM) dashboard
+
+# Comprehensive analytics (package usage and performance)
+health-analytics:
 	@echo "🔍 Running comprehensive analytics..."
 	@echo "📊 Package Usage Analysis:"
-	@./scripts/analyze-package-usage.sh analyze || echo "⚠️  Package analytics require data collection (run commands first)"
+	@$(ANALYTICS_PACKAGE) analyze || echo "⚠️  Package analytics require data collection (run commands first)"
 	@echo ""
 	@echo "⚡ Performance Analysis:"
-	@./scripts/performance-report.sh comprehensive || echo "⚠️  Performance monitoring requires data collection"
+	@$(ANALYTICS_PERFORMANCE) comprehensive || echo "⚠️  Performance monitoring requires data collection"
 	@echo ""
-	@echo "📊 Opening performance dashboard..."
-	@./bin/perf-dashboard || echo "⚠️  Performance dashboard requires data collection"
+	@echo "🚀 Enhanced Analytics:"
+	@$(ANALYTICS_ENHANCED) comprehensive
 
-# Run enhanced analytics with productivity metrics, command frequency, and predictive optimization
-analytics-enhanced:
-	@echo "🚀 Running enhanced analytics with productivity insights..."
-	@./scripts/enhanced-analytics.sh comprehensive
+# Shell startup performance profiling
+health-profile:
+	@echo "📊 Profiling shell startup performance..."
+	$(PROFILE_SHELL)
 
+# Take system metrics snapshot
+snapshot:
+	@echo "📸 Taking system metrics snapshot..."
+	$(MONITOR_SYSTEM) snapshot
+
+# =============================================================================
+# LEGACY COMPATIBILITY TARGETS
+# =============================================================================
+
+install: packages
+
+symlink:
+	@echo "🔗 Creating symbolic links..."
+	$(SCRIPTS_DIR)/symlink.sh
+
+uninstall: clean
+
+monitor:
+	@$(MAKE) health-monitor
+
+profile:
+	@$(MAKE) health-profile
+
+analytics:
+	@$(MAKE) health-analytics

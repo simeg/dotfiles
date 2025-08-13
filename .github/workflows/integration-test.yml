@@ -234,7 +234,7 @@ jobs:
         }
 
         # Test analytics (should work even without data)
-        ./scripts/analyze-package-usage.sh analyze || echo "⚠️ Package analysis requires usage data"
+        make health-analytics || echo "⚠️ Package analysis requires usage data"
 
         # Test performance monitoring setup
         test -f "$HOME/.config/dotfiles/perf-data.csv" || echo "⚠️ Performance data file not created yet"

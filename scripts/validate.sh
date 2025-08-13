@@ -3,39 +3,44 @@
 # Configuration validation script for dotfiles
 # Checks that all symlinks exist and configurations are working properly
 
-# Note: Not using 'set -e' here since we want to continue validation even if some checks fail
+# Source shared libraries
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=scripts/lib/common.sh
+source "$SCRIPT_DIR/lib/common.sh"
+# shellcheck source=scripts/lib/brew-utils.sh
+source "$SCRIPT_DIR/lib/brew-utils.sh"
+# shellcheck source=scripts/lib/validation-utils.sh
+source "$SCRIPT_DIR/lib/validation-utils.sh"
+# shellcheck source=scripts/lib/error-handling.sh
+source "$SCRIPT_DIR/lib/error-handling.sh"
 
-# Color output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+# Note: Not using error handling setup since we want to continue validation even if some checks fail
+# Initialize validation counters
+reset_validation_counters
 
-# Counters
+# Legacy counters for backward compatibility
 TOTAL_CHECKS=0
 PASSED_CHECKS=0
 FAILED_CHECKS=0
 WARNING_CHECKS=0
 
-# Logging functions
-log_info() {
-    echo -e "${BLUE}[INFO]${NC} $1"
-}
-
-log_success() {
-    echo -e "${GREEN}[✓]${NC} $1"
+# Enhanced logging functions with counter integration
+log_success_validate() {
+    log_success "$1"
     ((PASSED_CHECKS++))
+    ((VALIDATIONS_PASSED++))
 }
 
-log_warning() {
-    echo -e "${YELLOW}[⚠]${NC} $1"
+log_warning_validate() {
+    log_warning "$1"
     ((WARNING_CHECKS++))
+    ((VALIDATIONS_WARNINGS++))
 }
 
-log_error() {
-    echo -e "${RED}[✗]${NC} $1"
+log_error_validate() {
+    log_error "$1"
     ((FAILED_CHECKS++))
+    ((VALIDATIONS_FAILED++))
 }
 
 # Increment total checks counter
@@ -43,7 +48,7 @@ check() {
     ((TOTAL_CHECKS++))
 }
 
-# Check if a symlink exists and points to the correct target
+# Check if a symlink exists and points to the correct target (using shared utilities)
 check_symlink() {
     local link_path="$1"
     local expected_target="$2"
@@ -51,35 +56,23 @@ check_symlink() {
 
     check
 
-    if [[ ! -L "$link_path" ]]; then
-        log_error "$description: Symlink $link_path does not exist"
-        return 1
-    fi
-
-    local actual_target
-    actual_target=$(readlink "$link_path")
-
-    if [[ "$actual_target" != "$expected_target" ]]; then
-        log_error "$description: Symlink $link_path points to '$actual_target', expected '$expected_target'"
-        return 1
-    fi
-
-    log_success "$description: Symlink $link_path correctly points to $expected_target"
-    return 0
+    # Use shared validation utility
+    check_symlink_target "$link_path" "$expected_target" "$description"
 }
 
-# Check if a file exists
+# Check if a file exists (using shared utilities)
 check_file_exists() {
     local file_path="$1"
     local description="$2"
 
     check
 
+    # Use shared validation utility but avoid name conflict
     if [[ -f "$file_path" ]]; then
-        log_success "$description: File $file_path exists"
+        log_success_validate "$description: File $file_path exists"
         return 0
     else
-        log_error "$description: File $file_path does not exist"
+        log_error_validate "$description: File $file_path does not exist"
         return 1
     fi
 }

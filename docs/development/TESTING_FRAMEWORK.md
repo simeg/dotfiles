@@ -348,7 +348,7 @@ Performance baselines are stored in `~/.config/dotfiles/perf-baseline.json`:
 ### Performance Optimization Workflow
 
 1. **Baseline Creation**: `make test-advanced` (creates baseline on first run)
-2. **Regular Monitoring**: Run tests weekly with `make test-performance`
+2. **Regular Monitoring**: Run tests weekly with `make test-advanced`
 3. **Regression Detection**: Tests fail if performance degrades significantly
 4. **Optimization**: Use recommendations from test output
 5. **Validation**: Re-run tests to confirm improvements

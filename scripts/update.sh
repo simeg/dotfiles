@@ -3,25 +3,35 @@
 # Update script for dotfiles
 # Pulls latest changes and selectively updates configurations
 
-set -e
+# Source shared libraries
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=scripts/lib/common.sh
+source "$SCRIPT_DIR/lib/common.sh"
+# shellcheck source=scripts/lib/brew-utils.sh
+source "$SCRIPT_DIR/lib/brew-utils.sh"
+# shellcheck source=scripts/lib/validation-utils.sh
+source "$SCRIPT_DIR/lib/validation-utils.sh"
+# shellcheck source=scripts/lib/error-handling.sh
+source "$SCRIPT_DIR/lib/error-handling.sh"
 
-# Enhanced error handling
+# Initialize error handling
+setup_error_handling "update.sh" true
+
+# Update-specific state
 ORIGINAL_BRANCH=""
-# shellcheck disable=SC2034  # UPDATE_FAILED is used in error handler
+# shellcheck disable=SC2034  # UPDATE_FAILED is used for error tracking
 UPDATE_FAILED=false
 
-# Cleanup function
+# Custom cleanup function for update-specific cleanup
 cleanup_on_error() {
-    local exit_code=$?
     # shellcheck disable=SC2034  # UPDATE_FAILED is used for error tracking
     UPDATE_FAILED=true
     
-    log_error "Update failed with exit code $exit_code"
-    log_error "Last command: $BASH_COMMAND"
+    log_warning "Performing update-specific cleanup..."
     
     # If we were pulling changes and it failed, offer to reset
     if [[ -n "$ORIGINAL_BRANCH" ]] && git rev-parse --git-dir > /dev/null 2>&1; then
-        if ask_yes_no "❌ Git update failed. Reset to original state?" "y"; then
+        if confirm "❌ Git update failed. Reset to original state?" "y"; then
             log_info "Resetting to original branch state..."
             git reset --hard HEAD 2>/dev/null || true
             git clean -fd 2>/dev/null || true
@@ -32,69 +42,15 @@ cleanup_on_error() {
     else
         log_warning "Update failed outside of git context"
     fi
-    
-    exit $exit_code
 }
 
-# Simple yes/no prompt for error handling
-ask_yes_no() {
-    local question="$1"
-    local default="${2:-y}"
-    local response
-    
-    while true; do
-        if [[ "$default" == "y" ]]; then
-            echo -n "$question [Y/n]: "
-        else
-            echo -n "$question [y/N]: "
-        fi
-        
-        read -r response
-        
-        if [[ -z "$response" ]]; then
-            response="$default"
-        fi
-        
-        case "$response" in
-            [Yy]|[Yy][Ee][Ss]) return 0 ;;
-            [Nn]|[Nn][Oo]) return 1 ;;
-            *) echo "Please answer yes or no." ;;
-        esac
-    done
-}
-
-trap 'cleanup_on_error' ERR
-
-# Color output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
-# Logging functions
-log_info() {
-    echo -e "${BLUE}[INFO]${NC} $1"
-}
-
-log_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
-}
-
-log_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
-}
-
-log_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
-}
-
-# Check if we're in a git repository
+# Check if we're in a git repository (enhanced with validation utilities)
 check_git_repo() {
     if ! git rev-parse --git-dir > /dev/null 2>&1; then
         log_error "This script must be run from within the dotfiles git repository"
         exit 1
     fi
+    log_debug "Confirmed running in git repository"
 }
 
 # Check for uncommitted changes
@@ -142,20 +98,15 @@ update_homebrew() {
     log_info "Updating Homebrew packages..."
 
     if command -v brew >/dev/null 2>&1; then
-        brew update
+        # Update Homebrew using shared utilities
+        update_homebrew
         
         if [[ -f "install/Brewfile" ]]; then
-            brew bundle --file=install/Brewfile
+            install_brewfile_packages "install/Brewfile"
             log_success "Core packages updated from Brewfile"
             
-            # Update Mac App Store apps unless in CI environment
-            if [[ "$DOTFILES_CI" != "true" ]] && [[ -f "install/Brewfile.mas" ]]; then
-                log_info "Updating Mac App Store apps..."
-                if command -v mas >/dev/null 2>&1; then
-                    brew bundle --file=install/Brewfile.mas
-                    log_success "Mac App Store apps updated"
-                else
-                    log_warning "mas CLI not found, skipping Mac App Store app updates"
+            # Update Mac App Store apps using shared utilities
+            install_mas_apps "install/Brewfile.mas"
                 fi
             else
                 if [[ "$DOTFILES_CI" == "true" ]]; then

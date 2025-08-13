@@ -6,20 +6,33 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Primary Commands (via Makefile)
 ```bash
-make setup                 # Complete initial setup for new installations
+# Essential Commands
+make setup                 # Complete dotfiles setup (symlinks, packages, validation)
 make update                # Update all components (git, packages, plugins)
-make validate              # Verify configuration is working
+make validate              # Verify all configurations are working correctly
+make test                  # Run complete test suite (with options: quick, advanced, ci)
+make packages              # Install and sync packages from Brewfile
+make health                # System diagnostics and health checks
+make clean                 # Remove broken symlinks and temporary files
+make deps                  # Check all dependencies are installed
 make lint                  # Run shellcheck on all shell scripts
-make test                  # Run complete test suite
-make test-quick            # Run quick validation tests (essential only)
-make test-precommit        # Run pre-commit validation tests
-make test-advanced         # Run advanced tests (config + performance + security)
-make health                # Comprehensive system health check
-make deps                  # Check all dependencies
-make packages              # Analyze and sync package usage
-make analytics             # Run comprehensive analytics (packages + performance)
-make analytics-enhanced    # Run enhanced analytics (productivity + frequency + optimization)
-make profile               # Profile shell startup performance
+make help                  # Show available commands
+
+# Advanced Usage Examples
+make test-quick            # Quick validation tests only
+make test-advanced         # Advanced tests (performance + security)
+make test-ci               # CI-compatible tests (no symlink dependencies)
+make health-monitor        # Real-time system monitoring dashboard
+make health-analytics      # Package usage and performance analytics
+make health-profile        # Shell startup performance profiling
+make snapshot              # Take system metrics snapshot
+make setup-minimal         # Essential setup only (faster)
+
+# Legacy compatibility (all still supported)
+make test-quick            # Quick validation tests
+make test-advanced         # Advanced tests (performance + security)
+make analytics             # → make health-analytics
+make profile               # → make health-profile
 ```
 
 ### Direct Script Usage

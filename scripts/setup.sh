@@ -76,8 +76,11 @@ log_warning() {
     echo -e "${YELLOW}[WARNING]${NC} $1"
 }
 
-log_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
+# Custom cleanup function for setup-specific cleanup
+cleanup_on_error() {
+    # This function is called by the shared error handler
+    log_warning "Performing setup-specific cleanup..."
+    # Add any setup-specific cleanup logic here
 }
 
 # Global configuration flags
@@ -91,36 +94,17 @@ CREATE_SYMLINKS=true
 BACKUP_EXISTING=true
 ENABLE_ANALYTICS=false
 
-# Interactive prompts
+# Interactive prompts (enhanced with shared confirm function)
 ask_yes_no() {
     local question="$1"
     local default="${2:-y}"
-    local response
 
     if [[ "$INTERACTIVE_MODE" == false ]]; then
         return 0  # Default to yes in non-interactive mode
     fi
 
-    while true; do
-        if [[ "$default" == "y" ]]; then
-            echo -n "$question [Y/n]: "
-        else
-            echo -n "$question [y/N]: "
-        fi
-
-        read -r response
-
-        # Use default if empty response
-        if [[ -z "$response" ]]; then
-            response="$default"
-        fi
-
-        case "$response" in
-            [Yy]|[Yy][Ee][Ss]) return 0 ;;
-            [Nn]|[Nn][Oo]) return 1 ;;
-            *) echo "Please answer yes or no." ;;
-        esac
-    done
+    # Use shared confirm function
+    confirm "$question" "$default"
 }
 
 # Interactive setup configuration
@@ -291,40 +275,13 @@ install_packages() {
     fi
 
     if [[ -f "$brewfile" ]]; then
-        if ! brew bundle --file="$brewfile"; then
-            log_warning "Some packages failed to install, attempting to fix conflicts..."
-            # Force link packages that commonly conflict
-            brew link --overwrite --force openssl@3 2>/dev/null || true
-            brew link --overwrite --force pyenv 2>/dev/null || true
-            brew link --overwrite --force zsh 2>/dev/null || true
-            
-            # Try bundle again after fixing conflicts
-            if brew bundle --file="$brewfile"; then
-                log_success "Core packages installed after conflict resolution"
-            else
-                log_warning "Some packages may have failed to install, but continuing..."
-            fi
-        else
+        # Use shared brew utilities for installation with conflict resolution
+        if install_brewfile_with_conflicts "$brewfile"; then
             log_success "Core packages installed from $brewfile"
         fi
 
-        # Install Mac App Store apps unless in CI environment
-        if [[ "$DOTFILES_CI" != "true" ]] && [[ -f "install/Brewfile.mas" ]]; then
-            log_info "Installing Mac App Store apps..."
-            if command -v mas >/dev/null 2>&1; then
-                brew bundle --file=install/Brewfile.mas
-                log_success "Mac App Store apps installed"
-            else
-                log_warning "mas CLI not found, skipping Mac App Store apps"
-                log_info "Install with: brew install mas"
-            fi
-        else
-            if [[ "$DOTFILES_CI" == "true" ]]; then
-                log_info "Skipping Mac App Store apps in CI environment"
-            else
-                log_warning "Brewfile.mas not found, skipping Mac App Store apps"
-            fi
-        fi
+        # Install Mac App Store apps using shared utilities
+        install_mas_apps "install/Brewfile.mas"
     else
         log_warning "Brewfile not found, skipping package installation"
     fi

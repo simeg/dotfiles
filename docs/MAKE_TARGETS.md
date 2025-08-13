@@ -7,14 +7,22 @@ This document provides detailed explanations of all available `make` targets in 
 ```bash
 make help                    # Show all available targets with brief descriptions
 make setup                   # Complete setup for new installations (recommended starting point)
+make setup-minimal           # Essential setup only (faster)
 make update                  # Update all components
 make validate                # Verify configuration is working
 make test                    # Run complete test suite
+make test-quick              # Quick validation tests only
+make test-advanced           # Advanced tests (performance + security)
+make test-ci                 # CI-compatible tests (no symlink dependencies)
 make lint                    # Check code quality
 make health                  # System health check
+make health-monitor          # Real-time system monitoring dashboard
+make health-analytics        # Package usage and performance analytics
+make health-profile          # Shell startup performance profiling
+make snapshot                # Take system metrics snapshot
 make deps                    # Check dependencies
 make packages                # Manage packages
-make analytics               # Comprehensive analytics and monitoring
+make clean                   # Remove broken symlinks and temporary files
 ```
 
 ## Setup & Installation
@@ -178,7 +186,7 @@ make analytics               # Comprehensive analytics and monitoring
 
 **When to use**: Regular system maintenance or when experiencing issues
 
-### `make profile`
+### `make health-profile`
 **Purpose**: Profile shell startup performance  
 **What it does**:
 - Measures shell startup time with detailed breakdown
@@ -187,6 +195,46 @@ make analytics               # Comprehensive analytics and monitoring
 - Tracks performance trends over time
 
 **When to use**: When shell feels slow or for performance optimization
+
+### `make health-monitor`
+**Purpose**: Real-time system monitoring dashboard  
+**What it does**:
+- Opens interactive dashboard with real-time metrics
+- Monitors system resources and performance
+- Provides live feedback on system health
+- Displays real-time performance indicators
+
+**When to use**: For real-time system monitoring and live performance analysis
+
+### `make health-analytics`
+**Purpose**: Package usage and performance analytics  
+**What it does**:
+- Analyzes package usage patterns
+- Provides comprehensive performance analysis
+- Identifies optimization opportunities
+- Generates usage and performance reports
+
+**When to use**: For usage analysis and system optimization
+
+### `make snapshot`
+**Purpose**: Take system metrics snapshot  
+**What it does**:
+- Captures current system metrics
+- Records performance baseline
+- Creates system state snapshot
+- Useful for tracking changes over time
+
+**When to use**: For creating system baselines or before major changes
+
+### `make setup-minimal`
+**Purpose**: Essential setup only (faster)  
+**What it does**:
+- Performs core setup without optional components
+- Faster installation for development environments
+- Skips non-essential packages and configurations
+- Ideal for CI or lightweight setups
+
+**When to use**: When you need a quick, lightweight setup
 
 ### `make deps`
 **Purpose**: Check all dependencies  
@@ -213,13 +261,13 @@ make analytics               # Comprehensive analytics and monitoring
 
 ## Analytics & Performance Monitoring
 
-### `make analytics`
+### Legacy Target: `make analytics`
 **Purpose**: Comprehensive analytics and performance monitoring  
+**Alias for**: `make health-analytics`  
 **What it does**:
 - Runs package usage analysis to identify optimization opportunities
 - Analyzes command usage patterns and identifies unused packages
 - Performs comprehensive performance analysis of shell and commands
-- Opens interactive performance dashboard with real-time metrics
 - Provides system performance insights and trends
 - Generates actionable recommendations for improvements
 
@@ -238,7 +286,7 @@ make health         # Check system health
 ```bash
 make update         # Update everything
 make packages       # Sync packages
-make analytics      # Review usage patterns
+make health-analytics  # Review usage patterns
 ```
 
 ### Troubleshooting
@@ -258,8 +306,10 @@ make ci             # Complete CI pipeline
 
 ### Performance Optimization
 ```bash
-make profile        # Check startup performance
-make analytics      # Analyze trends and usage
+make health-profile    # Check startup performance
+make health-analytics  # Analyze trends and usage
+make health-monitor    # Real-time monitoring
+make snapshot          # Create performance baseline
 ```
 
 ## Target Summary
@@ -267,14 +317,20 @@ make analytics      # Analyze trends and usage
 | Target | Purpose | Use Case |
 |--------|---------|----------|
 | `setup` | Complete initial setup | New machine setup |
+| `setup-minimal` | Essential setup only | Quick/CI setup |
 | `update` | Update all components | Regular maintenance |
 | `validate` | Verify configuration | Troubleshooting |
 | `health` | System health check | Diagnostics |
+| `health-monitor` | Real-time monitoring | Live performance |
+| `health-analytics` | Usage analysis | Optimization |
+| `health-profile` | Performance profiling | Optimization |
+| `snapshot` | System snapshot | Baseline creation |
 | `deps` | Check dependencies | Troubleshooting |
 | `packages` | Manage packages | Package maintenance |
-| `analytics` | Performance analysis | Optimization |
 | `test` | Run test suite | Development |
+| `test-quick` | Quick tests | Development |
+| `test-advanced` | Advanced tests | Security/performance |
+| `test-ci` | CI tests | Continuous integration |
 | `lint` | Code quality check | Development |
-| `profile` | Performance profiling | Optimization |
 | `clean` | Clean up files | Troubleshooting |
 | `symlink` | Create links only | Quick fixes |

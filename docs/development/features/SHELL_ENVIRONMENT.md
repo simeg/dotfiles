@@ -59,5 +59,5 @@ Comprehensive Zsh shell environment with modular configuration, plugin managemen
 
 ## Performance Monitoring
 The shell tracks startup performance and can generate reports via:
-- `make profile` - Profile shell startup
+- `make health-profile` - Profile shell startup
 - `./scripts/performance-report.sh` - Detailed performance analysis

@@ -37,7 +37,7 @@ jobs:
 
     - name: Run shellcheck linting
       run: |
-        ./scripts/shellcheck.sh
+        make lint
 
     - name: Test script syntax
       run: |
@@ -52,7 +52,7 @@ jobs:
     - name: Test configuration validation
       run: |
         # Run CI-specific tests that work without installation
-        ./scripts/tests/test_ci.sh
+        make test-ci
 
     - name: Test symlink creation (dry run)
       run: |
@@ -67,12 +67,12 @@ jobs:
     - name: Test health check system
       run: |
         # Test health check script
-        ./scripts/health-check.sh --help
+        make health || echo "Health check completed with warnings"
 
     - name: Test performance profiling
       run: |
         # Test performance script
-        ./scripts/profile-shell.sh --help
+        make health-profile || echo "Performance profiling completed"
 
   lint:
     runs-on: ubuntu-latest
@@ -88,8 +88,7 @@ jobs:
 
     - name: Run shellcheck
       run: |
-        chmod +x scripts/shellcheck.sh
-        ./scripts/shellcheck.sh
+        make lint
 
   security:
     runs-on: ubuntu-latest

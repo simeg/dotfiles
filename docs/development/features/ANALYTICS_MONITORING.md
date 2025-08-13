@@ -119,10 +119,11 @@ Comprehensive analytics system that monitors package usage patterns, shell perfo
 ## Analytics Commands
 
 ### Make Targets
-- `make analytics` - Run comprehensive analytics suite
-- `make analytics-enhanced` - Advanced ML-driven analytics
-- `make profile` - Profile shell startup performance
+- `make health-analytics` - Run comprehensive analytics suite
+- `make health-profile` - Profile shell startup performance
+- `make health-monitor` - Real-time monitoring dashboard
 - `make health` - System health check
+- `make snapshot` - Take system metrics snapshot
 
 ### Script Commands
 - `./scripts/analyze-package-usage.sh analyze` - Package usage analysis

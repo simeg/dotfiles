@@ -120,6 +120,6 @@ style = "green"
 
 ## Performance Monitoring
 Theme switching and prompt performance can be monitored via:
-- Shell startup profiling (`make profile`)
+- Shell startup profiling (`make health-profile`)
 - Starship timing information
 - Theme-specific performance metrics

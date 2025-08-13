@@ -3,39 +3,36 @@
 # Dependency checker and installer for dotfiles
 # Verifies required tools are installed and optionally installs them
 
-set -e
+# Source shared libraries
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=scripts/lib/common.sh
+source "$SCRIPT_DIR/lib/common.sh"
+# shellcheck source=scripts/lib/brew-utils.sh
+source "$SCRIPT_DIR/lib/brew-utils.sh"
+# shellcheck source=scripts/lib/validation-utils.sh
+source "$SCRIPT_DIR/lib/validation-utils.sh"
+# shellcheck source=scripts/lib/error-handling.sh
+source "$SCRIPT_DIR/lib/error-handling.sh"
 
-# Color output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+# Initialize error handling
+setup_error_handling "check-deps.sh" false
 
 # Counters
 DEPS_CHECKED=0
 DEPS_FOUND=0
 DEPS_MISSING=0
 
-log_info() {
-    echo -e "${BLUE}[INFO]${NC} $1"
-}
-
-log_success() {
-    echo -e "${GREEN}[✓]${NC} $1"
+log_success_with_counter() {
+    log_success "$1"
     DEPS_FOUND=$((DEPS_FOUND + 1))
 }
 
-log_error() {
-    echo -e "${RED}[✗]${NC} $1"
+log_error_with_counter() {
+    log_error "$1"
     DEPS_MISSING=$((DEPS_MISSING + 1))
 }
 
-log_warning() {
-    echo -e "${YELLOW}[!]${NC} $1"
-}
-
-# Check if a command exists
+# Check if a command exists (using shared validation utilities)
 check_command() {
     local cmd="$1"
     local description="$2"
@@ -43,20 +40,11 @@ check_command() {
 
     DEPS_CHECKED=$((DEPS_CHECKED + 1))
 
-    if command -v "$cmd" &> /dev/null; then
-        local version=""
-        case "$cmd" in
-            git) version=$(git --version 2>/dev/null | head -1) ;;
-            nvim) version=$(nvim --version 2>/dev/null | head -1) ;;
-            zsh) version=$(zsh --version 2>/dev/null) ;;
-            brew) version=$(brew --version 2>/dev/null | head -1) ;;
-            starship) version=$(starship --version 2>/dev/null) ;;
-            *) version="Available" ;;
-        esac
-        log_success "$description ($version)"
+    if check_command_with_version "$cmd" "$description"; then
+        DEPS_FOUND=$((DEPS_FOUND + 1))
         return 0
     else
-        log_error "$description (Missing)"
+        DEPS_MISSING=$((DEPS_MISSING + 1))
         if [[ -n "$install_cmd" ]]; then
             echo "    Install with: $install_cmd"
         fi
@@ -83,15 +71,13 @@ check_core_deps() {
     check_command "zsh" "Zsh shell" "brew install zsh"
     
     # For CI environments, accept either vim or nvim
-    if command -v "nvim" &> /dev/null; then
+    if check_command_exists "nvim"; then
         check_command "nvim" "Neovim editor" "brew install neovim"
-    elif command -v "vim" &> /dev/null; then
-        log_success "Vim editor (vim --version | head -1)"
-        DEPS_FOUND=$((DEPS_FOUND + 1))
+    elif check_command_exists "vim"; then
+        log_success_with_counter "Vim editor ($(vim --version | head -1))"
     else
-        log_error "Text editor (Missing)"
+        log_error_with_counter "Text editor (Missing)"
         echo "    Install with: brew install neovim (or vim)"
-        DEPS_MISSING=$((DEPS_MISSING + 1))
     fi
     DEPS_CHECKED=$((DEPS_CHECKED + 1))
     
@@ -181,16 +167,16 @@ check_brewfile() {
     
     echo -n "  📦 Checking $total_packages packages"
     
-    # Use brew bundle check for faster validation
-    if brew bundle check --file="$brewfile" &> /dev/null; then
+    # Use shared brew utilities for checking packages
+    if check_brewfile_packages "$brewfile"; then
         echo # New line after progress message
         log_success "All Brewfile packages are installed"
     else
         echo # New line after progress message
         
-        # Get detailed info about missing packages
+        # Get detailed info about missing packages using shared utility
         local missing_output
-        missing_output=$(brew bundle check --file="$brewfile" 2>&1 | grep -E "(not installed|not found)" || true)
+        missing_output=$(get_missing_brewfile_packages "$brewfile")
         
         if [[ -n "$missing_output" ]]; then
             log_warning "Some Brewfile packages are missing:"
@@ -205,22 +191,16 @@ check_brewfile() {
     echo
 }
 
-# Check for znap plugin manager
+# Check for znap plugin manager (using shared validation utilities)
 check_znap() {
     log_info "Checking znap plugin manager..."
 
-    if [[ -d "$HOME/.zsh/znap" ]]; then
-        log_success "znap plugin manager is installed"
-    else
-        log_error "znap plugin manager not found"
+    if ! check_directory_exists "$HOME/.zsh/znap" "znap plugin manager"; then
         echo "    Install with: git clone --depth 1 -- https://github.com/marlonrichert/zsh-snap.git ~/.zsh/znap"
     fi
 
     # Check znap plugins file
-    if [[ -f "$HOME/.znap-plugins.zsh" ]]; then
-        log_success "znap plugins configuration found"
-    else
-        log_error "znap plugins configuration missing"
+    if ! check_file_exists "$HOME/.znap-plugins.zsh" "znap plugins configuration"; then
         echo "    Should be symlinked from dotfiles/.config/zsh/.znap-plugins.zsh"
     fi
 
@@ -231,8 +211,8 @@ check_znap() {
 install_essentials() {
     log_info "Installing essential missing dependencies..."
 
-    # Install Homebrew first if missing
-    if ! command -v brew &> /dev/null; then
+    # Install Homebrew first if missing (using shared utilities)
+    if ! check_homebrew_installed; then
         log_info "Installing Homebrew..."
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 

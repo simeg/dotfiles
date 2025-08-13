@@ -114,7 +114,7 @@ Comprehensive package management using Homebrew with automated synchronization, 
 - **Updates**: `make update` - Update all packages
 - **Health Checks**: `make health` - Verify package integrity
 - **Cleanup**: `brew cleanup` - Remove old versions
-- **Analytics**: `make analytics` - Package usage analysis
+- **Analytics**: `make health-analytics` - Package usage analysis
 
 ## Advanced Features
 - **Version Pinning**: Lock specific versions when stability required
