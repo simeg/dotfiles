@@ -167,11 +167,10 @@ fi
 
 readonly base_branch
 
-# Safety check: don't rebase base branch onto itself
+# Safety check: allow rebasing base branch onto its remote origin
 if [[ "$current_branch" == "$base_branch" ]]; then
-    log_error "You're on the base branch '$base_branch'"
-    log_info "Refusing to rebase the base branch onto itself"
-    exit 1
+    log_info "You're on the base branch '$base_branch'"
+    log_info "Will rebase local '$base_branch' onto 'origin/$base_branch' to sync with remote"
 fi
 
 # Show what we're about to do
