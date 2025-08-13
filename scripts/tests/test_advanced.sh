@@ -521,7 +521,7 @@ test_security_dependencies() {
         
         # Check for unofficial taps (security warning)
         local unofficial_taps
-        unofficial_taps=$(grep "^tap" "$brewfile" | grep -v "homebrew/" | wc -l)
+        unofficial_taps=$(grep "^tap" "$brewfile" | grep -cv "homebrew/" || echo 0)
         if [[ $unofficial_taps -gt 3 ]]; then
             echo "Many unofficial taps detected ($unofficial_taps) - verify sources"
             issues=$((issues + 1))
@@ -536,7 +536,8 @@ create_security_baseline() {
     log_info "Creating security baseline"
     mkdir -p "$ANALYTICS_DIR"
     
-    local baseline="{
+    local baseline
+    baseline="{
         \"created\": \"$(date -Iseconds)\",
         \"file_count\": $(find "$DOTFILES_DIR" -type f | wc -l),
         \"script_count\": $(find "$DOTFILES_DIR" -name "*.sh" -type f | wc -l),

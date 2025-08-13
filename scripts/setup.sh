@@ -57,7 +57,7 @@ handle_error() {
 trap 'handle_error' ERR
 
 # Color output
-RED='\033[0;31m'
+# RED='\033[0;31m'  # Unused - keeping for potential future use
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'

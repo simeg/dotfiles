@@ -11,7 +11,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 PURPLE='\033[0;35m'
-CYAN='\033[0;36m'
+# CYAN='\033[0;36m'  # Unused - keeping for potential future use
 NC='\033[0m' # No Color
 
 log_info() {
@@ -91,7 +91,7 @@ analyze_productivity_metrics() {
     # Git productivity
     local git_count git_commits
     git_count=$(wc -l < "$git_commands")
-    git_commits=$(grep '^git commit\|^git add\|^git push' "$git_commands" 2>/dev/null | wc -l)
+    git_commits=$(grep -c '^git commit\|^git add\|^git push' "$git_commands" 2>/dev/null || echo 0)
     
     log_info "🔧 Git Productivity:"
     echo "  Git commands: $git_count"
@@ -101,8 +101,8 @@ analyze_productivity_metrics() {
     
     # File editing productivity
     local edit_count view_count
-    edit_count=$(grep -E '^(nvim|vim|code|nano|emacs)' "$file_commands" 2>/dev/null | wc -l)
-    view_count=$(grep -E '^(cat|less|more|bat)' "$file_commands" 2>/dev/null | wc -l)
+    edit_count=$(grep -cE '^(nvim|vim|code|nano|emacs)' "$file_commands" 2>/dev/null || echo 0)
+    view_count=$(grep -cE '^(cat|less|more|bat)' "$file_commands" 2>/dev/null || echo 0)
     
     log_info "📝 File Management:"
     echo "  Editing sessions: $edit_count"
@@ -119,10 +119,12 @@ analyze_productivity_metrics() {
     # Store productivity metrics
     local timestamp
     timestamp=$(date +%s)
-    echo "$timestamp,total_commands,$total_commands" >> "$PRODUCTIVITY_LOG"
-    echo "$timestamp,unique_commands,$unique_commands" >> "$PRODUCTIVITY_LOG"
-    echo "$timestamp,git_commands,$git_count" >> "$PRODUCTIVITY_LOG"
-    echo "$timestamp,edit_sessions,$edit_count" >> "$PRODUCTIVITY_LOG"
+    {
+        echo "$timestamp,total_commands,$total_commands"
+        echo "$timestamp,unique_commands,$unique_commands"
+        echo "$timestamp,git_commands,$git_count"
+        echo "$timestamp,edit_sessions,$edit_count"
+    } >> "$PRODUCTIVITY_LOG"
     
     # Cleanup
     rm -f "$dev_commands" "$git_commands" "$file_commands"
@@ -291,9 +293,8 @@ analyze_frequency_trends() {
     log_info "📈 Frequency Trends:"
     
     # Compare recent vs older usage patterns
-    local recent_period older_period
+    local recent_period
     recent_period=$(( days / 3 ))  # Last third of the period
-    older_period=$days
     
     local recent_cutoff
     recent_cutoff=$(date -d "$recent_period days ago" +%s 2>/dev/null || date -v-"$recent_period"d +%s)
@@ -315,7 +316,7 @@ analyze_frequency_trends() {
     
     if [[ -n "$emerging_commands" ]]; then
         echo "  🆕 Emerging commands (new in recent usage):"
-        echo "$emerging_commands" | sed 's/^/    /'
+        echo "$emerging_commands" | while read -r cmd; do echo "    $cmd"; done
         echo
     fi
 }

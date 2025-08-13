@@ -192,7 +192,7 @@ count_brewfile_packages() {
     fi
     
     # Count non-comment, non-empty lines that look like package definitions
-    grep -E '^(brew|cask|mas)' "$brewfile" 2>/dev/null | wc -l | tr -d ' '
+    grep -cE '^(brew|cask|mas)' "$brewfile" 2>/dev/null | tr -d ' '
 }
 
 # Validate Brewfile syntax

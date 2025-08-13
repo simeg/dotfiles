@@ -57,7 +57,7 @@ run_test_suite() {
         return 1
     fi
     
-    if bash "$test_script" $suite_args; then
+    if bash "$test_script" "$suite_args"; then
         log_success "✅ $suite_name completed successfully"
         SUITES_PASSED=$((SUITES_PASSED + 1))
         return 0

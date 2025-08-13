@@ -99,15 +99,18 @@ update_homebrew() {
 
     if command -v brew >/dev/null 2>&1; then
         # Update Homebrew using shared utilities
-        update_homebrew
+        if ! update_brew_packages; then
+            log_warning "Failed to update Homebrew packages"
+            return 1
+        fi
         
         if [[ -f "install/Brewfile" ]]; then
             install_brewfile_packages "install/Brewfile"
             log_success "Core packages updated from Brewfile"
             
             # Update Mac App Store apps using shared utilities
-            install_mas_apps "install/Brewfile.mas"
-                fi
+            if [[ -f "install/Brewfile.mas" ]]; then
+                install_mas_apps "install/Brewfile.mas"
             else
                 if [[ "$DOTFILES_CI" == "true" ]]; then
                     log_info "Skipping Mac App Store apps in CI environment"

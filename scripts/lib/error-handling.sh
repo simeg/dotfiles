@@ -228,7 +228,8 @@ safe_backup_and_move() {
     
     # Backup existing destination if it exists
     if [[ -f "$destination" ]]; then
-        local backup_file="$backup_dir/$(basename "$destination").$(date +%s)"
+        local backup_file
+        backup_file="$backup_dir/$(basename "$destination").$(date +%s)"
         cp "$destination" "$backup_file"
         add_rollback "cp '$backup_file' '$destination'" "Restore $(basename "$destination")"
         log_debug "Backed up $destination to $backup_file"
@@ -259,7 +260,8 @@ safe_symlink() {
     # Backup existing file/link if it exists
     if [[ -e "$link_path" ]] || [[ -L "$link_path" ]]; then
         mkdir -p "$backup_dir"
-        local backup_file="$backup_dir/$(basename "$link_path").$(date +%s)"
+        local backup_file
+        backup_file="$backup_dir/$(basename "$link_path").$(date +%s)"
         
         if [[ -L "$link_path" ]]; then
             # It's a symlink, backup the link itself
