@@ -11,6 +11,9 @@ FORCE_PAGING=false
 THEME="auto"
 SHOW_DIRECTORIES=false
 
+# Initialize bat options array
+bat_opts=()
+
 # Show usage
 show_usage() {
     echo "Usage: $0 [options] [file...]"
@@ -71,16 +74,9 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Function to display a single file
-display_file() {
-    local file="$1"
-    local filename
-    filename=$(basename "$file")
-    local lowercase_name
-    lowercase_name=$(echo "$filename" | tr '[:upper:]' '[:lower:]')
-    
-    # Build common options
-    local bat_opts=()
+# Function to build bat options
+build_bat_opts() {
+    bat_opts=()
     if $SHOW_LINE_NUMBERS; then
         bat_opts+=("--number")
     fi
@@ -90,6 +86,18 @@ display_file() {
     if [[ "$THEME" != "auto" ]]; then
         bat_opts+=("--theme=$THEME")
     fi
+}
+
+# Function to display a single file
+display_file() {
+    local file="$1"
+    local filename
+    filename=$(basename "$file")
+    local lowercase_name
+    lowercase_name=$(echo "$filename" | tr '[:upper:]' '[:lower:]')
+    
+    # Build common options
+    build_bat_opts
     
     case "$lowercase_name" in
         *.md|*.markdown|*.mdown|*.mkd|*.mdwn|*.mdx)
@@ -102,24 +110,24 @@ display_file() {
                 glow "${glow_opts[@]+"${glow_opts[@]}"}" "$file"
             else
                 echo "⚠️  Warning: glow not found, falling back to bat" >&2
-                bat "${bat_opts[@]}" "$file"
+                bat "${bat_opts[@]+"${bat_opts[@]}"}" "$file"
             fi
             ;;
         *.json)
             # JSON files
             if command -v jq &> /dev/null; then
                 if $FORCE_PAGING; then
-                    jq -C '.' "$file" | bat "${bat_opts[@]}" --language=json
+                    jq -C '.' "$file" | bat "${bat_opts[@]+"${bat_opts[@]}"}" --language=json
                 else
                     jq -C '.' "$file"
                 fi
             else
-                bat "${bat_opts[@]}" --language=json "$file"
+                bat "${bat_opts[@]+"${bat_opts[@]}"}" --language=json "$file"
             fi
             ;;
         *.yml|*.yaml)
             # YAML files
-            bat "${bat_opts[@]}" --language=yaml "$file"
+            bat "${bat_opts[@]+"${bat_opts[@]}"}" --language=yaml "$file"
             ;;
         *.csv)
             # CSV files
@@ -129,13 +137,13 @@ display_file() {
                 echo "📊 CSV Preview (first 50 lines):"
                 head -50 "$file" | column -t -s ','
             else
-                bat "${bat_opts[@]}" --language=csv "$file"
+                bat "${bat_opts[@]+"${bat_opts[@]}"}" --language=csv "$file"
             fi
             ;;
         *)
             # Other files
             if command -v bat &> /dev/null; then
-                bat "${bat_opts[@]}" "$file"
+                bat "${bat_opts[@]+"${bat_opts[@]}"}" "$file"
             else
                 echo "⚠️  Warning: bat not found, falling back to system cat" >&2
                 if $SHOW_LINE_NUMBERS; then
@@ -167,6 +175,7 @@ display_directory() {
 if [[ $# -eq 0 ]]; then
     # No arguments, read from stdin
     if command -v bat &> /dev/null; then
+        build_bat_opts
         bat "${bat_opts[@]+"${bat_opts[@]}"}"
     else
         cat
