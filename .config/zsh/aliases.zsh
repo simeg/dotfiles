@@ -33,6 +33,11 @@ alias path='echo -e ${PATH//:/\\n}'
 alias l="ls -lah"
 
 # Better directory navigation
+alias ..="cd .."
+alias ...="cd ../.."
+alias ....="cd ../../.."
+alias .....="cd ../../../.."
+alias -- -="cd -"
 alias dir="dirs -v | head -10"
 
 # Fuzzy helpers
@@ -80,6 +85,58 @@ alias ls="eza"  # Better modern ls alternative
 # 🐙 Git & Git Helpers
 ########################################
 
+# Essential git aliases (replacing ohmyzsh git plugin)
+# Core commands
+alias g="git"
+alias ga="git add"
+alias gaa="git add --all"
+alias gapa="git add --patch"
+alias gc="git commit"
+alias gcm="git commit --message"
+alias gca="git commit --amend"
+alias gco="git checkout"
+alias gcb="git checkout -b"
+alias gd="git diff"
+alias gds="git diff --staged"
+alias gl="git pull"
+alias gp="git push"
+alias ggpush="git push origin \$(git branch --show-current)"
+alias ggpull="git pull origin \$(git branch --show-current)"
+alias gst="git status"
+alias gss="git status --short"
+
+# Branch management
+alias gb="git branch"
+alias gba="git branch --all"
+alias gbd="git branch --delete"
+alias gbD="git branch --delete --force"
+
+# Log and history
+alias glog="git log --oneline --decorate --graph"
+alias glg="git log --stat"
+alias glgp="git log --stat --patch"
+
+# Stash
+alias gsta="git stash push"
+alias gstp="git stash pop"
+alias gstd="git stash drop"
+alias gstl="git stash list"
+
+# Reset and restore
+alias grh="git reset"
+alias grhh="git reset --hard"
+alias grs="git restore --staged"
+
+# Remote
+alias gr="git remote"
+alias grv="git remote --verbose"
+
+# Fetch and merge
+alias gf="git fetch"
+alias gfa="git fetch --all"
+alias gm="git merge"
+
+# Custom git aliases
 alias gcom="git checkout master &>/dev/null || git checkout main"
 alias gap="git add --patch"
 alias gs="git-show"

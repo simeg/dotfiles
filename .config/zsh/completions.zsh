@@ -12,8 +12,8 @@ if [[ -d ~/.local/share/zsh/site-functions ]]; then
   fpath=(~/.local/share/zsh/site-functions $fpath)
 fi
 
-# Single compinit call after all fpath modifications
-autoload -U compinit && compinit
+# Single compinit call after all fpath modifications (skip security checks for speed)
+autoload -U compinit && compinit -C
 
 # ☸️ kubectl completions (lazy load on first use)
 if command -v kubectl &>/dev/null; then

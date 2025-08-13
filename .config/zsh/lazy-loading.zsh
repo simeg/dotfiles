@@ -34,11 +34,4 @@ if [[ -f "$HOME/.sdkman/bin/sdkman-init.sh" ]]; then
   done
 fi
 
-# 📚 Atuin - shell history sync
-if command -v atuin &>/dev/null; then
-  atuin() {
-    unset -f atuin
-    eval "$(command atuin init zsh)"
-    atuin "$@"
-  }
-fi
+# 📚 Atuin - shell history sync (now loaded in main plugins, not lazy)
