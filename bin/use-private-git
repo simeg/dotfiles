@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+#
+# use-private-git: Symlink private gitconfig for current repository
+#
+# This script creates a symlink from the dotfiles private gitconfig to the
+# current repository's local git config, allowing per-repo private configuration.
+
+set -euo pipefail
+
+# Path to the private gitconfig in dotfiles
+PRIVATE_GITCONFIG="$HOME/repos/dotfiles/git/.gitconfig.private"
+
+# Check if we're in a git repository
+if ! git rev-parse --git-dir >/dev/null 2>&1; then
+    echo "Error: Not in a git repository" >&2
+    exit 1
+fi
+
+# Get the git directory (handles both normal repos and worktrees)
+GIT_DIR=$(git rev-parse --git-dir)
+LOCAL_GITCONFIG="$GIT_DIR/config"
+
+# Check if private gitconfig exists
+if [[ ! -f "$PRIVATE_GITCONFIG" ]]; then
+    echo "Error: Private gitconfig not found at $PRIVATE_GITCONFIG" >&2
+    exit 1
+fi
+
+# Check if local config already exists and is not a symlink
+if [[ -f "$LOCAL_GITCONFIG" && ! -L "$LOCAL_GITCONFIG" ]]; then
+    echo "Warning: Local git config exists and is not a symlink"
+    echo "Current config: $LOCAL_GITCONFIG"
+    echo "This will backup the existing config to ${LOCAL_GITCONFIG}.backup"
+    read -p "Continue? [y/N] " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "Aborted"
+        exit 1
+    fi
+    mv "$LOCAL_GITCONFIG" "${LOCAL_GITCONFIG}.backup"
+    echo "Backed up existing config to ${LOCAL_GITCONFIG}.backup"
+fi
+
+# Remove existing symlink if it exists
+if [[ -L "$LOCAL_GITCONFIG" ]]; then
+    rm "$LOCAL_GITCONFIG"
+fi
+
+# Create the symlink
+ln -sf "$PRIVATE_GITCONFIG" "$LOCAL_GITCONFIG"
+
+echo "✅ Private gitconfig linked successfully"
+echo "Repository will now use: $PRIVATE_GITCONFIG"
+
+# Show current user configuration
+echo
+echo "Current git user configuration:"
+git config user.name || echo "  user.name: (not set)"
+git config user.email || echo "  user.email: (not set)"
