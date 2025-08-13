@@ -92,14 +92,14 @@ profile_config_sections() {
     log_info "Testing individual configuration section load times..."
     
     local config_dir="$HOME/.config/zsh"
-    local configs=("exports.zsh" "path.zsh" "aliases.zsh" "functions.zsh" "misc.zsh")
+    local configs=("exports.zsh" "path.zsh" "aliases.zsh" "functions.zsh" "misc.zsh" "lazy-loading.zsh" "completions.zsh")
     
     if [[ -f "$HOME/.config/zsh/private.zsh" ]]; then
         configs+=("private.zsh")
     fi
     
-    echo "| Config File | Load Time |"
-    echo "|-------------|-----------|"
+    echo "| Config File       | Load Time |"
+    echo "|-------------------|-----------|"
     
     for config in "${configs[@]}"; do
         local config_file="$config_dir/$config"
@@ -111,7 +111,7 @@ profile_config_sections() {
         end_time=$(gdate +%s%3N 2>/dev/null || date +%s%3N)
             local duration=$((end_time - start_time))
             
-            printf "| %-11s | %6dms |\n" "$config" "$duration"
+            printf "| %-17s | %7dms |\n" "$config" "$duration"
         fi
     done
     

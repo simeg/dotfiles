@@ -19,18 +19,13 @@ source "${HOME}/.znap-plugins.zsh"
 [[ -f "${HOME}/.config/zsh/misc.zsh" ]] && source "${HOME}/.config/zsh/misc.zsh"
 [[ -f "${HOME}/.config/zsh/private.zsh" ]] && source "${HOME}/.config/zsh/private.zsh"
 
+# Load lazy loading and completions
+[[ -f "${HOME}/.config/zsh/lazy-loading.zsh" ]] && source "${HOME}/.config/zsh/lazy-loading.zsh"
+[[ -f "${HOME}/.config/zsh/completions.zsh" ]] && source "${HOME}/.config/zsh/completions.zsh"
+
 # Load aliases AFTER plugins to override any conflicting aliases
 [[ -f "${HOME}/.config/zsh/aliases.zsh" ]] && source "${HOME}/.config/zsh/aliases.zsh"
 
-# Add custom completions to fpath
-fpath=(~/.local/share/zsh/completions ~/.config/zsh/completions $fpath)
-autoload -U compinit && compinit
-
-# Add completions for git-x
-if [[ -d ~/.local/share/zsh/site-functions ]]; then
-  fpath=(~/.local/share/zsh/site-functions $fpath)
-  autoload -U compinit && compinit
-fi
 
 ########################################
 # 💻 Prompt (fast init)
@@ -62,12 +57,7 @@ export JAVA_HOME=$(/usr/libexec/java_home -v 17)
 export WORKON_HOME="$HOME/.virtualenvs"
 export PROJECT_HOME="$HOME/Devel"
 export PYENV_ROOT="$HOME/.pyenv"
-znap eval pyenv 'eval "$(pyenv init -)"'
 
-########################################
-# 📦 SDKMAN
-########################################
-source "$HOME/.sdkman/bin/sdkman-init.sh"
 
 ########################################
 # 🧭 zoxide (smart cd)
@@ -75,18 +65,6 @@ source "$HOME/.sdkman/bin/sdkman-init.sh"
 # Should not be lazy loaded
 eval "$(zoxide init zsh)"
 
-########################################
-# 🔄 Completions
-########################################
-#
-# kubectl completions
-if command -v kubectl &>/dev/null; then
-  source <(kubectl completion zsh)
-fi
-
-# Google Cloud SDK completions
-source "$(brew --prefix)/share/google-cloud-sdk/path.zsh.inc"
-source "$(brew --prefix)/share/google-cloud-sdk/completion.zsh.inc"
 
 ########################################
 # ⚡ Quality-of-Life Tweaks
@@ -130,7 +108,3 @@ vim() { nvim "$@"; }
 v() { nvim "$@"; }
 vi() { nvim "$@"; }
 
-########################################
-# Atuin (shell history in cloud)
-########################################
-eval "$(atuin init zsh)"

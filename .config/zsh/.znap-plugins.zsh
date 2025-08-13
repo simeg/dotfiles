@@ -38,6 +38,7 @@ znap source ohmyzsh/ohmyzsh plugins/macos
 # Colorizes `man` pages for better readability
 znap source ohmyzsh/ohmyzsh plugins/colored-man-pages
 
-# Enable lazy loading
+# Enable lazy loading - revert to working version with better lazy load setting
 export NVM_LAZY_LOAD=true
+export NVM_COMPLETION=true
 znap source lukechilds/zsh-nvm
