@@ -99,7 +99,7 @@ display_file() {
                 if $FORCE_PAGING; then
                     glow_opts+=("--pager")
                 fi
-                glow "${glow_opts[@]}" "$file"
+                glow "${glow_opts[@]+"${glow_opts[@]}"}" "$file"
             else
                 echo "⚠️  Warning: glow not found, falling back to bat" >&2
                 bat "${bat_opts[@]}" "$file"
@@ -167,7 +167,7 @@ display_directory() {
 if [[ $# -eq 0 ]]; then
     # No arguments, read from stdin
     if command -v bat &> /dev/null; then
-        bat "${bat_opts[@]:-}"
+        bat "${bat_opts[@]+"${bat_opts[@]}"}"
     else
         cat
     fi

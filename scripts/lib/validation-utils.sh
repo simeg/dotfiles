@@ -226,11 +226,11 @@ validate_shell_config() {
 
 # Check Git configuration
 validate_git_config() {
-    local config_key="$1"
-    local description="${2:-Git $config_key}"
+    local git_config_name="$1"
+    local description="${2:-Git $git_config_name}"
     
     local config_value
-    config_value=$(git config --global "$config_key" 2>/dev/null || echo "")
+    config_value=$(git config --global "$git_config_name" 2>/dev/null || echo "")
     
     if [[ -n "$config_value" ]]; then
         log_success "$description: '$config_value'"
