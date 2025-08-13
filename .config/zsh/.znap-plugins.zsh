@@ -10,9 +10,6 @@
 # Adds real-time syntax highlighting as you type commands
 znap source zsh-users/zsh-syntax-highlighting
 
-# Lets you search your command history with multiple words (like fuzzy grep)
-znap source zsh-users/zsh-history-substring-search
-
 # Suggests completions from your history as you type (like fish shell)
 znap source zsh-users/zsh-autosuggestions
 
