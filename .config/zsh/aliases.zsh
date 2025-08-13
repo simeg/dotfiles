@@ -16,6 +16,7 @@ alias vimrc="nvim ~/.config/nvim/init.lua"
 alias nvimrc="nvim ~/.config/nvim/init.lua"
 alias zshrc="nvim ~/.zshrc ; reload"
 alias gitignore="nvim ~/.gitignore"
+alias gitconfig="nvim ~/.gitconfig"
 alias ali="nvim ~/.config/zsh/aliases.zsh"
 
 alias dotfiles="pushd ~/repos/dotfiles"
