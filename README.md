@@ -107,9 +107,9 @@ For detailed information about all available commands and targets, see the [Make
 ### Zsh Plugins (via znap)
 - **Syntax highlighting** - Real-time command syntax highlighting
 - **Auto-suggestions** - Fish-like command suggestions from history
-- **History search** - Multi-word history search
-- **Git integration** - Git aliases and status integration
-- **macOS utilities** - macOS-specific helper functions
+- **History search** - Enhanced history search with substring matching
+- **History sync** - Cross-machine history sync with Atuin
+- **Node.js management** - NVM with lazy loading for performance
 
 ### Prompt (Starship)
 - Fast and lightweight prompt with multiple themes
