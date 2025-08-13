@@ -127,7 +127,8 @@ alias gstl="git stash list"
 # Reset and restore
 alias grh="git reset"
 alias grhh="git reset --hard"
-alias grs="git restore --staged"
+alias grst="git restore --staged"
+alias grs="git restore"
 
 # Remote
 alias gr="git remote"
@@ -157,3 +158,4 @@ alias kubectl="kubecolor"
 
 alias j="z"
 alias ji="zi"
+
