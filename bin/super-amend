@@ -1,8 +1,213 @@
 #!/usr/bin/env bash
 
-hash=$(git log --oneline --decorate --graph | fzf | awk -F' ' '{ print $2 }')
-readonly hash
+# Enhanced super-amend script - fixup commit and auto-squash
+# Usage: super-amend [options] [commit-hash]
 
-git commit --fixup "${hash}"
-GIT_SEQUENCE_EDITOR=true git rebase --autostash -i --autosquash "${hash}"\~1
+set -euo pipefail
+
+# Default values
+EDIT_MESSAGE=false
+SPECIFIC_FILES=()
+ABORT_AMEND=false
+
+# Show usage
+show_usage() {
+    echo "Usage: $0 [options] [commit-hash]"
+    echo ""
+    echo "Create a fixup commit and automatically squash it with the target commit"
+    echo ""
+    echo "Options:"
+    echo "  --edit               Edit commit message after squash"
+    echo "  --files FILE1,FILE2  Only amend specific files"
+    echo "  --abort              Abort ongoing rebase"
+    echo "  -h, --help           Show this help message"
+    echo ""
+    echo "Examples:"
+    echo "  $0                   # Interactive commit selection with fzf"
+    echo "  $0 abc123            # Amend specific commit hash"
+    echo "  $0 --edit            # Edit message after squash"
+    echo "  $0 --files file1.txt,file2.txt  # Only amend specific files"
+    echo "  $0 --abort           # Abort ongoing rebase"
+}
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --edit)
+            EDIT_MESSAGE=true
+            shift
+            ;;
+        --files)
+            if [[ -z "${2:-}" ]]; then
+                echo "❌ Error: --files requires comma-separated file list" >&2
+                exit 1
+            fi
+            IFS=',' read -ra SPECIFIC_FILES <<< "$2"
+            shift 2
+            ;;
+        --abort)
+            ABORT_AMEND=true
+            shift
+            ;;
+        -h|--help)
+            show_usage
+            exit 0
+            ;;
+        -*)
+            echo "❌ Error: Unknown option '$1'" >&2
+            show_usage
+            exit 1
+            ;;
+        *)
+            if [[ -z "${COMMIT_HASH:-}" ]]; then
+                COMMIT_HASH="$1"
+            else
+                echo "❌ Error: Multiple commit hashes provided" >&2
+                exit 1
+            fi
+            shift
+            ;;
+    esac
+done
+
+# Check if we're in a git repository
+if ! git rev-parse --git-dir >/dev/null 2>&1; then
+    echo "❌ Error: Not in a git repository" >&2
+    exit 1
+fi
+
+# Handle abort option
+if $ABORT_AMEND; then
+    if git status --porcelain | grep -q "^UU\|^AA\|^DD"; then
+        echo "🔄 Aborting ongoing rebase..."
+        git rebase --abort
+        echo "✅ Rebase aborted"
+    else
+        echo "ℹ️  No ongoing rebase to abort"
+    fi
+    exit 0
+fi
+
+# Check for uncommitted changes (unless we're amending specific files)
+if [[ ${#SPECIFIC_FILES[@]} -eq 0 ]] && ! git diff-index --quiet HEAD -- 2>/dev/null; then
+    echo "❌ Error: You have uncommitted changes" >&2
+    echo "Please commit your changes first, or use --files to amend specific files" >&2
+    exit 1
+fi
+
+# If commit hash not provided, use interactive selection
+if [[ -z "${COMMIT_HASH:-}" ]]; then
+    # Check if fzf is available
+    if ! command -v fzf >/dev/null 2>&1; then
+        echo "❌ Error: fzf is required for interactive mode" >&2
+        echo "Install with: brew install fzf" >&2
+        exit 1
+    fi
+
+    # Get git log and check if any commits exist
+    log_output=$(git log --oneline --decorate --graph 2>/dev/null || true)
+    if [[ -z "$log_output" ]]; then
+        echo "❌ Error: No commits found in repository" >&2
+        exit 1
+    fi
+
+    # Interactive commit selection
+    selected_line=$(echo "$log_output" | fzf --prompt="Select commit to amend: " --height=20 --layout=reverse)
+    
+    if [[ -z "$selected_line" ]]; then
+        echo "ℹ️  No commit selected, exiting"
+        exit 0
+    fi
+
+    # Extract commit hash from selected line
+    COMMIT_HASH=$(echo "$selected_line" | grep -o '\b[a-f0-9]\{7,\}\b' | head -1)
+    
+    if [[ -z "$COMMIT_HASH" ]]; then
+        echo "❌ Error: Could not extract commit hash from selection" >&2
+        echo "Selected: $selected_line" >&2
+        exit 1
+    fi
+fi
+
+readonly COMMIT_HASH
+
+# Validate commit hash
+if ! git rev-parse --verify "${COMMIT_HASH}" >/dev/null 2>&1; then
+    echo "❌ Error: Invalid commit hash '${COMMIT_HASH}'" >&2
+    exit 1
+fi
+
+# Show confirmation
+echo "🎯 Target commit: ${COMMIT_HASH}"
+git log --oneline -1 "${COMMIT_HASH}"
+echo ""
+
+# Confirm before proceeding
+echo -n "Proceed with fixup and squash? [y/N] "
+read -r reply
+if [[ ! $reply =~ ^[Yy]$ ]]; then
+    echo "ℹ️  Operation cancelled"
+    exit 0
+fi
+
+# Create fixup commit
+echo ""
+echo "🔄 Creating fixup commit..."
+
+if [[ ${#SPECIFIC_FILES[@]} -gt 0 ]]; then
+    # Add only specific files
+    echo "📁 Adding specific files: ${SPECIFIC_FILES[*]}"
+    for file in "${SPECIFIC_FILES[@]}"; do
+        if [[ ! -f "$file" ]]; then
+            echo "❌ Error: File not found: $file" >&2
+            exit 1
+        fi
+        git add "$file"
+    done
+fi
+
+if git commit --fixup "${COMMIT_HASH}"; then
+    echo "✅ Fixup commit created"
+else
+    echo "❌ Failed to create fixup commit" >&2
+    exit 1
+fi
+
+# Perform interactive rebase with autosquash
+echo ""
+echo "🔄 Starting interactive rebase with autosquash..."
+
+# Set up rebase editor
+if $EDIT_MESSAGE; then
+    echo "💡 Commit message editing enabled"
+    rebase_cmd=(git rebase --autostash -i --autosquash "${COMMIT_HASH}~1")
+else
+    echo "💡 Using automatic squash (no message editing)"
+    GIT_SEQUENCE_EDITOR=true
+    export GIT_SEQUENCE_EDITOR
+    rebase_cmd=(git rebase --autostash -i --autosquash "${COMMIT_HASH}~1")
+fi
+
+# Execute rebase
+if "${rebase_cmd[@]}"; then
+    echo ""
+    echo "✅ Super-amend completed successfully!"
+    echo "📊 Your fixup has been squashed into commit ${COMMIT_HASH}"
+    
+    # Show the updated commit
+    echo ""
+    echo "📄 Updated commit:"
+    git log --oneline -1 "${COMMIT_HASH}"
+else
+    echo ""
+    echo "❌ Rebase failed or has conflicts" >&2
+    echo ""
+    echo "🛠️  Conflict resolution help:"
+    echo "  1. Resolve conflicts in affected files"
+    echo "  2. Stage resolved files: git add <file>"
+    echo "  3. Continue rebase: git rebase --continue"
+    echo "  4. Or abort rebase: git rebase --abort"
+    echo "  5. Or run: super-amend --abort"
+    exit 1
+fi
 

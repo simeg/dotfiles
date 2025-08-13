@@ -1,48 +1,238 @@
 #!/usr/bin/env bash
+
+# Enhanced git fetch and rebase script with safety checks and options
+# Usage: gforbm [options]
+
 set -euo pipefail
+
+# Default values
+DRY_RUN=false
+BASE_BRANCH=""
+SHOW_PROGRESS=true
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Show usage
+show_usage() {
+    echo "Usage: $0 [options]"
+    echo ""
+    echo "Git fetch origin and rebase current branch onto main/master"
+    echo ""
+    echo "Options:"
+    echo "  --dry-run            Show what would happen without executing"
+    echo "  --base BRANCH        Use specific base branch instead of auto-detection"
+    echo "  --quiet              Suppress progress messages"
+    echo "  -h, --help           Show this help message"
+    echo ""
+    echo "Examples:"
+    echo "  $0                   # Auto-detect base branch and rebase"
+    echo "  $0 --dry-run         # Show what would happen"
+    echo "  $0 --base develop    # Rebase onto specific branch"
+}
+
+# Log functions
+log_info() {
+    if $SHOW_PROGRESS; then
+        echo -e "${BLUE}[INFO]${NC} $1"
+    fi
+}
+
+log_success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $1"
+}
+
+log_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
+
+log_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --dry-run)
+            DRY_RUN=true
+            shift
+            ;;
+        --base)
+            if [[ -z "${2:-}" ]]; then
+                log_error "--base requires a branch name"
+                exit 1
+            fi
+            BASE_BRANCH="$2"
+            shift 2
+            ;;
+        --quiet)
+            SHOW_PROGRESS=false
+            shift
+            ;;
+        -h|--help)
+            show_usage
+            exit 0
+            ;;
+        -*)
+            log_error "Unknown option '$1'"
+            show_usage
+            exit 1
+            ;;
+        *)
+            log_error "Unexpected argument '$1'"
+            show_usage
+            exit 1
+            ;;
+    esac
+done
+
+# Check if we're in a git repository
+if ! git rev-parse --git-dir >/dev/null 2>&1; then
+    log_error "Not in a git repository"
+    exit 1
+fi
 
 # Ensure we're on a branch (not detached)
 current_branch="$(git rev-parse --abbrev-ref HEAD)"
 if [[ "$current_branch" == "HEAD" ]]; then
-  echo "Detached HEAD; refusing to rebase."
-  exit 1
-fi
-
-# Ensure 'origin' exists
-if ! git remote get-url origin >/dev/null 2>&1; then
-  echo "Remote 'origin' not found."
-  exit 1
-fi
-
-# Update remote refs and drop stale ones
-git fetch origin --prune
-
-# Discover remote default branch from origin/HEAD
-default_ref="$(git symbolic-ref -q --short refs/remotes/origin/HEAD || true)"  # e.g. "origin/main"
-if [[ -n "${default_ref}" ]]; then
-  base_branch="${default_ref#origin/}"  # strip "origin/" prefix
-else
-  # Fallback if origin/HEAD isn't set (some self-hosted remotes)
-  if git show-ref --verify --quiet refs/remotes/origin/master; then
-    base_branch="master"
-  elif git show-ref --verify --quiet refs/remotes/origin/main; then
-    base_branch="main"
-  elif git show-ref --verify --quiet refs/heads/master; then
-    base_branch="master"
-  elif git show-ref --verify --quiet refs/heads/main; then
-    base_branch="main"
-  else
-    echo "Couldn't determine base branch (no origin/HEAD, no master/main)."
+    log_error "Detached HEAD state detected"
+    log_info "Please checkout a branch before running this command"
     exit 1
-  fi
 fi
+
+log_info "Current branch: $current_branch"
+
+# Check for uncommitted changes
+if ! git diff-index --quiet HEAD -- 2>/dev/null; then
+    log_warning "You have uncommitted changes"
+    if $DRY_RUN; then
+        log_info "DRY RUN: Would use --autostash to handle uncommitted changes"
+    else
+        log_info "Using --autostash to temporarily stash changes"
+    fi
+fi
+
+# Ensure 'origin' remote exists
+if ! git remote get-url origin >/dev/null 2>&1; then
+    log_error "Remote 'origin' not found"
+    log_info "Available remotes: $(git remote | tr '\n' ' ')"
+    exit 1
+fi
+
+# Determine base branch
+if [[ -n "$BASE_BRANCH" ]]; then
+    # User specified base branch
+    if ! git show-ref --verify --quiet "refs/remotes/origin/$BASE_BRANCH"; then
+        log_error "Base branch 'origin/$BASE_BRANCH' not found"
+        log_info "Available remote branches:"
+        git branch -r | head -10
+        exit 1
+    fi
+    base_branch="$BASE_BRANCH"
+    log_info "Using specified base branch: $base_branch"
+else
+    # Auto-detect base branch
+    log_info "Auto-detecting base branch..."
+    
+    # Discover remote default branch from origin/HEAD
+    default_ref="$(git symbolic-ref -q --short refs/remotes/origin/HEAD 2>/dev/null || true)"
+    if [[ -n "${default_ref}" ]]; then
+        base_branch="${default_ref#origin/}"  # strip "origin/" prefix
+        log_info "Detected base branch from origin/HEAD: $base_branch"
+    else
+        # Fallback if origin/HEAD isn't set
+        log_info "origin/HEAD not set, trying fallback detection..."
+        if git show-ref --verify --quiet refs/remotes/origin/main; then
+            base_branch="main"
+        elif git show-ref --verify --quiet refs/remotes/origin/master; then
+            base_branch="master"
+        elif git show-ref --verify --quiet refs/heads/main; then
+            base_branch="main"
+        elif git show-ref --verify --quiet refs/heads/master; then
+            base_branch="master"
+        else
+            log_error "Couldn't determine base branch"
+            log_info "Available branches:"
+            git branch -a | head -10
+            log_info "Use --base BRANCH to specify manually"
+            exit 1
+        fi
+        log_info "Detected base branch: $base_branch"
+    fi
+fi
+
 readonly base_branch
 
-# Abort if you're on the base branch
+# Safety check: don't rebase base branch onto itself
 if [[ "$current_branch" == "$base_branch" ]]; then
-  echo "You're on '$base_branch'. Refusing to rebase the base branch onto itself."
-  exit 1
+    log_error "You're on the base branch '$base_branch'"
+    log_info "Refusing to rebase the base branch onto itself"
+    exit 1
 fi
 
-# Rebase current branch onto the remote's default branch
-git rebase --autostash "origin/${base_branch}"
+# Show what we're about to do
+echo ""
+log_info "Rebase plan:"
+echo "  Current branch: $current_branch"
+echo "  Base branch: $base_branch"
+echo "  Remote: origin/$base_branch"
+
+if $DRY_RUN; then
+    echo ""
+    log_info "DRY RUN - Commands that would be executed:"
+    echo "  1. git fetch origin --prune"
+    echo "  2. git rebase --autostash origin/$base_branch"
+    echo ""
+    log_info "To execute this rebase, run: gforbm --base $base_branch"
+    exit 0
+fi
+
+echo ""
+
+# Update remote refs and drop stale ones
+log_info "Fetching from origin..."
+if git fetch origin --prune; then
+    log_success "Fetch completed"
+else
+    log_error "Fetch failed"
+    exit 1
+fi
+
+# Check if remote branch has new commits
+remote_commit=$(git rev-parse "origin/$base_branch" 2>/dev/null || echo "")
+base_commit=$(git merge-base "$current_branch" "origin/$base_branch" 2>/dev/null || echo "")
+
+if [[ "$remote_commit" == "$base_commit" ]]; then
+    log_success "Remote branch has no new commits, nothing to rebase"
+    exit 0
+fi
+
+# Show commit information
+commits_behind=$(git rev-list --count "$current_branch..origin/$base_branch" 2>/dev/null || echo "unknown")
+commits_ahead=$(git rev-list --count "origin/$base_branch..$current_branch" 2>/dev/null || echo "unknown")
+
+log_info "Branch status:"
+echo "  Commits behind origin/$base_branch: $commits_behind"
+echo "  Commits ahead of origin/$base_branch: $commits_ahead"
+
+# Perform the rebase
+echo ""
+log_info "Starting rebase..."
+if git rebase --autostash "origin/${base_branch}"; then
+    log_success "Rebase completed successfully!"
+    echo ""
+    log_info "Your branch '$current_branch' is now rebased on top of origin/$base_branch"
+else
+    log_error "Rebase failed or has conflicts"
+    echo ""
+    log_info "Conflict resolution help:"
+    echo "  1. Resolve conflicts in affected files"
+    echo "  2. Stage resolved files: git add <file>"
+    echo "  3. Continue rebase: git rebase --continue"
+    echo "  4. Or abort rebase: git rebase --abort"
+    exit 1
+fi

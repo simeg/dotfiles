@@ -1,19 +1,112 @@
 #!/usr/bin/env bash
 
-# Exit if no argument is given
-if [ "$#" -ne 1 ]; then
-  echo "Usage: $0 <file>"
-  exit 1
+# Enhanced backup script with timestamp and multiple file support
+# Usage: backup [options] <file1> [file2] [file3] ...
+
+set -euo pipefail
+
+# Default values
+BACKUP_DIR=""
+VERBOSE=false
+TIMESTAMP=$(date '+%Y%m%d-%H%M%S')
+
+# Show usage
+show_usage() {
+    echo "Usage: $0 [options] <file1> [file2] [file3] ..."
+    echo ""
+    echo "Options:"
+    echo "  -d, --directory DIR   Backup to specified directory"
+    echo "  -v, --verbose         Show detailed output"
+    echo "  -h, --help           Show this help message"
+    echo ""
+    echo "Examples:"
+    echo "  $0 config.txt                    # Creates config.txt.bak.TIMESTAMP"
+    echo "  $0 -d /tmp file1.txt file2.txt   # Backup multiple files to /tmp"
+    echo "  $0 -v important.doc               # Verbose backup"
+}
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -d|--directory)
+            if [[ -z "${2:-}" ]]; then
+                echo "Error: --directory requires a directory path" >&2
+                exit 1
+            fi
+            BACKUP_DIR="$2"
+            shift 2
+            ;;
+        -v|--verbose)
+            VERBOSE=true
+            shift
+            ;;
+        -h|--help)
+            show_usage
+            exit 0
+            ;;
+        -*)
+            echo "Error: Unknown option '$1'" >&2
+            show_usage
+            exit 1
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
+# Check if any files are provided
+if [[ $# -eq 0 ]]; then
+    echo "Error: No files specified" >&2
+    show_usage
+    exit 1
 fi
 
-file="$1"
-
-# Check if file exists and is a regular file
-if [ ! -f "$file" ]; then
-  echo "Error: '$file' is not a valid file."
-  exit 2
+# Validate backup directory if specified
+if [[ -n "$BACKUP_DIR" ]]; then
+    if [[ ! -d "$BACKUP_DIR" ]]; then
+        echo "Error: Backup directory '$BACKUP_DIR' does not exist" >&2
+        exit 2
+    fi
+    if [[ ! -w "$BACKUP_DIR" ]]; then
+        echo "Error: Backup directory '$BACKUP_DIR' is not writable" >&2
+        exit 2
+    fi
 fi
 
-# Create the backup
-cp -- "$file" "$file.bak"
-echo "Backup created: $file.bak"
+# Process each file
+for file in "$@"; do
+    # Check if file exists and is a regular file
+    if [[ ! -f "$file" ]]; then
+        echo "Error: '$file' is not a valid file" >&2
+        continue
+    fi
+
+    # Determine backup location and name
+    if [[ -n "$BACKUP_DIR" ]]; then
+        backup_file="$BACKUP_DIR/$(basename "$file").bak.$TIMESTAMP"
+    else
+        backup_file="$file.bak.$TIMESTAMP"
+    fi
+
+    # Check if backup already exists and ask for confirmation
+    if [[ -f "$backup_file" ]]; then
+        echo -n "Backup '$backup_file' already exists. Overwrite? [y/N] "
+        read -r reply
+        if [[ ! $reply =~ ^[Yy]$ ]]; then
+            echo "Skipping '$file'"
+            continue
+        fi
+    fi
+
+    # Create the backup
+    if $VERBOSE; then
+        echo "Backing up '$file' to '$backup_file'..."
+    fi
+    
+    if cp -- "$file" "$backup_file"; then
+        echo "✅ Backup created: $backup_file"
+    else
+        echo "❌ Failed to backup '$file'" >&2
+    fi
+done

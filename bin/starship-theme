@@ -282,6 +282,26 @@ restore_config() {
     fi
 }
 
+# Validate theme file
+validate_theme() {
+    local theme_file="$1"
+    
+    # Basic TOML syntax check
+    if ! command -v toml >/dev/null 2>&1; then
+        # Fallback validation - check for basic TOML structure
+        if ! grep -q '^\[' "$theme_file" 2>/dev/null; then
+            return 1
+        fi
+    else
+        # Use toml command if available
+        if ! toml validate "$theme_file" >/dev/null 2>&1; then
+            return 1
+        fi
+    fi
+    
+    return 0
+}
+
 # Add new theme from file
 add_theme() {
     local theme_name="$1"
@@ -294,6 +314,12 @@ add_theme() {
     
     if [[ ! -f "$source_file" ]]; then
         log_error "Source file not found: $source_file"
+        return 1
+    fi
+    
+    # Validate theme file before adding
+    if ! validate_theme "$source_file"; then
+        log_error "Invalid TOML syntax in source file: $source_file"
         return 1
     fi
     

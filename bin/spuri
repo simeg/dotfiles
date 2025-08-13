@@ -1,12 +1,22 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+"""
+Enhanced Spotify URI converter with better error handling and additional features
+Usage: spuri [options] <uri1> [uri2] [uri3] ...
+"""
+
 import sys
 import uuid
+import json
+import argparse
+import subprocess
 
 BASE62 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 
 def encode(num, base):
     """Return num as a string in the supplied base."""
+    if num == 0:
+        return base[0]
     stack = []
     while num:
         stack.append(base[num % len(base)])
@@ -20,28 +30,127 @@ def decode(num, base):
     r = 0
     b = 1
     for char in reversed(num):
-        r += base.index(char) * b
-        b *= len(base)
+        try:
+            r += base.index(char) * b
+            b *= len(base)
+        except ValueError:
+            raise ValueError(f"Invalid character '{char}' in base62 string")
     return r
 
 
-for arg in sys.argv[1:]:
-    if arg.startswith("spotify"):
-        base62id = arg.split(":")[2]
-        uri = "spotify:track:" + base62id
-        url = "https://open.spotify.com/track/" + base62id
-        gid = str(uuid.UUID(int=decode(base62id, BASE62)))
-        hexgid = gid.replace("-", "")
-    elif arg.startswith("http"):
-        base62id = arg.split("/")[4]
-        gid = str(uuid.UUID(int=decode(base62id, BASE62)))
-        hexgid = gid.replace("-", "")
-        uri = "spotify:track:" + base62id
-        url = "https://open.spotify.com/track/" + base62id
+def validate_spotify_uri(uri):
+    """Validate Spotify URI format"""
+    if uri.startswith("spotify:"):
+        parts = uri.split(":")
+        return len(parts) >= 3 and parts[1] in ["track", "album", "playlist", "artist"]
+    elif uri.startswith("http"):
+        return "open.spotify.com" in uri
     else:
-        hexgid = arg.replace("-", "")
-        base62id = encode(int(hexgid, 16), BASE62).rjust(22, "0")
+        # Assume it's a hex GID
+        return len(uri.replace("-", "")) == 32
+
+
+def parse_spotify_input(arg, uri_type="track"):
+    """Parse various Spotify input formats"""
+    try:
+        if arg.startswith("spotify:"):
+            parts = arg.split(":")
+            if len(parts) < 3:
+                raise ValueError("Invalid Spotify URI format")
+            uri_type = parts[1]
+            base62id = parts[2]
+        elif arg.startswith("http"):
+            if "open.spotify.com" not in arg:
+                raise ValueError("Invalid Spotify URL format")
+            parts = arg.split("/")
+            if len(parts) < 5:
+                raise ValueError("Invalid Spotify URL format")
+            uri_type = parts[3]
+            base62id = parts[4].split("?")[0]  # Remove query parameters
+        else:
+            # Assume it's a hex GID
+            hexgid = arg.replace("-", "")
+            if len(hexgid) != 32:
+                raise ValueError("Invalid hex GID length (expected 32 characters)")
+            base62id = encode(int(hexgid, 16), BASE62).rjust(22, "0")
+        
+        # Convert to all formats
         gid = str(uuid.UUID(int=decode(base62id, BASE62)))
-        uri = "spotify:track:" + base62id
-        url = "https://open.spotify.com/track/" + base62id
-    print(gid, hexgid, base62id, uri, url)
+        hexgid = gid.replace("-", "")
+        uri = f"spotify:{uri_type}:{base62id}"
+        url = f"https://open.spotify.com/{uri_type}/{base62id}"
+        
+        return {
+            "gid": gid,
+            "hexgid": hexgid,
+            "base62id": base62id,
+            "uri": uri,
+            "url": url,
+            "type": uri_type
+        }
+    except (ValueError, IndexError) as e:
+        raise ValueError(f"Failed to parse '{arg}': {e}")
+
+
+def copy_to_clipboard(text):
+    """Copy text to clipboard (macOS)"""
+    try:
+        subprocess.run(["pbcopy"], input=text.encode(), check=True)
+        return True
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return False
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Convert between Spotify URI formats",
+        epilog="Examples:\n  spuri spotify:track:4iV5W9uYEdYUVa79Axb7Rh\n  spuri https://open.spotify.com/track/4iV5W9uYEdYUVa79Axb7Rh\n  spuri --json --clipboard spotify:track:4iV5W9uYEdYUVa79Axb7Rh",
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument("uris", nargs="+", help="Spotify URIs, URLs, or hex GIDs to convert")
+    parser.add_argument("--json", action="store_true", help="Output in JSON format")
+    parser.add_argument("--clipboard", action="store_true", help="Copy result to clipboard")
+    parser.add_argument("--type", default="track", choices=["track", "album", "playlist", "artist"], 
+                       help="Default type for hex GID inputs")
+    
+    args = parser.parse_args()
+    
+    results = []
+    errors = []
+    
+    for uri_input in args.uris:
+        try:
+            if not validate_spotify_uri(uri_input):
+                raise ValueError("Invalid Spotify URI/URL format")
+            result = parse_spotify_input(uri_input, args.type)
+            results.append(result)
+        except ValueError as e:
+            errors.append(f"❌ Error processing '{uri_input}': {e}")
+    
+    if errors:
+        for error in errors:
+            print(error, file=sys.stderr)
+        if not results:
+            sys.exit(1)
+    
+    # Output results
+    if args.json:
+        output = json.dumps(results, indent=2)
+    else:
+        output_lines = []
+        for result in results:
+            output_lines.append(f"{result['gid']} {result['hexgid']} {result['base62id']} {result['uri']} {result['url']}")
+        output = "\n".join(output_lines)
+    
+    print(output)
+    
+    # Copy to clipboard if requested
+    if args.clipboard:
+        if copy_to_clipboard(output):
+            print("✅ Copied to clipboard", file=sys.stderr)
+        else:
+            print("❌ Failed to copy to clipboard", file=sys.stderr)
+
+
+if __name__ == "__main__":
+    main()

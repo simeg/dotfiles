@@ -1,44 +1,213 @@
 #!/usr/bin/env bash
 #
-# gcl: Enhanced git clone with private repo support
+# gcl: Enhanced git clone with private repo support and additional options
 #
-# This script clones a git repository and optionally sets up private git
-# configuration if the user indicates it's a private repository.
+# This script clones a git repository with various options including shallow clones,
+# branch specification, and automatic private repository configuration.
 
 set -euo pipefail
 
-# Enhanced git clone with private repo support
-if [[ $# -eq 0 ]]; then
-    echo "Usage: gcl <repo-url> [directory]"
+# Default values
+SHALLOW=false
+BRANCH=""
+PROTOCOL_PREFERENCE=""
+TARGET_DIR=""
+
+# Show usage
+show_usage() {
+    echo "Usage: $0 [options] <repo-url> [directory]"
+    echo ""
+    echo "Options:"
+    echo "  --shallow              Perform a shallow clone (--depth=1)"
+    echo "  --branch BRANCH        Clone specific branch"
+    echo "  --ssh                  Prefer SSH protocol"
+    echo "  --https                Prefer HTTPS protocol"
+    echo "  -h, --help             Show this help message"
+    echo ""
+    echo "Examples:"
+    echo "  $0 https://github.com/user/repo.git"
+    echo "  $0 --shallow --branch develop https://github.com/user/repo.git my-project"
+    echo "  $0 --ssh git@github.com:user/repo.git"
+}
+
+# Validate repository URL
+validate_repo_url() {
+    local url="$1"
+
+    # Basic URL validation
+    if [[ ! "$url" =~ ^(https?://|git@|ssh://|git://) ]]; then
+        echo "❌ Error: Invalid repository URL format" >&2
+        echo "Expected formats:" >&2
+        echo "  HTTPS: https://github.com/user/repo.git" >&2
+        echo "  SSH:   git@github.com:user/repo.git" >&2
+        return 1
+    fi
+
+    return 0
+}
+
+# Convert between SSH and HTTPS URLs
+convert_protocol() {
+    local url="$1"
+    local target_protocol="$2"
+
+    case "$target_protocol" in
+        "ssh")
+            if [[ "$url" =~ ^https://github\.com/(.+)$ ]]; then
+                echo "git@github.com:${BASH_REMATCH[1]}"
+            else
+                echo "$url"
+            fi
+            ;;
+        "https")
+            if [[ "$url" =~ ^git@github\.com:(.+)$ ]]; then
+                echo "https://github.com/${BASH_REMATCH[1]}"
+            else
+                echo "$url"
+            fi
+            ;;
+        *)
+            echo "$url"
+            ;;
+    esac
+}
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --shallow)
+            SHALLOW=true
+            shift
+            ;;
+        --branch)
+            if [[ -z "${2:-}" ]]; then
+                echo "❌ Error: --branch requires a branch name" >&2
+                exit 1
+            fi
+            BRANCH="$2"
+            shift 2
+            ;;
+        --ssh)
+            PROTOCOL_PREFERENCE="ssh"
+            shift
+            ;;
+        --https)
+            PROTOCOL_PREFERENCE="https"
+            shift
+            ;;
+        -h|--help)
+            show_usage
+            exit 0
+            ;;
+        -*)
+            echo "❌ Error: Unknown option '$1'" >&2
+            show_usage
+            exit 1
+            ;;
+        *)
+            if [[ -z "${REPO_URL:-}" ]]; then
+                REPO_URL="$1"
+            elif [[ -z "$TARGET_DIR" ]]; then
+                TARGET_DIR="$1"
+            else
+                echo "❌ Error: Too many arguments" >&2
+                show_usage
+                exit 1
+            fi
+            shift
+            ;;
+    esac
+done
+
+# Check required arguments
+if [[ -z "${REPO_URL:-}" ]]; then
+    echo "❌ Error: Repository URL is required" >&2
+    show_usage
+    exit 1
+fi
+
+# Validate repository URL
+if ! validate_repo_url "$REPO_URL"; then
     exit 1
 fi
 
 # Check if we're already in a git repository
 if git rev-parse --git-dir >/dev/null 2>&1; then
-    echo "Error: Already in a git repository. Please run gcl from outside a git repo." >&2
+    echo "❌ Error: Already in a git repository. Please run gcl from outside a git repo." >&2
     exit 1
 fi
 
-repo_url="$1"
-target_dir="$2"
-
-# Clone the repository
-echo "Cloning repository..."
-if [[ -n "${target_dir:-}" ]]; then
-    git clone "$repo_url" "$target_dir"
-    cd "$target_dir" || exit 1
-else
-    git clone "$repo_url"
-    # Extract directory name from URL
-    dir_name=$(basename "$repo_url" .git)
-    cd "$dir_name" || exit 1
+# Apply protocol preference
+if [[ -n "$PROTOCOL_PREFERENCE" ]]; then
+    REPO_URL=$(convert_protocol "$REPO_URL" "$PROTOCOL_PREFERENCE")
+    echo "🔄 Using $PROTOCOL_PREFERENCE protocol: $REPO_URL"
 fi
 
-# Ask if this is a private repository
-echo
-echo -n "Is this a private repository? [y/N] "
-read -r reply
-if [[ $reply =~ ^[Yy]$ ]]; then
-    echo "Setting up private git configuration..."
-    use-private-git --force
+# Determine target directory
+if [[ -z "$TARGET_DIR" ]]; then
+    # Extract directory name from URL
+    TARGET_DIR=$(basename "$REPO_URL" .git)
+fi
+
+# Check if target directory already exists
+if [[ -d "$TARGET_DIR" ]]; then
+    echo "❌ Error: Directory '$TARGET_DIR' already exists" >&2
+    exit 1
+fi
+
+# Build clone command
+clone_cmd=("git" "clone")
+
+if $SHALLOW; then
+    clone_cmd+=("--depth=1")
+    echo "🚀 Performing shallow clone..."
+fi
+
+if [[ -n "$BRANCH" ]]; then
+    clone_cmd+=("--branch" "$BRANCH")
+    echo "🌿 Cloning branch: $BRANCH"
+fi
+
+clone_cmd+=("$REPO_URL" "$TARGET_DIR")
+
+# Clone the repository
+echo "📥 Cloning repository..."
+echo "Command: ${clone_cmd[*]}"
+
+if "${clone_cmd[@]}"; then
+    echo "✅ Repository cloned successfully"
+
+    # Change to the cloned directory
+    cd "$TARGET_DIR" || exit 1
+
+    # Show repository information
+    echo ""
+    echo "📊 Repository information:"
+    echo "  Directory: $(pwd)"
+    echo "  Remote URL: $(git remote get-url origin)"
+    if [[ -n "$BRANCH" ]]; then
+        echo "  Branch: $BRANCH"
+    else
+        echo "  Branch: $(git branch --show-current)"
+    fi
+
+    # Ask if this is a private repository
+    echo ""
+    echo -n "Is this a private repository? [y/N] "
+    read -r reply
+    if [[ $reply =~ ^[Yy]$ ]]; then
+        echo "🔧 Setting up private git configuration..."
+        if command -v use-private-git >/dev/null 2>&1; then
+            use-private-git --force
+        else
+            echo "⚠️  Warning: use-private-git command not found"
+            echo "   Private git configuration not applied"
+        fi
+    fi
+
+    echo ""
+    echo "🎉 Clone complete! You can now start working in: $TARGET_DIR"
+else
+    echo "❌ Failed to clone repository" >&2
+    exit 1
 fi

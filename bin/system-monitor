@@ -7,18 +7,16 @@ set -e
 
 # Source common utilities
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=scripts/lib/common.sh
+# shellcheck source=../scripts/lib/common.sh
 source "$SCRIPT_DIR/../scripts/lib/common.sh"
 
 # Configuration
 REFRESH_INTERVAL=2
 ANALYTICS_DIR="$HOME/.config/dotfiles"
 MONITOR_DATA="$ANALYTICS_DIR/monitor-data.json"
-UPDATE_MODE="real-time"
 
 # Monitoring state
 DASHBOARD_PID=""
-MONITOR_ACTIVE=false
 
 # Logging functions are now provided by common.sh
 
@@ -27,8 +25,6 @@ MONITOR_ACTIVE=false
 # =============================================================================
 
 get_system_metrics() {
-    local metrics="{}"
-    
     # CPU Usage
     local cpu_usage
     if check_command_exists "top"; then
@@ -40,13 +36,12 @@ get_system_metrics() {
     # Memory Usage - align with Activity Monitor calculation
     local memory_info
     if check_command_exists "vm_stat"; then
-        local pages_free pages_active pages_inactive pages_wired pages_compressed page_size
+        local pages_free pages_active pages_inactive pages_wired pages_compressed
         pages_free=$(vm_stat | awk '/Pages free/ {print $3}' | sed 's/\.//')
         pages_active=$(vm_stat | awk '/Pages active/ {print $3}' | sed 's/\.//')
         pages_inactive=$(vm_stat | awk '/Pages inactive/ {print $3}' | sed 's/\.//')
         pages_wired=$(vm_stat | awk '/Pages wired down/ {print $4}' | sed 's/\.//')
         pages_compressed=$(vm_stat | awk '/Pages stored in compressor/ {print $5}' | sed 's/\.//')
-        page_size=$(vm_stat | awk '/Mach Virtual Memory Statistics/ {getline; print $8}' | sed 's/\.//')
         
         # Calculate total physical memory
         local total_pages=$((pages_free + pages_active + pages_inactive + pages_wired))
@@ -96,8 +91,6 @@ EOF
 
 # Get dotfiles-specific metrics
 get_dotfiles_metrics() {
-    local metrics="{}"
-    
     # Shell startup time (quick test)
     local startup_time
     local time_output
@@ -406,7 +399,7 @@ format_load_average() {
     
     # Color code based on load percentage relative to cores
     if (( load_percent < 70 )); then
-        echo -e "${GREEc}${load}${NC}"
+        echo -e "${GREEN}${load}${NC}"
     elif (( load_percent < 100 )); then
         echo -e "${YELLOW}${load}${NC}"
     else
@@ -460,7 +453,7 @@ show_detailed_health() {
     
     echo
     echo -e "${DIM}Press any key to return to dashboard...${NC}"
-    read -n 1 -s
+    read -r -n 1 -s
 }
 
 show_analytics_detail() {
@@ -478,7 +471,7 @@ show_analytics_detail() {
     
     echo
     echo -e "${DIM}Press any key to return to dashboard...${NC}"
-    read -n 1 -s
+    read -r -n 1 -s
 }
 
 show_performance_detail() {
@@ -496,7 +489,7 @@ show_performance_detail() {
     
     echo
     echo -e "${DIM}Press any key to return to dashboard...${NC}"
-    read -n 1 -s
+    read -r -n 1 -s
 }
 
 # =============================================================================
@@ -538,7 +531,7 @@ run_realtime_dashboard() {
         echo
         
         # Non-blocking input with timeout
-        if read -t "$REFRESH_INTERVAL" -n 1 key 2>/dev/null; then
+        if read -r -t "$REFRESH_INTERVAL" -n 1 key 2>/dev/null; then
             case "$key" in
                 'h'|'H')
                     show_detailed_health
@@ -580,8 +573,11 @@ run_realtime_dashboard() {
 # Note: Spinner functions are now provided by common.sh
 
 # =============================================================================
-# COMMAND LINE INTERFACE
+# COMMAND LINE INTERFACE  
 # =============================================================================
+
+# Remove unused function
+# collect_metrics() was defined but never called - removed to fix shellcheck
 
 show_help() {
     echo "Enhanced System Monitor Dashboard"
@@ -613,17 +609,13 @@ show_help() {
 take_snapshot() {
     local system_metrics dotfiles_metrics health_status
     
-    # Function to collect all metrics
-    collect_metrics() {
-        local temp_dir="/tmp"
-        get_system_metrics > "$temp_dir/system_metrics.json"
-        get_dotfiles_metrics > "$temp_dir/dotfiles_metrics.json" 
-        get_health_status > "$temp_dir/health_status.json"
-    }
-    
     # Show loading message with spinner
     echo -e "${BLUE}📸 Taking system metrics snapshot...${NC}"
-    run_with_spinner "Collecting metrics " collect_metrics
+    
+    # Collect metrics directly
+    get_system_metrics > "/tmp/system_metrics.json"
+    get_dotfiles_metrics > "/tmp/dotfiles_metrics.json" 
+    get_health_status > "/tmp/health_status.json"
     
     # Read collected metrics
     system_metrics=$(cat "/tmp/system_metrics.json" 2>/dev/null)

@@ -1,10 +1,161 @@
-#!/usr/local/bin/zsh
+#!/usr/bin/env bash
 
-if [ $# -eq 0 ]; then
-  echo "You need to specify a role"
+# Enhanced parallel SSH script with better error handling
+# Usage: rssh [options] <role> [ssh-command]
+
+set -euo pipefail
+
+# Default values
+SSH_OPTIONS="-o StrictHostKeyChecking=no"
+DRY_RUN=false
+TIMEOUT=30
+VERBOSE=false
+
+# Show usage
+show_usage() {
+    echo "Usage: $0 [options] <role> [ssh-command]"
+    echo ""
+    echo "Execute SSH commands on multiple hosts using role-based targeting"
+    echo ""
+    echo "Options:"
+    echo "  --dry-run            Show target hosts without executing"
+    echo "  --timeout SECONDS    SSH timeout (default: 30)"
+    echo "  --ssh-options OPTS   Additional SSH options"
+    echo "  --verbose            Show detailed output"
+    echo "  -h, --help           Show this help message"
+    echo ""
+    echo "Examples:"
+    echo "  $0 webservers 'uptime'           # Run uptime on all webservers"
+    echo "  $0 --dry-run database            # Show database hosts"
+    echo "  $0 --timeout 60 app 'ps aux'     # Custom timeout"
+}
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --dry-run)
+            DRY_RUN=true
+            shift
+            ;;
+        --timeout)
+            if [[ -z "${2:-}" ]] || ! [[ "$2" =~ ^[0-9]+$ ]]; then
+                echo "❌ Error: --timeout requires a positive number" >&2
+                exit 1
+            fi
+            TIMEOUT="$2"
+            shift 2
+            ;;
+        --ssh-options)
+            if [[ -z "${2:-}" ]]; then
+                echo "❌ Error: --ssh-options requires SSH options" >&2
+                exit 1
+            fi
+            SSH_OPTIONS="$SSH_OPTIONS $2"
+            shift 2
+            ;;
+        --verbose)
+            VERBOSE=true
+            shift
+            ;;
+        -h|--help)
+            show_usage
+            exit 0
+            ;;
+        -*)
+            echo "❌ Error: Unknown option '$1'" >&2
+            show_usage
+            exit 1
+            ;;
+        *)
+            if [[ -z "${ROLE:-}" ]]; then
+                ROLE="$1"
+            else
+                # Remaining arguments are the SSH command
+                SSH_COMMAND="$*"
+                break
+            fi
+            shift
+            ;;
+    esac
+done
+
+# Check required arguments
+if [[ -z "${ROLE:-}" ]]; then
+    echo "❌ Error: Role is required" >&2
+    show_usage
+    exit 1
 fi
 
-role=$1
-shift 1
-pssh -O StrictHostKeyChecking=no --inline -H "`reveal role $role | sed -e 's/\.$//'`" $*
+# Check for required commands
+if ! command -v pssh >/dev/null 2>&1; then
+    echo "❌ Error: pssh command not found" >&2
+    echo "Install with: brew install pssh" >&2
+    exit 1
+fi
+
+if ! command -v reveal >/dev/null 2>&1; then
+    echo "❌ Error: reveal command not found" >&2
+    echo "Please ensure reveal is installed and in PATH" >&2
+    exit 1
+fi
+
+# Get hosts for the role
+echo "🔍 Resolving hosts for role: $ROLE"
+hosts_output=$(reveal role "$ROLE" 2>/dev/null || true)
+
+if [[ -z "$hosts_output" ]]; then
+    echo "❌ Error: No hosts found for role '$ROLE'" >&2
+    echo "Available roles:" >&2
+    reveal roles 2>/dev/null | head -10 || echo "Could not list roles" >&2
+    exit 1
+fi
+
+# Clean up hosts (remove trailing dots)
+hosts=${hosts_output%.}
+host_count=$(echo "$hosts" | wc -w | tr -d ' ')
+
+echo "🏥 Found $host_count hosts: $hosts"
+
+if $DRY_RUN; then
+    echo ""
+    echo "📝 DRY RUN - Would execute on these hosts:"
+    echo "$hosts" | tr ' ' '\n' | sort
+    if [[ -n "${SSH_COMMAND:-}" ]]; then
+        echo ""
+        echo "Command: $SSH_COMMAND"
+    fi
+    exit 0
+fi
+
+# Build pssh command
+pssh_cmd=("pssh")
+pssh_cmd+=("-O" "$SSH_OPTIONS")
+pssh_cmd+=("-t" "$TIMEOUT")
+pssh_cmd+=("--inline")
+pssh_cmd+=("-H" "$hosts")
+
+if $VERBOSE; then
+    pssh_cmd+=("--verbose")
+fi
+
+if [[ -n "${SSH_COMMAND:-}" ]]; then
+    pssh_cmd+=("$SSH_COMMAND")
+fi
+
+# Execute the command
+echo ""
+echo "🚀 Executing on $host_count hosts..."
+echo "Command: ${pssh_cmd[*]}"
+echo ""
+
+if "${pssh_cmd[@]}"; then
+    echo ""
+    echo "✅ pssh completed successfully on $host_count hosts"
+else
+    exit_code=$?
+    echo ""
+    echo "❌ pssh failed with exit code $exit_code" >&2
+    echo "Some hosts may have failed - check output above" >&2
+    exit $exit_code
+fi
 

@@ -1,5 +1,82 @@
 #!/usr/bin/env bash
 
-# Echo pwd and put it in clipboard
-pwd | tee >(pbcopy) | xargs echo
+# Enhanced cpwd - Copy current directory to clipboard with options
+# Usage: cpwd [options]
+
+set -euo pipefail
+
+# Default values
+QUIET=false
+RELATIVE=false
+
+# Show usage
+show_usage() {
+    echo "Usage: $0 [options]"
+    echo ""
+    echo "Options:"
+    echo "  -q, --quiet      Don't echo the path (quiet mode)"
+    echo "  -r, --relative   Copy relative path from home directory"
+    echo "  -h, --help       Show this help message"
+    echo ""
+    echo "Examples:"
+    echo "  $0               # Copy and show full path"
+    echo "  $0 -q            # Copy path silently"
+    echo "  $0 -r            # Copy relative path from home"
+}
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -q|--quiet)
+            QUIET=true
+            shift
+            ;;
+        -r|--relative)
+            RELATIVE=true
+            shift
+            ;;
+        -h|--help)
+            show_usage
+            exit 0
+            ;;
+        -*)
+            echo "Error: Unknown option '$1'" >&2
+            show_usage
+            exit 1
+            ;;
+        *)
+            echo "Error: Unexpected argument '$1'" >&2
+            show_usage
+            exit 1
+            ;;
+    esac
+done
+
+# Get the path
+if $RELATIVE; then
+    # Get relative path from home directory
+    current_dir=$(pwd)
+    if [[ "$current_dir" == "$HOME"* ]]; then
+        path_to_copy="~${current_dir#"$HOME"}"
+    else
+        path_to_copy="$current_dir"
+    fi
+else
+    path_to_copy=$(pwd)
+fi
+
+# Copy to clipboard with error handling
+if command -v pbcopy >/dev/null 2>&1; then
+    if echo "$path_to_copy" | pbcopy; then
+        if ! $QUIET; then
+            echo "✅ Copied to clipboard: $path_to_copy"
+        fi
+    else
+        echo "❌ Failed to copy to clipboard" >&2
+        exit 1
+    fi
+else
+    echo "❌ pbcopy command not found (macOS required)" >&2
+    exit 1
+fi
 

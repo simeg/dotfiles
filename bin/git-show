@@ -1,18 +1,163 @@
 #!/usr/bin/env bash
 
-# Usage:
-#
-#   gs          # git show latest commit
-#   gs 1        # git show HEAD~1 commit
-#   gs <hash>   # git show provided commit
+# Enhanced git show script with additional options
+# Usage: git-show [options] [commit-ref]
 
-readonly input=$1
-readonly count_or_hash=${input:-0} # Fallback to 0 if no arg
+set -euo pipefail
 
-# If hash
-if [ "${#count_or_hash}" -ge 7 ]; then
-  git show "${count_or_hash}"
+# Default values
+ONELINE=false
+SHOW_STAT=false
+MULTIPLE_COMMITS=()
+
+# Show usage
+show_usage() {
+    echo "Usage: $0 [options] [commit-ref]"
+    echo ""
+    echo "Enhanced git show with additional formatting options"
+    echo ""
+    echo "Arguments:"
+    echo "  commit-ref           Commit hash (7+ chars) or number (0=HEAD, 1=HEAD~1, etc.)"
+    echo "                       Defaults to 0 (latest commit) if not provided"
+    echo ""
+    echo "Options:"
+    echo "  --oneline            Show compact one-line output"
+    echo "  --stat               Show file change statistics"
+    echo "  --multiple REFS      Show multiple commits (comma-separated)"
+    echo "  -h, --help           Show this help message"
+    echo ""
+    echo "Examples:"
+    echo "  $0                   # Show latest commit (HEAD)"
+    echo "  $0 1                 # Show HEAD~1 commit"
+    echo "  $0 abc123f           # Show specific commit hash"
+    echo "  $0 --oneline 2       # Show HEAD~2 in compact format"
+    echo "  $0 --stat abc123     # Show commit with file statistics"
+    echo "  $0 --multiple 0,1,2  # Show last 3 commits"
+}
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --oneline)
+            ONELINE=true
+            shift
+            ;;
+        --stat)
+            SHOW_STAT=true
+            shift
+            ;;
+        --multiple)
+            if [[ -z "${2:-}" ]]; then
+                echo "❌ Error: --multiple requires comma-separated commit references" >&2
+                exit 1
+            fi
+            IFS=',' read -ra MULTIPLE_COMMITS <<< "$2"
+            shift 2
+            ;;
+        -h|--help)
+            show_usage
+            exit 0
+            ;;
+        -*)
+            echo "❌ Error: Unknown option '$1'" >&2
+            show_usage
+            exit 1
+            ;;
+        *)
+            if [[ -z "${COMMIT_REF:-}" ]]; then
+                COMMIT_REF="$1"
+            else
+                echo "❌ Error: Multiple commit references provided" >&2
+                echo "Use --multiple for showing multiple commits" >&2
+                exit 1
+            fi
+            shift
+            ;;
+    esac
+done
+
+# Check if we're in a git repository
+if ! git rev-parse --git-dir >/dev/null 2>&1; then
+    echo "❌ Error: Not in a git repository" >&2
+    exit 1
+fi
+
+# Function to resolve commit reference
+resolve_commit_ref() {
+    local ref="$1"
+    
+    # If it's a number or empty, treat as HEAD~N
+    if [[ "$ref" =~ ^[0-9]*$ ]]; then
+        if [[ "$ref" == "0" || -z "$ref" ]]; then
+            echo "HEAD"
+        else
+            echo "HEAD~$ref"
+        fi
+    else
+        # Validate commit hash
+        if [[ ${#ref} -lt 4 ]]; then
+            echo "❌ Error: Commit hash too short (minimum 4 characters): '$ref'" >&2
+            return 1
+        fi
+        if ! git rev-parse --verify "${ref}" >/dev/null 2>&1; then
+            echo "❌ Error: Invalid commit reference: '$ref'" >&2
+            echo "Available recent commits:" >&2
+            git log --oneline -5 >&2
+            return 1
+        fi
+        echo "$ref"
+    fi
+}
+
+# Function to show a single commit
+show_commit() {
+    local commit_ref="$1"
+    local resolved_ref
+    
+    if ! resolved_ref=$(resolve_commit_ref "$commit_ref"); then
+        return 1
+    fi
+    
+    # Build git show command
+    local show_cmd=("git" "show")
+    
+    if $ONELINE; then
+        show_cmd+=("--oneline" "--no-patch")
+    fi
+    
+    if $SHOW_STAT; then
+        show_cmd+=("--stat")
+    fi
+    
+    show_cmd+=("$resolved_ref")
+    
+    # Execute command
+    "${show_cmd[@]}"
+}
+
+# Main execution
+if [[ ${#MULTIPLE_COMMITS[@]} -gt 0 ]]; then
+    # Show multiple commits
+    echo "📋 Showing ${#MULTIPLE_COMMITS[@]} commits:"
+    echo ""
+    
+    for i in "${!MULTIPLE_COMMITS[@]}"; do
+        commit_ref="${MULTIPLE_COMMITS[$i]}"
+        
+        echo "🔸 Commit $((i + 1))/${#MULTIPLE_COMMITS[@]}:"
+        if ! show_commit "$commit_ref"; then
+            exit 1
+        fi
+        
+        # Add separator between commits (except for last one)
+        if [[ $i -lt $((${#MULTIPLE_COMMITS[@]} - 1)) ]]; then
+            echo ""
+            printf '%.80s' "$(printf '%*s' 80 '' | tr ' ' '─')"
+            echo ""
+        fi
+    done
 else
-  echo count: "${count_or_hash}"
-  git show HEAD~"${count_or_hash}"
+    # Show single commit
+    commit_ref="${COMMIT_REF:-0}"
+    show_commit "$commit_ref"
 fi

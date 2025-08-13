@@ -1,7 +1,128 @@
 #!/usr/bin/env bash
 
-readonly hash
-hash=$(git log --oneline --decorate --graph | fzf | awk -F' ' '{ print $2 }')
+# Enhanced fixup commit tool with better error handling
+# Usage: fixup [commit-hash] [options]
 
-git commit --fixup "${hash}"
+set -euo pipefail
+
+# Default values
+ABORT_FIXUP=false
+
+# Show usage
+show_usage() {
+    echo "Usage: $0 [commit-hash] [options]"
+    echo ""
+    echo "Options:"
+    echo "  --abort          Abort any ongoing fixup/rebase"
+    echo "  -h, --help       Show this help message"
+    echo ""
+    echo "Examples:"
+    echo "  $0                    # Interactive commit selection with fzf"
+    echo "  $0 abc123             # Fixup specific commit hash"
+    echo "  $0 --abort            # Abort ongoing fixup"
+}
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --abort)
+            ABORT_FIXUP=true
+            shift
+            ;;
+        -h|--help)
+            show_usage
+            exit 0
+            ;;
+        -*)
+            echo "Error: Unknown option '$1'" >&2
+            show_usage
+            exit 1
+            ;;
+        *)
+            # This is the commit hash
+            COMMIT_HASH="$1"
+            shift
+            ;;
+    esac
+done
+
+# Check if we're in a git repository
+if ! git rev-parse --git-dir >/dev/null 2>&1; then
+    echo "❌ Error: Not in a git repository" >&2
+    exit 1
+fi
+
+# Handle abort option
+if $ABORT_FIXUP; then
+    if git status --porcelain | grep -q "^UU\|^AA\|^DD"; then
+        echo "🔄 Aborting ongoing rebase..."
+        git rebase --abort
+        echo "✅ Rebase aborted"
+    else
+        echo "ℹ️  No ongoing rebase to abort"
+    fi
+    exit 0
+fi
+
+# If commit hash not provided, use interactive selection
+if [[ -z "${COMMIT_HASH:-}" ]]; then
+    # Check if fzf is available
+    if ! command -v fzf >/dev/null 2>&1; then
+        echo "❌ Error: fzf is required for interactive mode" >&2
+        echo "Install with: brew install fzf" >&2
+        exit 1
+    fi
+
+    # Get git log and check if any commits exist
+    log_output=$(git log --oneline --decorate --graph 2>/dev/null || true)
+    if [[ -z "$log_output" ]]; then
+        echo "❌ Error: No commits found in repository" >&2
+        exit 1
+    fi
+
+    # Interactive commit selection
+    selected_line=$(echo "$log_output" | fzf --prompt="Select commit to fixup: " --height=20 --layout=reverse)
+    
+    if [[ -z "$selected_line" ]]; then
+        echo "ℹ️  No commit selected, exiting"
+        exit 0
+    fi
+
+    # Extract commit hash from selected line
+    # Handle various formats: graph symbols, merge commits, etc.
+    COMMIT_HASH=$(echo "$selected_line" | grep -o '\b[a-f0-9]\{7,\}\b' | head -1)
+    
+    if [[ -z "$COMMIT_HASH" ]]; then
+        echo "❌ Error: Could not extract commit hash from selection" >&2
+        echo "Selected: $selected_line" >&2
+        exit 1
+    fi
+fi
+
+# Validate commit hash
+if ! git rev-parse --verify "${COMMIT_HASH}" >/dev/null 2>&1; then
+    echo "❌ Error: Invalid commit hash '${COMMIT_HASH}'" >&2
+    exit 1
+fi
+
+# Check for uncommitted changes
+if ! git diff-index --quiet HEAD -- 2>/dev/null; then
+    echo "❌ Error: You have uncommitted changes" >&2
+    echo "Please commit or stash your changes before creating a fixup" >&2
+    exit 1
+fi
+
+# Create fixup commit
+echo "🔄 Creating fixup commit for ${COMMIT_HASH}..."
+if git commit --fixup "${COMMIT_HASH}"; then
+    echo "✅ Fixup commit created successfully"
+    echo ""
+    echo "💡 To apply the fixup, run:"
+    echo "   git rebase -i --autosquash ${COMMIT_HASH}~1"
+    echo ""
+    echo "   Or use the 'squash' command for automatic processing"
+else
+    echo "❌ Failed to create fixup commit" >&2
+    exit 1
+fi
 

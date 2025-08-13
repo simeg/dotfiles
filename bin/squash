@@ -1,7 +1,199 @@
 #!/usr/bin/env bash
 
-readonly hash
-hash=$(git log --oneline --decorate --graph | fzf | awk -F' ' '{ print $2 }')
+# Enhanced squash script with safety checks and options
+# Usage: squash [options] [commit-hash]
 
-GIT_SEQUENCE_EDITOR=true git rebase -i --autosquash "${hash}"\~1
+set -euo pipefail
+
+# Default values
+NUM_COMMITS=""
+EDIT_MESSAGE=true
+ABORT_SQUASH=false
+
+# Show usage
+show_usage() {
+    echo "Usage: $0 [options] [commit-hash]"
+    echo ""
+    echo "Interactive squash commits with safety checks"
+    echo ""
+    echo "Options:"
+    echo "  --count N            Squash last N commits"
+    echo "  --no-edit            Don't edit commit message"
+    echo "  --abort              Abort ongoing rebase"
+    echo "  -h, --help           Show this help message"
+    echo ""
+    echo "Examples:"
+    echo "  $0                   # Interactive commit selection"
+    echo "  $0 abc123            # Squash from specific commit"
+    echo "  $0 --count 3         # Squash last 3 commits"
+    echo "  $0 --abort           # Abort ongoing squash"
+}
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --count)
+            if [[ -z "${2:-}" ]] || ! [[ "$2" =~ ^[0-9]+$ ]]; then
+                echo "❌ Error: --count requires a positive number" >&2
+                exit 1
+            fi
+            NUM_COMMITS="$2"
+            shift 2
+            ;;
+        --no-edit)
+            EDIT_MESSAGE=false
+            shift
+            ;;
+        --abort)
+            ABORT_SQUASH=true
+            shift
+            ;;
+        -h|--help)
+            show_usage
+            exit 0
+            ;;
+        -*)
+            echo "❌ Error: Unknown option '$1'" >&2
+            show_usage
+            exit 1
+            ;;
+        *)
+            if [[ -z "${COMMIT_HASH:-}" ]]; then
+                COMMIT_HASH="$1"
+            else
+                echo "❌ Error: Multiple commit hashes provided" >&2
+                exit 1
+            fi
+            shift
+            ;;
+    esac
+done
+
+# Check if we're in a git repository
+if ! git rev-parse --git-dir >/dev/null 2>&1; then
+    echo "❌ Error: Not in a git repository" >&2
+    exit 1
+fi
+
+# Handle abort option
+if $ABORT_SQUASH; then
+    if git status --porcelain | grep -q "^UU\|^AA\|^DD"; then
+        echo "🔄 Aborting ongoing rebase..."
+        git rebase --abort
+        echo "✅ Rebase aborted"
+    else
+        echo "ℹ️  No ongoing rebase to abort"
+    fi
+    exit 0
+fi
+
+# Check for uncommitted changes
+if ! git diff-index --quiet HEAD -- 2>/dev/null; then
+    echo "❌ Error: You have uncommitted changes" >&2
+    echo "Please commit or stash your changes before squashing" >&2
+    exit 1
+fi
+
+# Determine target commit
+if [[ -n "$NUM_COMMITS" ]]; then
+    # Squash last N commits
+    if [[ $NUM_COMMITS -lt 2 ]]; then
+        echo "❌ Error: Must squash at least 2 commits" >&2
+        exit 1
+    fi
+    
+    # Check if we have enough commits
+    total_commits=$(git rev-list --count HEAD 2>/dev/null || echo "0")
+    if [[ $NUM_COMMITS -ge $total_commits ]]; then
+        echo "❌ Error: Not enough commits (requested: $NUM_COMMITS, available: $total_commits)" >&2
+        exit 1
+    fi
+    
+    COMMIT_HASH="HEAD~$NUM_COMMITS"
+    echo "🎯 Squashing last $NUM_COMMITS commits"
+    
+elif [[ -z "${COMMIT_HASH:-}" ]]; then
+    # Interactive selection
+    if ! command -v fzf >/dev/null 2>&1; then
+        echo "❌ Error: fzf is required for interactive mode" >&2
+        echo "Install with: brew install fzf" >&2
+        exit 1
+    fi
+
+    log_output=$(git log --oneline --decorate --graph 2>/dev/null || true)
+    if [[ -z "$log_output" ]]; then
+        echo "❌ Error: No commits found in repository" >&2
+        exit 1
+    fi
+
+    selected_line=$(echo "$log_output" | fzf --prompt="Select commit to squash from: " --height=20 --layout=reverse)
+    
+    if [[ -z "$selected_line" ]]; then
+        echo "ℹ️  No commit selected, exiting"
+        exit 0
+    fi
+
+    COMMIT_HASH=$(echo "$selected_line" | grep -o '\b[a-f0-9]\{7,\}\b' | head -1)
+    
+    if [[ -z "$COMMIT_HASH" ]]; then
+        echo "❌ Error: Could not extract commit hash from selection" >&2
+        exit 1
+    fi
+fi
+
+# Validate commit hash
+if ! git rev-parse --verify "${COMMIT_HASH}" >/dev/null 2>&1; then
+    echo "❌ Error: Invalid commit hash '${COMMIT_HASH}'" >&2
+    exit 1
+fi
+
+# Show what will be squashed
+echo ""
+echo "📋 Commits to be squashed:"
+git log --oneline "${COMMIT_HASH}..HEAD"
+echo ""
+
+# Safety confirmation
+echo -n "Proceed with squash? [y/N] "
+read -r reply
+if [[ ! $reply =~ ^[Yy]$ ]]; then
+    echo "ℹ️  Operation cancelled"
+    exit 0
+fi
+
+# Perform the squash
+echo ""
+echo "🔄 Starting interactive squash..."
+
+if $EDIT_MESSAGE; then
+    if git rebase -i --autosquash "${COMMIT_HASH}~1"; then
+        echo ""
+        echo "✅ Squash completed successfully!"
+    else
+        echo ""
+        echo "❌ Squash failed or has conflicts" >&2
+        echo ""
+        echo "🛠️  Resolution help:"
+        echo "  1. Resolve conflicts in affected files"
+        echo "  2. Stage resolved files: git add <file>"
+        echo "  3. Continue rebase: git rebase --continue"
+        echo "  4. Or abort: squash --abort"
+        exit 1
+    fi
+else
+    if GIT_SEQUENCE_EDITOR=true git rebase -i --autosquash "${COMMIT_HASH}~1"; then
+        echo ""
+        echo "✅ Squash completed successfully!"
+    else
+        echo ""
+        echo "❌ Squash failed or has conflicts" >&2
+        echo ""
+        echo "🛠️  Resolution help:"
+        echo "  1. Resolve conflicts in affected files"
+        echo "  2. Stage resolved files: git add <file>"
+        echo "  3. Continue rebase: git rebase --continue"
+        echo "  4. Or abort: squash --abort"
+        exit 1
+    fi
+fi
 

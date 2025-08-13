@@ -1,41 +1,194 @@
 #!/usr/bin/env bash
 
-# Smart cat script that uses glow for markdown files and bat for everything else
-# Usage: smart-cat [file...]
+# Enhanced smart-cat with support for multiple file types and options
+# Usage: smart-cat [options] [file...]
 
-# Check if any arguments were provided
-if [[ $# -eq 0 ]]; then
-    # No arguments, use bat to read from stdin
-    exec bat "$@"
-fi
+set -euo pipefail
 
-# Process each file argument
-for file in "$@"; do
-    # Check if file exists
-    if [[ ! -f "$file" && ! -r /dev/stdin ]]; then
-        echo "smart-cat: $file: No such file or directory" >&2
-        continue
-    fi
+# Default values
+SHOW_LINE_NUMBERS=false
+FORCE_PAGING=false
+THEME="auto"
+SHOW_DIRECTORIES=false
 
-    # Determine if file is markdown based on extension
-    case "$(basename "$file" | tr '[:upper:]' '[:lower:]')" in
-        *.md|*.markdown|*.mdown|*.mkd|*.mdwn|*.mdx)
-            # It's a markdown file, use glow
-            if command -v glow &> /dev/null; then
-                glow --pager "$file"
-            else
-                echo "Warning: glow not found, falling back to bat" >&2
-                bat "$file"
+# Show usage
+show_usage() {
+    echo "Usage: $0 [options] [file...]"
+    echo ""
+    echo "Smart file viewer with syntax highlighting and markdown rendering"
+    echo ""
+    echo "Options:"
+    echo "  -n, --line-numbers   Show line numbers"
+    echo "  -p, --paging         Force paging for all files"
+    echo "  -d, --directories    Show directory contents"
+    echo "  -t, --theme THEME    Syntax highlighting theme"
+    echo "  -h, --help           Show this help message"
+    echo ""
+    echo "Supported file types:"
+    echo "  - Markdown files (.md, .markdown, etc.) → glow"
+    echo "  - JSON files (.json) → jq with syntax highlighting"
+    echo "  - YAML files (.yml, .yaml) → bat with yaml highlighting"
+    echo "  - CSV files (.csv) → column formatting"
+    echo "  - Other files → bat with syntax highlighting"
+    echo "  - Directories → eza (if available) or ls"
+}
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -n|--line-numbers)
+            SHOW_LINE_NUMBERS=true
+            shift
+            ;;
+        -p|--paging)
+            FORCE_PAGING=true
+            shift
+            ;;
+        -d|--directories)
+            SHOW_DIRECTORIES=true
+            shift
+            ;;
+        -t|--theme)
+            if [[ -z "${2:-}" ]]; then
+                echo "❌ Error: --theme requires a theme name" >&2
+                exit 1
             fi
+            THEME="$2"
+            shift 2
+            ;;
+        -h|--help)
+            show_usage
+            exit 0
+            ;;
+        -*)
+            echo "❌ Error: Unknown option '$1'" >&2
+            show_usage
+            exit 1
             ;;
         *)
-            # Not markdown, use bat
-            if command -v bat &> /dev/null; then
-                bat "$file"
-            else
-                echo "Warning: bat not found, falling back to system cat" >&2
-                command cat "$file"
-            fi
+            break
             ;;
     esac
 done
+
+# Function to display a single file
+display_file() {
+    local file="$1"
+    local filename
+    filename=$(basename "$file")
+    local lowercase_name
+    lowercase_name=$(echo "$filename" | tr '[:upper:]' '[:lower:]')
+    
+    # Build common options
+    local bat_opts=()
+    if $SHOW_LINE_NUMBERS; then
+        bat_opts+=("--number")
+    fi
+    if $FORCE_PAGING; then
+        bat_opts+=("--paging=always")
+    fi
+    if [[ "$THEME" != "auto" ]]; then
+        bat_opts+=("--theme=$THEME")
+    fi
+    
+    case "$lowercase_name" in
+        *.md|*.markdown|*.mdown|*.mkd|*.mdwn|*.mdx)
+            # Markdown files
+            if command -v glow &> /dev/null; then
+                local glow_opts=()
+                if $FORCE_PAGING; then
+                    glow_opts+=("--pager")
+                fi
+                glow "${glow_opts[@]}" "$file"
+            else
+                echo "⚠️  Warning: glow not found, falling back to bat" >&2
+                bat "${bat_opts[@]}" "$file"
+            fi
+            ;;
+        *.json)
+            # JSON files
+            if command -v jq &> /dev/null; then
+                if $FORCE_PAGING; then
+                    jq -C '.' "$file" | bat "${bat_opts[@]}" --language=json
+                else
+                    jq -C '.' "$file"
+                fi
+            else
+                bat "${bat_opts[@]}" --language=json "$file"
+            fi
+            ;;
+        *.yml|*.yaml)
+            # YAML files
+            bat "${bat_opts[@]}" --language=yaml "$file"
+            ;;
+        *.csv)
+            # CSV files
+            local line_count
+            line_count=$(wc -l < "$file")
+            if command -v column &> /dev/null && [[ $line_count -lt 100 ]]; then
+                echo "📊 CSV Preview (first 50 lines):"
+                head -50 "$file" | column -t -s ','
+            else
+                bat "${bat_opts[@]}" --language=csv "$file"
+            fi
+            ;;
+        *)
+            # Other files
+            if command -v bat &> /dev/null; then
+                bat "${bat_opts[@]}" "$file"
+            else
+                echo "⚠️  Warning: bat not found, falling back to system cat" >&2
+                if $SHOW_LINE_NUMBERS; then
+                    cat -n "$file"
+                else
+                    cat "$file"
+                fi
+            fi
+            ;;
+    esac
+}
+
+# Function to display directory
+display_directory() {
+    local dir="$1"
+    echo "📁 Directory: $dir"
+    echo ""
+    
+    if command -v eza &> /dev/null; then
+        eza --long --header --git --time-style=relative "$dir"
+    elif command -v exa &> /dev/null; then
+        exa --long --header --git --time-style=relative "$dir"
+    else
+        ls -la "$dir"
+    fi
+}
+
+# Main execution
+if [[ $# -eq 0 ]]; then
+    # No arguments, read from stdin
+    if command -v bat &> /dev/null; then
+        bat "${bat_opts[@]:-}"
+    else
+        cat
+    fi
+else
+    # Process each argument
+    for item in "$@"; do
+        if [[ -d "$item" ]]; then
+            if $SHOW_DIRECTORIES; then
+                display_directory "$item"
+            else
+                echo "❌ Error: '$item' is a directory. Use -d to show directory contents." >&2
+            fi
+        elif [[ -f "$item" ]]; then
+            display_file "$item"
+        else
+            echo "❌ Error: '$item': No such file or directory" >&2
+        fi
+        
+        # Add separator between multiple files
+        if [[ $# -gt 1 ]]; then
+            echo ""
+        fi
+    done
+fi
