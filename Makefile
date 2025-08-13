@@ -10,7 +10,7 @@
         health profile \
         deps \
         packages \
-        analytics \
+        analytics analytics-enhanced \
         help
 
 # =============================================================================
@@ -53,6 +53,7 @@ help:
 	@echo ""
 	@echo "Analytics & Performance:"
 	@echo "  analytics          Run comprehensive analytics (packages + performance)"
+	@echo "  analytics-enhanced Run enhanced analytics (productivity + frequency + optimization)"
 
 # =============================================================================
 # SETUP & INSTALLATION
@@ -196,4 +197,9 @@ analytics:
 	@echo ""
 	@echo "📊 Opening performance dashboard..."
 	@./bin/perf-dashboard || echo "⚠️  Performance dashboard requires data collection"
+
+# Run enhanced analytics with productivity metrics, command frequency, and predictive optimization
+analytics-enhanced:
+	@echo "🚀 Running enhanced analytics with productivity insights..."
+	@./scripts/enhanced-analytics.sh comprehensive
 

@@ -15,6 +15,7 @@ make health                # Comprehensive system health check
 make deps                  # Check all dependencies
 make packages              # Analyze and sync package usage
 make analytics             # Run comprehensive analytics (packages + performance)
+make analytics-enhanced    # Run enhanced analytics (productivity + frequency + optimization)
 make profile               # Profile shell startup performance
 ```
 
@@ -98,3 +99,39 @@ Smart tab completion is available for key scripts:
 - `starship-theme <TAB>` - Shows commands (list, set, current, preview, etc.)
 - `starship-theme set <TAB>` - Shows available theme names dynamically
 - Completion files located in `.config/zsh/completions/` and symlinked to `~/.config/zsh/completions/`
+
+## Major Features
+
+This dotfiles repository includes 8 major feature areas, each with comprehensive documentation:
+
+### 1. Shell Environment Management
+**File**: [`docs/development/features/SHELL_ENVIRONMENT.md`](docs/development/features/SHELL_ENVIRONMENT.md)  
+**Summary**: Modular Zsh configuration with znap plugin management, performance monitoring, and intelligent aliases
+
+### 2. Neovim Configuration  
+**File**: [`docs/development/features/NEOVIM_CONFIGURATION.md`](docs/development/features/NEOVIM_CONFIGURATION.md)  
+**Summary**: Modern Lua-based Neovim setup with LSP, completion, and lazy-loaded plugins
+
+### 3. Starship Prompt System
+**File**: [`docs/development/features/STARSHIP_PROMPT.md`](docs/development/features/STARSHIP_PROMPT.md)  
+**Summary**: Cross-shell prompt with multiple themes and dynamic switching capabilities
+
+### 4. Package Management System
+**File**: [`docs/development/features/PACKAGE_MANAGEMENT.md`](docs/development/features/PACKAGE_MANAGEMENT.md)  
+**Summary**: Homebrew-based package management with usage analysis and synchronization
+
+### 5. Analytics and Performance Monitoring
+**File**: [`docs/development/features/ANALYTICS_MONITORING.md`](docs/development/features/ANALYTICS_MONITORING.md)  
+**Summary**: Comprehensive system for monitoring package usage, shell performance, and optimization
+
+### 6. Automation and Setup System
+**File**: [`docs/development/features/AUTOMATION_SETUP.md`](docs/development/features/AUTOMATION_SETUP.md)  
+**Summary**: Idempotent setup scripts with error handling, rollback, and validation capabilities
+
+### 7. Git Integration and Workflow
+**File**: [`docs/development/features/GIT_INTEGRATION.md`](docs/development/features/GIT_INTEGRATION.md)  
+**Summary**: Enhanced Git configuration with Delta diffs, comprehensive aliases, and workflow tools
+
+### 8. Custom Utilities and Bin Tools
+**File**: [`docs/development/features/CUSTOM_UTILITIES.md`](docs/development/features/CUSTOM_UTILITIES.md)  
+**Summary**: Collection of custom command-line tools for file operations, Git workflow, and productivity
