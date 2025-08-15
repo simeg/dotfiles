@@ -1,6 +1,10 @@
 # My Dotfiles [![CI](https://github.com/simeg/dotfiles/actions/workflows/ci.yml/badge.svg)](https://github.com/simeg/dotfiles/actions/workflows/ci.yml) [![Test](https://github.com/simeg/dotfiles/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/simeg/dotfiles/actions/workflows/test.yml) [![Health Check](https://github.com/simeg/dotfiles/actions/workflows/health-check.yml/badge.svg?branch=main)](https://github.com/simeg/dotfiles/actions/workflows/health-check.yml) [![Integration Tests](https://github.com/simeg/dotfiles/actions/workflows/integration-test.yml/badge.svg?branch=main)](https://github.com/simeg/dotfiles/actions/workflows/integration-test.yml)
 
-These are my dotfiles. There are many like them, but these ones are mine. My dotfiles are my best friends. They are my life. I must master them as I master my life. My dotfiles, without me, are useless. Without my dotfiles, I am useless.
+A modern, automation-first dotfiles repository that takes the pain out of
+development environment setup. Built for macOS with comprehensive testing,
+analytics, and zero-maintenance updates. Whether you're setting up a new
+machine or keeping your existing setup optimized, this repository handles the
+heavy lifting so you can focus on what matters: building great software.
 
 <img src="banner.png" alt="Dotfiles Banner" width="100%" style="display: block; margin: 0 auto;">
 
@@ -81,6 +85,8 @@ make profile                  # → make health-profile
 │   │   ├── functions.zsh       # Custom functions
 │   │   ├── misc.zsh            # Miscellaneous config
 │   │   ├── path.zsh            # PATH modifications
+│   │   ├── completions.zsh     # Tab completion setup
+│   │   ├── lazy-loading.zsh    # Plugin lazy loading
 │   │   └── completions/        # Tab completion scripts
 │   ├── nvim/                   # Neovim configuration with Lazy.nvim (moved to .config/nvim/)
 │   ├── starship/               # Starship prompt themes (moved to .config/starship/)
@@ -124,7 +130,8 @@ Located in `bin/` directory, these scripts enhance your development workflow:
 - **`system-monitor`** - Real-time system monitoring
 - **`use-private-git`** - Private Git configuration utility
 
-For detailed information about all available commands and targets, see the [Make Targets Documentation](docs/MAKE_TARGETS.md).
+For detailed information about all available commands and targets, see the
+[Make Targets Documentation](docs/MAKE_TARGETS.md).
 
 ## 🎨 Shell Features
 
@@ -144,7 +151,8 @@ For detailed information about all available commands and targets, see the [Make
 
 ## 🎨 Starship Theme Management
 
-This repository includes multiple starship themes and a convenient theme switcher:
+This repository includes multiple starship themes and a convenient theme
+switcher:
 
 ### Available Themes
 
@@ -174,14 +182,16 @@ starship-theme set my-theme
 
 ### Theme Structure
 
-Themes are stored in `.config/starship/themes/` as `.toml` files. Each theme file should:
+Themes are stored in `.config/starship/themes/` as `.toml` files. Each theme
+file should:
 - Start with a descriptive comment (e.g., `# 🌟 Minimal Theme`)
 - Be a valid starship configuration
 - Include appropriate module settings
 
 ## 🧪 Testing & Validation
 
-This dotfiles repository includes a comprehensive testing framework to ensure configuration integrity, performance monitoring, and security compliance.
+This dotfiles repository includes a comprehensive testing framework to ensure
+configuration integrity, performance monitoring, and security compliance.
 
 ### Quick Testing
 
@@ -190,7 +200,7 @@ This dotfiles repository includes a comprehensive testing framework to ensure co
 make test-quick
 
 # Pre-commit validation (syntax + configuration checks)
-make test-precommit
+make lint
 
 # Full test suite (basic + CI + advanced tests)
 make test
@@ -267,11 +277,13 @@ source ~/.zshrc                 # Reload configuration
 
 ## 📝 License
 
-This project is licensed under the MIT License - see the LICENSE.md file for details.
+This project is licensed under the MIT License - see the LICENSE file for
+details.
 
 ## 🔐 Private Configuration
 
-For sensitive environment variables (API keys, project IDs, etc.), use the private config file:
+For sensitive environment variables (API keys, project IDs, etc.), use the
+private config file:
 
 ### Setup Private Config
 ```bash
@@ -284,7 +296,8 @@ echo 'export ANTHROPIC_VERTEX_PROJECT_ID="your-project-id"' >> ~/.config/zsh/pri
 echo 'export API_KEY="your-api-key"' >> ~/.config/zsh/private.zsh
 ```
 
-The `.zshrc` automatically sources `~/.config/zsh/private.zsh` if it exists. This file should:
+The `.zshrc` automatically sources `~/.config/zsh/private.zsh` if it exists.
+This file should:
 - **Never be committed** to version control
 - Contain only sensitive environment variables
 - Be created manually on each new machine during setup
@@ -292,7 +305,8 @@ The `.zshrc` automatically sources `~/.config/zsh/private.zsh` if it exists. Thi
 
 ### Important Security Notes
 
-⚠️ **CRITICAL**: The private configuration system is designed to keep sensitive data OUT of the repository:
+⚠️ **CRITICAL**: The private configuration system is designed to keep sensitive
+data OUT of the repository:
 
 1. **Private files are stored locally**: All sensitive configs live in `~/.config/zsh/` on your machine
 2. **Automatic exclusion**: A `.gitignore` file in `~/.config/zsh/` prevents accidental commits
