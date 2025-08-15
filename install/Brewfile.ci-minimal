@@ -29,3 +29,6 @@ brew "git-delta"
 brew "pyenv"
 brew "kubectl"
 brew "kubecolor"
+
+# Testing framework
+brew "bats-core"
