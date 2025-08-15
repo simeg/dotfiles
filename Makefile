@@ -45,7 +45,7 @@ check_mas := command -v mas >/dev/null 2>&1
 
 # Define all phony targets (targets that don't create files)
 .PHONY: all setup setup-minimal update validate test test-quick test-advanced test-ci lint clean packages deps health help \
-        health-monitor health-analytics health-profile snapshot fix-whitespace lint-whitespace
+        health-monitor health-analytics health-profile snapshot fix-whitespace lint-whitespace symlink
 
 # =============================================================================
 # MAIN TARGETS
@@ -79,6 +79,11 @@ help:
 	@echo "  lint               Run shellcheck on all shell scripts"
 	@echo "  help               Show this help message"
 	@echo ""
+	@echo "Maintenance & Utilities:"
+	@echo "  fix-whitespace     Remove trailing whitespace from all files"
+	@echo "  lint-whitespace    Check for trailing whitespace in files"
+	@echo "  symlink            Create symbolic links (run as part of setup)"
+	@echo ""
 	@echo "Advanced Usage Examples:"
 	@echo "  make test-quick         # Quick validation tests only"
 	@echo "  make test-advanced      # Advanced tests (performance + security)"
@@ -88,6 +93,7 @@ help:
 	@echo "  make health-profile     # Shell startup performance profiling"
 	@echo "  make snapshot           # Take system metrics snapshot"
 	@echo "  make setup-minimal      # Essential setup only (faster)"
+	@echo "  make fix-whitespace     # Remove trailing whitespace from all files"
 	@echo ""
 	@echo "Development & CI:"
 	@echo "  DOTFILES_CI=true make test  # Force CI mode for integration tests"
@@ -271,22 +277,9 @@ lint-whitespace:
 	fi
 
 # =============================================================================
-# LEGACY COMPATIBILITY TARGETS
+# UTILITY TARGETS
 # =============================================================================
-
-install: packages
 
 symlink:
 	@echo "🔗 Creating symbolic links..."
 	@$(SCRIPTS_DIR)/symlink.sh
-
-uninstall: clean
-
-monitor:
-	@$(MAKE) health-monitor
-
-profile:
-	@$(MAKE) health-profile
-
-analytics:
-	@$(MAKE) health-analytics
