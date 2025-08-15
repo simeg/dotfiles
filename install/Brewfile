@@ -71,6 +71,9 @@ brew "readline"               # GNU readline library
 brew "sqlite"                 # SQL database engine
 brew "pssh"                   # Parallel SSH
 
+# Testing Tools
+brew "bats-core"              # Bash Automated Testing System
+
 # ============================================================================
 # DEVELOPMENT ENVIRONMENT
 # ============================================================================

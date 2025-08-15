@@ -17,10 +17,19 @@ BIN_DIR := ./bin
 BREWFILE := install/Brewfile
 BREWFILE_MAS := install/Brewfile.mas
 
-# Test suite configurations
-TEST_COMPREHENSIVE := $(TESTS_DIR)/test_comprehensive.sh
-TEST_CI := $(TESTS_DIR)/test_ci.sh
-TEST_ADVANCED := $(TESTS_DIR)/test_advanced.sh
+# Test suite configurations (Bats)
+BATS_TESTS_DIR := ./tests/bats
+TEST_COMPREHENSIVE := $(BATS_TESTS_DIR)/test_comprehensive.bats
+TEST_CI := $(BATS_TESTS_DIR)/test_ci.bats
+TEST_ADVANCED := $(BATS_TESTS_DIR)/test_advanced_config.bats
+TEST_PERFORMANCE := $(BATS_TESTS_DIR)/test_performance.bats
+TEST_SECURITY := $(BATS_TESTS_DIR)/test_security.bats
+TEST_CONFIG := $(BATS_TESTS_DIR)/test_configuration.bats
+
+# Legacy test files (kept for reference)
+LEGACY_TEST_COMPREHENSIVE := $(TESTS_DIR)/test_comprehensive.sh
+LEGACY_TEST_CI := $(TESTS_DIR)/test_ci.sh
+LEGACY_TEST_ADVANCED := $(TESTS_DIR)/test_advanced.sh
 TEST_INTEGRATION := $(TESTS_DIR)/test_integration_local.sh
 
 # Analytics and monitoring scripts
@@ -108,29 +117,62 @@ validate:
 	@echo "✅ Validating dotfiles configuration..."
 	@$(SCRIPTS_DIR)/validate.sh
 
-# Comprehensive test suite
+# Comprehensive test suite (using Bats)
 test:
-	@echo "🧪 Running complete test suite..."
-	@$(TEST_COMPREHENSIVE) full
+	@echo "🧪 Running complete test suite with Bats..."
+	@if command -v bats >/dev/null 2>&1; then \
+		bats $(BATS_TESTS_DIR); \
+	else \
+		echo "❌ Bats not found. Install with: brew install bats-core"; \
+		exit 1; \
+	fi
 
-# Quick validation tests
+# Quick validation tests (configuration only)
 test-quick:
 	@echo "⚡️ Running quick validation tests..."
-	@$(TEST_COMPREHENSIVE) quick
+	@if command -v bats >/dev/null 2>&1; then \
+		bats $(TEST_CONFIG); \
+	else \
+		echo "❌ Bats not found. Install with: brew install bats-core"; \
+		exit 1; \
+	fi
 
-# Advanced test suite (performance + security)
+# Advanced test suite (configuration + performance + security)
 test-advanced:
 	@echo "🚀 Running advanced test suite..."
-	@$(TEST_ADVANCED) all
+	@if command -v bats >/dev/null 2>&1; then \
+		bats $(TEST_ADVANCED) $(TEST_PERFORMANCE) $(TEST_SECURITY); \
+	else \
+		echo "❌ Bats not found. Install with: brew install bats-core"; \
+		exit 1; \
+	fi
 
 # CI-compatible tests
 test-ci:
 	@echo "🤖 Running CI-compatible tests..."
-	@$(TEST_CI)
+	@if command -v bats >/dev/null 2>&1; then \
+		bats $(TEST_CI); \
+	else \
+		echo "❌ Bats not found. Install with: brew install bats-core"; \
+		exit 1; \
+	fi
 	@if [[ "$${CI:-false}" == "true" ]] || [[ -n "$${GITHUB_ACTIONS:-}" ]] || [[ "$${DOTFILES_CI:-false}" == "true" ]]; then \
 		echo "🧪 Running integration tests in CI..."; \
 		$(TEST_INTEGRATION); \
 	fi
+
+# Legacy test runners (for backward compatibility)
+test-legacy:
+	@echo "🔄 Running legacy test suite..."
+	@$(LEGACY_TEST_COMPREHENSIVE) full
+
+test-legacy-quick:
+	@echo "⚡️ Running legacy quick tests..."
+	@$(LEGACY_TEST_COMPREHENSIVE) quick
+
+test-legacy-advanced:
+	@echo "🚀 Running legacy advanced tests..."
+	@$(LEGACY_TEST_ADVANCED) all
 
 # Run shellcheck linting on all shell scripts
 lint:
