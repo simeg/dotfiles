@@ -288,11 +288,11 @@ The testing framework integrates with existing GitHub Actions workflows:
 - name: Run Advanced Tests
   run: |
     make test-advanced
-    
+
 - name: Generate Test Report
   run: |
     ./scripts/tests/test_comprehensive.sh report test-results.txt
-    
+
 - name: Upload Test Results
   uses: actions/upload-artifact@v3
   with:
@@ -408,13 +408,13 @@ The scanner includes intelligent filtering:
 # In test_advanced.sh
 test_my_new_validation() {
     local issues=0
-    
+
     # Add your validation logic here
     if [[ condition_fails ]]; then
         echo "Validation failed: reason"
         issues=$((issues + 1))
     fi
-    
+
     return $issues
 }
 ```

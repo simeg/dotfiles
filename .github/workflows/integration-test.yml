@@ -71,7 +71,7 @@ jobs:
         if ! command -v timeout >/dev/null 2>&1; then
           brew install --quiet coreutils  # For gtimeout (timeout)
         fi
-        
+
         # Ensure Homebrew links are correct (fixes cache-related issues)
         brew doctor --list-checks | grep -v check_for_link_dependency || true
 
@@ -98,11 +98,11 @@ jobs:
           echo "❌ Setup failed or timed out"
           exit 1
         }
-        
+
         # Fix any Homebrew linking issues that might occur after package installation
         echo "🔧 Fixing potential Homebrew linking issues..."
         brew doctor 2>/dev/null | grep -E "(linking|permission)" || true
-        
+
         # Force link packages that commonly have conflicts in CI
         brew link --overwrite --force zsh 2>/dev/null || true
         brew link --overwrite --force openssl@3 2>/dev/null || true

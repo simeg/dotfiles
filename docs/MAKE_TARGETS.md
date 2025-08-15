@@ -28,7 +28,7 @@ make clean                   # Remove broken symlinks and temporary files
 ## Setup & Installation
 
 ### `make setup`
-**Purpose**: Complete dotfiles setup for new installations  
+**Purpose**: Complete dotfiles setup for new installations
 **What it does**:
 - Creates all necessary symbolic links
 - Installs packages from Brewfile via Homebrew
@@ -40,8 +40,8 @@ make clean                   # Remove broken symlinks and temporary files
 **When to use**: First time setting up dotfiles on a new machine
 
 ### `make install`
-**Purpose**: Install packages and dependencies  
-**Alias for**: `make packages`  
+**Purpose**: Install packages and dependencies
+**Alias for**: `make packages`
 **What it does**:
 - Analyzes package differences between installed and configured
 - Installs packages from Brewfile via Homebrew
@@ -50,7 +50,7 @@ make clean                   # Remove broken symlinks and temporary files
 **When to use**: When you need to install missing packages or after adding new packages to Brewfile
 
 ### `make symlink`
-**Purpose**: Create symbolic links only  
+**Purpose**: Create symbolic links only
 **What it does**:
 - Links dotfiles from repository to home directory locations
 - Creates `~/.zshrc`, `~/.gitconfig`, `~/.config/nvim`, etc.
@@ -59,8 +59,8 @@ make clean                   # Remove broken symlinks and temporary files
 **When to use**: When you only need to recreate symlinks (e.g., after accidental deletion)
 
 ### `make uninstall`
-**Purpose**: Remove dotfiles installation  
-**Alias for**: `make clean`  
+**Purpose**: Remove dotfiles installation
+**Alias for**: `make clean`
 **What it does**:
 - Removes all symbolic links created by the dotfiles
 - Preserves your original configuration files
@@ -71,7 +71,7 @@ make clean                   # Remove broken symlinks and temporary files
 ## Updates & Maintenance
 
 ### `make update`
-**Purpose**: Update all dotfiles components  
+**Purpose**: Update all dotfiles components
 **What it does**:
 - Updates the dotfiles repository (git pull)
 - Updates Homebrew packages (`brew update && brew upgrade`)
@@ -82,7 +82,7 @@ make clean                   # Remove broken symlinks and temporary files
 **When to use**: Regular maintenance (weekly/monthly) to keep everything current
 
 ### `make validate`
-**Purpose**: Verify all configurations are working  
+**Purpose**: Verify all configurations are working
 **What it does**:
 - Checks all symlinks are correctly created and pointing to valid files
 - Verifies required tools are installed and accessible
@@ -94,7 +94,7 @@ make clean                   # Remove broken symlinks and temporary files
 **When to use**: After setup, updates, or when troubleshooting issues
 
 ### `make clean`
-**Purpose**: Clean up broken symlinks and temporary files  
+**Purpose**: Clean up broken symlinks and temporary files
 **What it does**:
 - Removes broken symbolic links from home directory
 - Removes all dotfiles-created symlinks
@@ -106,7 +106,7 @@ make clean                   # Remove broken symlinks and temporary files
 ## Quality Assurance
 
 ### `make lint`
-**Purpose**: Run code quality checks  
+**Purpose**: Run code quality checks
 **What it does**:
 - Runs shellcheck on all shell scripts
 - Identifies syntax errors, best practice violations, and potential bugs
@@ -115,7 +115,7 @@ make clean                   # Remove broken symlinks and temporary files
 **When to use**: Before committing changes or when developing new scripts
 
 ### `make test`
-**Purpose**: Run complete test suite (basic + CI + advanced)  
+**Purpose**: Run complete test suite (basic + CI + advanced)
 **What it does**:
 - Executes comprehensive test suite including all test categories
 - Validates basic functionality, configuration, performance, and security
@@ -125,7 +125,7 @@ make clean                   # Remove broken symlinks and temporary files
 **When to use**: Before releasing changes or when validating major modifications
 
 ### `make test-quick`
-**Purpose**: Run essential validation tests  
+**Purpose**: Run essential validation tests
 **What it does**:
 - Executes core functionality tests for rapid feedback
 - Tests syntax validation and basic configuration
@@ -135,7 +135,7 @@ make clean                   # Remove broken symlinks and temporary files
 **When to use**: During development for quick validation
 
 ### `make test-precommit`
-**Purpose**: Run pre-commit validation tests  
+**Purpose**: Run pre-commit validation tests
 **What it does**:
 - Fast syntax and configuration validation
 - CI tests plus configuration validation
@@ -145,7 +145,7 @@ make clean                   # Remove broken symlinks and temporary files
 **When to use**: In pre-commit hooks or before committing changes
 
 ### `make test-advanced`
-**Purpose**: Run advanced validation tests  
+**Purpose**: Run advanced validation tests
 **What it does**:
 - Configuration validation (syntax, structure, completeness)
 - Performance regression testing with baseline tracking
@@ -155,7 +155,7 @@ make clean                   # Remove broken symlinks and temporary files
 **When to use**: Weekly validation, security audits, or performance monitoring
 
 ### `make test-ci`
-**Purpose**: Run CI-friendly tests  
+**Purpose**: Run CI-friendly tests
 **What it does**:
 - Executes tests compatible with Continuous Integration environments
 - Avoids tests requiring symlink dependencies or system modifications
@@ -164,8 +164,8 @@ make clean                   # Remove broken symlinks and temporary files
 **When to use**: In GitHub Actions or other CI systems
 
 ### `make ci`
-**Purpose**: Complete CI pipeline  
-**Combines**: `make lint` + `make test-ci`  
+**Purpose**: Complete CI pipeline
+**Combines**: `make lint` + `make test-ci`
 **What it does**:
 - Runs complete CI validation workflow
 - Ensures code quality and CI compatibility
@@ -175,7 +175,7 @@ make clean                   # Remove broken symlinks and temporary files
 ## System Health & Diagnostics
 
 ### `make health`
-**Purpose**: Comprehensive system health check  
+**Purpose**: Comprehensive system health check
 **What it does**:
 - Validates all dotfiles components are working correctly
 - Checks system dependencies and their versions
@@ -187,7 +187,7 @@ make clean                   # Remove broken symlinks and temporary files
 **When to use**: Regular system maintenance or when experiencing issues
 
 ### `make health-profile`
-**Purpose**: Profile shell startup performance  
+**Purpose**: Profile shell startup performance
 **What it does**:
 - Measures shell startup time with detailed breakdown
 - Identifies slow-loading plugins or configurations
@@ -197,7 +197,7 @@ make clean                   # Remove broken symlinks and temporary files
 **When to use**: When shell feels slow or for performance optimization
 
 ### `make health-monitor`
-**Purpose**: Real-time system monitoring dashboard  
+**Purpose**: Real-time system monitoring dashboard
 **What it does**:
 - Opens interactive dashboard with real-time metrics
 - Monitors system resources and performance
@@ -207,7 +207,7 @@ make clean                   # Remove broken symlinks and temporary files
 **When to use**: For real-time system monitoring and live performance analysis
 
 ### `make health-analytics`
-**Purpose**: Package usage and performance analytics  
+**Purpose**: Package usage and performance analytics
 **What it does**:
 - Analyzes package usage patterns
 - Provides comprehensive performance analysis
@@ -217,7 +217,7 @@ make clean                   # Remove broken symlinks and temporary files
 **When to use**: For usage analysis and system optimization
 
 ### `make snapshot`
-**Purpose**: Take system metrics snapshot  
+**Purpose**: Take system metrics snapshot
 **What it does**:
 - Captures current system metrics
 - Records performance baseline
@@ -227,7 +227,7 @@ make clean                   # Remove broken symlinks and temporary files
 **When to use**: For creating system baselines or before major changes
 
 ### `make setup-minimal`
-**Purpose**: Essential setup only (faster)  
+**Purpose**: Essential setup only (faster)
 **What it does**:
 - Performs core setup without optional components
 - Faster installation for development environments
@@ -237,7 +237,7 @@ make clean                   # Remove broken symlinks and temporary files
 **When to use**: When you need a quick, lightweight setup
 
 ### `make deps`
-**Purpose**: Check all dependencies  
+**Purpose**: Check all dependencies
 **What it does**:
 - Verifies all required tools are installed
 - Checks versions meet minimum requirements
@@ -249,7 +249,7 @@ make clean                   # Remove broken symlinks and temporary files
 ## Package Management
 
 ### `make packages`
-**Purpose**: Comprehensive package management  
+**Purpose**: Comprehensive package management
 **What it does**:
 - Analyzes differences between installed packages and Brewfile configuration
 - Generates detailed reports of discrepancies
@@ -262,8 +262,8 @@ make clean                   # Remove broken symlinks and temporary files
 ## Analytics & Performance Monitoring
 
 ### Legacy Target: `make analytics`
-**Purpose**: Comprehensive analytics and performance monitoring  
-**Alias for**: `make health-analytics`  
+**Purpose**: Comprehensive analytics and performance monitoring
+**Alias for**: `make health-analytics`
 **What it does**:
 - Runs package usage analysis to identify optimization opportunities
 - Analyzes command usage patterns and identifies unused packages

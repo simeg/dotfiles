@@ -7,11 +7,11 @@ load setup_suite
 
 @test "Zsh syntax validation" {
     local zshrc="$HOME/.zshrc"
-    
+
     # In CI environment, test the source file instead of symlink
     if [[ ! -f "$zshrc" ]]; then
         local source_zshrc="$DOTFILES_DIR/.config/zsh/.zshrc"
-        
+
         if [[ -f "$source_zshrc" ]]; then
             echo "Testing source .zshrc (CI environment)" >&3
             run zsh -n "$source_zshrc"
@@ -54,7 +54,7 @@ load setup_suite
 
     for config in "${configs[@]}"; do
         local config_file=""
-        
+
         # Find the config file (prefer installed version)
         if [[ -f "$config_dir/$config" ]]; then
             config_file="$config_dir/$config"
@@ -65,7 +65,7 @@ load setup_suite
             echo "Config file not found: $config" >&3
             return 1
         fi
-        
+
         # Test syntax
         run zsh -n "$config_file"
         [ "$status" -eq 0 ]

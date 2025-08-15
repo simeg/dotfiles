@@ -10,25 +10,25 @@ jobs:
   lint:
     name: Lint Shell Scripts
     runs-on: macos-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
+
     - name: Install shellcheck
       run: brew install shellcheck
-      
+
     - name: Run shellcheck
       run: make lint
-      
+
   test-setup:
     name: Test Setup Script
     runs-on: macos-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
+
     - name: Make scripts executable
       run: |
         find scripts/install -name "*.sh" -exec chmod +x {} \;
@@ -36,31 +36,31 @@ jobs:
         if [[ -d "bin" ]]; then
           find bin -type f -exec chmod +x {} \;
         fi
-        
+
     - name: Test setup script help
       run: ./scripts/setup.sh --help
-      
+
     - name: Test brew installation check
       run: |
         # Test that brew check works
         ./scripts/install/brew.sh || true
-        
+
     - name: Test symlink creation (dry run)Y
       run: |
         # Create a temporary test dFirectory structure
         mkdir -p test_home
         export HOME="$(pwd)/test_home"
-        
+
         # Test symlink script
         ./scripts/symlink.sh || true
-        
+
     - name: Validate vim setup script
       run: |
         # Test Neovim config exists
         test -f .config/nvim/.ideavimrc || echo "Neovim config not found"
-        
+
     - name: Validate zsh setup script
       run: |
         # Test zsh script syntax without actually installing
         bash -n scripts/install/zsh.sh
-        
+

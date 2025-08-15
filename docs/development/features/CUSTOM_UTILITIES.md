@@ -28,7 +28,7 @@ Collection of custom command-line utilities and scripts that enhance daily devel
 
 #### gforbm (`bin/gforbm`)
 - **Purpose**: "Git Fetch Origin Rebase Main" - smart branch rebasing
-- **Features**: 
+- **Features**:
   - Auto-detects default branch (main/master)
   - Safely rebases current branch onto updated main
   - Handles detached HEAD states

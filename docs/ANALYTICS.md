@@ -107,7 +107,7 @@ make health-analytics
 
 📊 Current Metrics:
   Shell Startup: 342ms  ✅
-  Plugin Load: 156ms    ✅  
+  Plugin Load: 156ms    ✅
   Memory Usage: 45MB    ✅
 
 📈 Performance Trend:
@@ -257,7 +257,7 @@ ls -la ~/.config/dotfiles/perf-data.csv
 
 - **Startup Time**:
   - ✅ Good: < 500ms
-  - ⚠️ Warning: 500-1000ms  
+  - ⚠️ Warning: 500-1000ms
   - 🔴 Critical: > 1000ms
 
 - **Plugin Load**:

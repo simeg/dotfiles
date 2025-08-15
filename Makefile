@@ -40,13 +40,17 @@ MONITOR_HEALTH := $(SCRIPTS_DIR)/health-check.sh
 MONITOR_SYSTEM := $(BIN_DIR)/system-monitor
 PROFILE_SHELL := $(SCRIPTS_DIR)/profile-shell.sh
 
+# Use GNU utils if available, otherwise macOS
+FIND := $(shell command -v gfind >/dev/null 2>&1 && echo gfind || echo find)
+SED  := $(shell command -v gsed  >/dev/null 2>&1 && echo gsed  || echo sed)
+
 # Common conditional checks
 check_brew := command -v brew >/dev/null 2>&1
 check_mas := command -v mas >/dev/null 2>&1
 
 # Define all phony targets (targets that don't create files)
 .PHONY: all setup setup-minimal update validate test test-quick test-advanced test-ci lint clean packages deps health help \
-        health-monitor health-analytics health-profile snapshot
+        health-monitor health-analytics health-profile snapshot fix-whitespace
 
 # =============================================================================
 # MAIN TARGETS
@@ -249,6 +253,22 @@ snapshot:
 	@echo "📸 Taking system metrics snapshot..."
 	@$(MONITOR_SYSTEM) snapshot --quiet
 
+# Correct -i syntax for BSD vs GNU sed
+SED_INPLACE := -i ''
+ifeq ($(shell $(SED) --version >/dev/null 2>&1 && echo gnu),gnu)
+	  SED_INPLACE := -i''
+	endif
+
+# Removes all whitespace chars from files with these extensions
+fix-whitespace:
+	@echo "🧹 Removing trailing whitespace..."
+	@$(FIND) . -type f \
+	  \( -name "*.zsh" -o -name "*.yml" -o -name "*.yaml" -o -name "*.toml" -o \
+	     -name "*.sh"  -o -name "*.md"  -o -name "*.lua"  -o -name "*.json" -o \
+	     -name "*.bash" -o -name "*.bats" -o -name "*.txt" \) \
+	  -not -path "./.git/*" \
+	  -exec $(SED) $(SED_INPLACE) -e 's/[[:space:]]\{1,\}$$//' {} +
+	@echo "✅ Done"
 # =============================================================================
 # LEGACY COMPATIBILITY TARGETS
 # =============================================================================

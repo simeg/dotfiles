@@ -8,12 +8,12 @@ load setup_suite
 @test "Zsh configuration validation" {
     local zsh_config_dir="$DOTFILES_DIR/.config/zsh"
     local required_files=(".zshrc" "aliases.zsh" "exports.zsh" "functions.zsh" "misc.zsh" "path.zsh")
-    
+
     # Check all required files exist
     for file in "${required_files[@]}"; do
         [ -f "$zsh_config_dir/$file" ]
     done
-    
+
     # Validate .zshrc sources all modules
     local zshrc="$zsh_config_dir/.zshrc"
     if [[ -f "$zshrc" ]]; then
@@ -22,7 +22,7 @@ load setup_suite
             [ "$status" -eq 0 ]
         done
     fi
-    
+
     # Check for dangerous command redefinitions (unsafe patterns)
     local dangerous_patterns=("alias rm=" "alias chmod=" "alias chown=" "alias sudo=")
     for pattern in "${dangerous_patterns[@]}"; do
@@ -36,18 +36,18 @@ load setup_suite
 
 @test "Neovim configuration validation" {
     local nvim_config="$DOTFILES_DIR/.config/nvim"
-    
+
     [ -d "$nvim_config" ]
-    
+
     # Check for required structure
     local required_dirs=("lua/core" "lua/plugins")
     for dir in "${required_dirs[@]}"; do
         [ -d "$nvim_config/$dir" ]
     done
-    
+
     # Check init.lua exists
     [ -f "$nvim_config/init.lua" ]
-    
+
     # Check that there are Lua files
     local lua_files
     lua_files=$(find "$nvim_config" -name "*.lua" -type f | wc -l)
@@ -58,7 +58,7 @@ load setup_suite
     local git_dir="$DOTFILES_DIR/git"
     local local_gitconfig="$git_dir/.gitconfig"
     local use_global=false
-    
+
     # Determine which Git config to check
     if [[ -f "$local_gitconfig" ]]; then
         echo "Checking local dotfiles Git config: $local_gitconfig" >&3
@@ -66,7 +66,7 @@ load setup_suite
         echo "No local Git config found, checking global Git configuration" >&3
         use_global=true
     fi
-    
+
     # Check for required configurations
     local required_configs=("user.name" "user.email" "core.editor")
     for config in "${required_configs[@]}"; do
@@ -80,13 +80,13 @@ load setup_suite
             [ "$status" -eq 0 ]
         fi
     done
-    
+
     # Security: Check for hardcoded credentials (only in local config)
     if [[ "$use_global" == "false" ]]; then
         run grep -E "(password|token|secret)" "$local_gitconfig"
         [ "$status" -ne 0 ]  # Should NOT find credentials
     fi
-    
+
     # Check .gitignore effectiveness
     local gitignore="$git_dir/.gitignore"
     if [[ -f "$gitignore" ]]; then
@@ -100,12 +100,12 @@ load setup_suite
 
 @test "Starship configuration validation" {
     local starship_dir="$DOTFILES_DIR/.config/starship"
-    
+
     [ -d "$starship_dir" ]
-    
+
     # Check for theme files
     [ -d "$starship_dir/themes" ]
-    
+
     # Validate TOML syntax in theme files
     local toml_files=0
     while IFS= read -r -d '' toml_file; do
@@ -114,34 +114,34 @@ load setup_suite
         run grep -q '\[.*\]' "$toml_file"
         [ "$status" -eq 0 ]
     done < <(find "$starship_dir" -name "*.toml" -type f -print0)
-    
+
     [ "$toml_files" -gt 0 ]
 }
 
 @test "Package configuration validation" {
     local brewfile="$DOTFILES_DIR/install/Brewfile"
-    
+
     [ -f "$brewfile" ]
-    
+
     # Check for essential packages
     local essential_packages=("git" "zsh" "neovim" "starship")
     for package in "${essential_packages[@]}"; do
         run grep -q "brew \"$package\"" "$brewfile"
         [ "$status" -eq 0 ]
     done
-    
+
     # Check for potential package conflicts
     local conflicting_pairs=("vim:neovim" "bash:zsh")
     for pair in "${conflicting_pairs[@]}"; do
         IFS=':' read -r pkg1 pkg2 <<< "$pair"
         local pkg1_found pkg2_found
-        
+
         run grep -q "brew \"$pkg1\"" "$brewfile"
         pkg1_found=$status
-        
+
         run grep -q "brew \"$pkg2\"" "$brewfile"
         pkg2_found=$status
-        
+
         # If both are found, that's a potential conflict
         if [[ $pkg1_found -eq 0 && $pkg2_found -eq 0 ]]; then
             echo "Potential package conflict: $pkg1 and $pkg2" >&3

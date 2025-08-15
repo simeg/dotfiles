@@ -33,14 +33,14 @@ load setup_suite
 
 @test "Neovim configuration structure is valid" {
     local nvim_config="$DOTFILES_DIR/.config/nvim"
-    
+
     [ -d "$nvim_config" ]
     [ -f "$nvim_config/init.lua" ]
-    
+
     # Check for required directories
     [ -d "$nvim_config/lua/core" ]
     [ -d "$nvim_config/lua/plugins" ]
-    
+
     # Check that there are Lua files
     local lua_files
     lua_files=$(find "$nvim_config" -name "*.lua" -type f | wc -l)
@@ -51,14 +51,14 @@ load setup_suite
     local git_dir="$DOTFILES_DIR/git"
     local gitconfig="$git_dir/.gitconfig"
     local gitignore="$git_dir/.gitignore"
-    
+
     # Check if git files exist and are readable
     if [[ -f "$gitconfig" ]]; then
         # Basic syntax check - should be valid config format
         run git config --file "$gitconfig" --list
         [ "$status" -eq 0 ]
     fi
-    
+
     if [[ -f "$gitignore" ]]; then
         # Gitignore should be readable
         [ -r "$gitignore" ]
@@ -67,7 +67,7 @@ load setup_suite
 
 @test "Starship configuration files are valid" {
     local starship_dir="$DOTFILES_DIR/.config/starship"
-    
+
     if [[ -d "$starship_dir" ]]; then
         # Check theme files for basic TOML syntax
         local toml_files=0
@@ -77,16 +77,16 @@ load setup_suite
             run grep -q '\[.*\]' "$toml_file"
             [ "$status" -eq 0 ]
         done < <(find "$starship_dir" -name "*.toml" -type f -print0)
-        
+
         [ "$toml_files" -gt 0 ]
     fi
 }
 
 @test "Brewfile is valid" {
     local brewfile="$DOTFILES_DIR/install/Brewfile"
-    
+
     [ -f "$brewfile" ]
-    
+
     # Check for essential packages
     local essential_packages=("git" "zsh" "starship")
     for package in "${essential_packages[@]}"; do
@@ -99,13 +99,13 @@ load setup_suite
     # Find all shell scripts and check syntax
     while IFS= read -r -d '' script; do
         echo "Checking syntax of $script" >&3
-        
+
         # Skip scripts that might require special environments
         case "$script" in
             */test_*) continue ;;  # Skip test scripts themselves
             */setup.sh) continue ;;  # Setup might require interactive input
         esac
-        
+
         run bash -n "$script"
         [ "$status" -eq 0 ]
     done < <(find "$DOTFILES_DIR/scripts" -name "*.sh" -type f -print0 2>/dev/null || true)
@@ -113,7 +113,7 @@ load setup_suite
 
 @test "No trailing whitespace in configuration files" {
     local issues=0
-    
+
     # Check for trailing whitespace in key config files
     while IFS= read -r -d '' file; do
         if grep -q '[[:space:]]$' "$file"; then
@@ -121,7 +121,7 @@ load setup_suite
             issues=$((issues + 1))
         fi
     done < <(find "$DOTFILES_DIR" -type f \( -name "*.zsh" -o -name "*.sh" -o -name "*.toml" -o -name "*.lua" \) -print0)
-    
+
     [ "$issues" -eq 0 ]
 }
 
@@ -134,7 +134,7 @@ load setup_suite
         "bin"
         "install"
     )
-    
+
     for dir in "${required_dirs[@]}"; do
         [ -d "$DOTFILES_DIR/$dir" ]
     done
