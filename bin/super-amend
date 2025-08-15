@@ -90,9 +90,8 @@ fi
 
 # Check for uncommitted changes (unless we're amending specific files)
 if [[ ${#SPECIFIC_FILES[@]} -eq 0 ]] && ! git diff-index --quiet HEAD -- 2>/dev/null; then
-    echo "❌ Error: You have uncommitted changes" >&2
-    echo "Please commit your changes first, or use --files to amend specific files" >&2
-    exit 1
+    echo "⚠️  Warning: You have uncommitted changes" >&2
+    echo "These changes will be automatically stashed and restored" >&2
 fi
 
 # If commit hash not provided, use interactive selection
