@@ -87,7 +87,7 @@ vim.api.nvim_create_autocmd('User', {
         if ts_highlight and ts_config then
           -- Enable treesitter highlighting
           vim.cmd('TSEnable highlight')
-          
+
           -- Disable additional vim regex highlighting since we have treesitter
           vim.api.nvim_create_autocmd('BufEnter', {
             callback = function()

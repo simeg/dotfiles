@@ -49,73 +49,73 @@ mkdir -p "$ANALYTICS_DIR"
 analyze_productivity_metrics() {
     local days="${1:-7}"
     log_info "🚀 Analyzing productivity metrics for last $days days..."
-    
+
     if [[ ! -f "$USAGE_LOG" ]]; then
         log_warning "No usage data found. Enable tracking first."
         return 1
     fi
-    
+
     local cutoff_date
     cutoff_date=$(date -d "$days days ago" +%s 2>/dev/null || date -v-"$days"d +%s)
-    
+
     # Development-related commands
     local dev_commands git_commands file_commands
     dev_commands=$(mktemp)
     git_commands=$(mktemp)
     file_commands=$(mktemp)
-    
+
     # Filter and categorize commands
     awk -F',' -v cutoff="$cutoff_date" '$1 >= cutoff {print $2}' "$USAGE_LOG" > "$dev_commands"
-    
+
     # Git productivity
     grep -E '^git|^gh|^hub' "$dev_commands" > "$git_commands" 2>/dev/null || touch "$git_commands"
-    
+
     # File manipulation productivity
     grep -E '^(nvim|vim|code|nano|emacs|cat|less|more|grep|rg|find|fd|ls|eza|tree)' "$dev_commands" > "$file_commands" 2>/dev/null || touch "$file_commands"
-    
+
     echo
     log_success "=== PRODUCTIVITY METRICS ($days days) ==="
     echo
-    
+
     # Overall activity
     local total_commands unique_commands
     total_commands=$(wc -l < "$dev_commands")
     unique_commands=$(sort "$dev_commands" | uniq | wc -l)
-    
+
     log_info "📈 Overall Activity:"
     printf "  %-25s %s\n" "Total commands executed:" "$total_commands"
     printf "  %-25s %s\n" "Unique commands used:" "$unique_commands"
     printf "  %-25s %s\n" "Command diversity:" "$(( (unique_commands * 100) / (total_commands + 1) ))%"
     echo
-    
+
     # Git productivity
     local git_count git_commits
     git_count=$(wc -l < "$git_commands")
     git_commits=$(grep -cE '^(git commit|git add|git push)' "$git_commands" 2>/dev/null) || git_commits=0
-    
+
     log_info "🔧 Git Productivity:"
     printf "  %-25s %s\n" "Git commands:" "$git_count"
     printf "  %-25s %s\n" "Estimated commits/pushes:" "$git_commits"
     printf "  %-25s %s\n" "Git usage frequency:" "$(( git_count * 100 / (total_commands + 1) ))%"
     echo
-    
+
     # File editing productivity
     local edit_count view_count
     edit_count=$(grep -cE '^(nvim|vim|code|nano|emacs)' "$file_commands" 2>/dev/null) || edit_count=0
     view_count=$(grep -cE '^(cat|less|more|bat)' "$file_commands" 2>/dev/null) || view_count=0
-    
+
     log_info "📝 File Management:"
     printf "  %-25s %s\n" "Editing sessions:" "$edit_count"
     printf "  %-25s %s\n" "File views:" "$view_count"
     printf "  %-25s %s\n" "Edit/view ratio:" "$(( (edit_count * 100) / (view_count + edit_count + 1) ))%"
     echo
-    
+
     # Time-based patterns
     analyze_time_patterns "$dev_commands" "$days"
-    
+
     # Efficiency metrics
     analyze_efficiency_metrics "$dev_commands"
-    
+
     # Store productivity metrics
     local timestamp
     timestamp=$(date +%s)
@@ -125,7 +125,7 @@ analyze_productivity_metrics() {
         echo "$timestamp,git_commands,$git_count"
         echo "$timestamp,edit_sessions,$edit_count"
     } >> "$PRODUCTIVITY_LOG"
-    
+
     # Cleanup
     rm -f "$dev_commands" "$git_commands" "$file_commands"
 }
@@ -134,18 +134,18 @@ analyze_productivity_metrics() {
 analyze_time_patterns() {
     local commands_file="$1"
     local days="$2"
-    
+
     log_info "⏰ Time Patterns Analysis:"
-    
+
     if [[ ! -f "$USAGE_LOG" ]]; then
         echo "  No detailed timestamp data available"
         return
     fi
-    
+
     # Analyze by hour of day (requires enhanced logging)
     local cutoff_date
     cutoff_date=$(date -d "$days days ago" +%s 2>/dev/null || date -v-"$days"d +%s)
-    
+
     # Most active hours (simplified analysis - using date command instead of strftime)
     local activity_by_hour
     activity_by_hour=$(awk -F',' -v cutoff="$cutoff_date" '
@@ -161,7 +161,7 @@ analyze_time_patterns() {
                 printf "%02d:00 %d\n", h, count[h]
             }
         }' "$USAGE_LOG" | sort -n)
-    
+
     if [[ -n "$activity_by_hour" ]]; then
         echo "  Most active hours:"
         echo "$activity_by_hour" | tail -3 | while read -r hour count; do
@@ -176,13 +176,13 @@ analyze_time_patterns() {
 # Analyze efficiency metrics
 analyze_efficiency_metrics() {
     local commands_file="$1"
-    
+
     log_info "⚡️ Efficiency Metrics:"
-    
+
     # Command repetition patterns (potential for aliasing)
     local repeated_commands
     repeated_commands=$(sort "$commands_file" | uniq -c | sort -nr | head -10)
-    
+
     echo "  Most repeated commands (alias candidates):"
     echo "$repeated_commands" | head -5 | while read -r count cmd; do
         if [[ $count -gt 5 ]]; then
@@ -190,11 +190,11 @@ analyze_efficiency_metrics() {
         fi
     done
     echo
-    
+
     # Long command analysis
     local long_commands
     long_commands=$(awk 'length($0) > 50' "$commands_file" | sort | uniq -c | sort -nr | head -5)
-    
+
     if [[ -n "$long_commands" ]]; then
         echo "  Long commands (function candidates):"
         echo "$long_commands" | while read -r count cmd; do
@@ -212,27 +212,27 @@ analyze_efficiency_metrics() {
 analyze_command_frequency() {
     local days="${1:-30}"
     log_info "📊 Analyzing command frequency patterns for last $days days..."
-    
+
     if [[ ! -f "$USAGE_LOG" ]]; then
         log_warning "No usage data found"
         return 1
     fi
-    
+
     local cutoff_date temp_commands freq_analysis
     cutoff_date=$(date -d "$days days ago" +%s 2>/dev/null || date -v-"$days"d +%s)
     temp_commands=$(mktemp)
     freq_analysis=$(mktemp)
-    
+
     # Extract recent commands
     awk -F',' -v cutoff="$cutoff_date" '$1 >= cutoff {print $2}' "$USAGE_LOG" > "$temp_commands"
-    
+
     # Generate frequency analysis
     sort "$temp_commands" | uniq -c | sort -nr > "$freq_analysis"
-    
+
     echo
     log_success "=== COMMAND FREQUENCY ANALYSIS ($days days) ==="
     echo
-    
+
     # Top commands
     log_info "🏆 Most Frequently Used Commands:"
     head -15 "$freq_analysis" | while read -r count cmd; do
@@ -243,19 +243,19 @@ analyze_command_frequency() {
         printf "  %3d%% (%3d uses): %s\n" "$percentage" "$count" "$cmd"
     done
     echo
-    
+
     # Command categories
     analyze_command_categories "$freq_analysis"
-    
+
     # Frequency trends
     analyze_frequency_trends "$temp_commands" "$days"
-    
+
     # Command diversity metrics
     analyze_command_diversity "$freq_analysis" "$temp_commands"
-    
+
     # Cache frequency data for later use
     cp "$freq_analysis" "$COMMAND_FREQ_CACHE"
-    
+
     # Cleanup
     rm -f "$temp_commands" "$freq_analysis"
 }
@@ -263,19 +263,19 @@ analyze_command_frequency() {
 # Analyze commands by category
 analyze_command_categories() {
     local freq_file="$1"
-    
+
     log_info "📁 Command Categories:"
-    
+
     # Define categories
     local git_cmds file_cmds system_cmds dev_cmds
     git_cmds=$(grep -E 'git|gh|hub' "$freq_file" | awk '{sum+=$1} END {print sum+0}')
     file_cmds=$(grep -E 'nvim|vim|cat|ls|eza|tree|find|fd|grep|rg|less|more' "$freq_file" | awk '{sum+=$1} END {print sum+0}')
     system_cmds=$(grep -E 'ps|top|htop|btop|kill|systemctl|brew|apt|yum' "$freq_file" | awk '{sum+=$1} END {print sum+0}')
     dev_cmds=$(grep -E 'npm|node|python|go|cargo|mvn|make|docker|kubectl' "$freq_file" | awk '{sum+=$1} END {print sum+0}')
-    
+
     local total_categorized
     total_categorized=$((git_cmds + file_cmds + system_cmds + dev_cmds))
-    
+
     if [[ $total_categorized -gt 0 ]]; then
         echo "  Git/VCS:           $git_cmds commands ($(( git_cmds * 100 / total_categorized ))%)"
         echo "  File Management:   $file_cmds commands ($(( file_cmds * 100 / total_categorized ))%)"
@@ -289,31 +289,31 @@ analyze_command_categories() {
 analyze_frequency_trends() {
     local commands_file="$1"
     local days="$2"
-    
+
     log_info "📈 Frequency Trends:"
-    
+
     # Compare recent vs older usage patterns
     local recent_period
     recent_period=$(( days / 3 ))  # Last third of the period
-    
+
     local recent_cutoff
     recent_cutoff=$(date -d "$recent_period days ago" +%s 2>/dev/null || date -v-"$recent_period"d +%s)
-    
+
     # Get recent command frequency
     local recent_top older_top
     recent_top=$(awk -F',' -v cutoff="$recent_cutoff" '$1 >= cutoff {print $2}' "$USAGE_LOG" | sort | uniq -c | sort -nr | head -5)
     older_top=$(sort "$commands_file" | uniq -c | sort -nr | head -5)
-    
+
     echo "  Recent trends (last $recent_period days):"
     echo "$recent_top" | while read -r count cmd; do
         echo "    $cmd: $count uses"
     done
     echo
-    
+
     # Identify emerging commands
     local emerging_commands
     emerging_commands=$(comm -23 <(echo "$recent_top" | awk '{print $2}' | sort) <(echo "$older_top" | awk '{print $2}' | sort))
-    
+
     if [[ -n "$emerging_commands" ]]; then
         echo "  🆕 Emerging commands (new in recent usage):"
         echo "$emerging_commands" | while read -r cmd; do echo "    $cmd"; done
@@ -325,18 +325,18 @@ analyze_frequency_trends() {
 analyze_command_diversity() {
     local freq_file="$1"
     local commands_file="$2"
-    
+
     log_info "🎯 Command Diversity Metrics:"
-    
+
     local total_commands unique_commands top_10_usage
     total_commands=$(wc -l < "$commands_file")
     unique_commands=$(wc -l < "$freq_file")
     top_10_usage=$(head -10 "$freq_file" | awk '{sum+=$1} END {print sum+0}')
-    
+
     local diversity_score concentration_ratio
     diversity_score=$(( (unique_commands * 100) / (total_commands + 1) ))
     concentration_ratio=$(( (top_10_usage * 100) / (total_commands + 1) ))
-    
+
     echo "  Diversity score: $diversity_score% ($unique_commands unique commands)"
     echo "  Top 10 concentration: $concentration_ratio% of all usage"
     echo "  Command variety: $(get_variety_assessment "$diversity_score" "$concentration_ratio")"
@@ -347,7 +347,7 @@ analyze_command_diversity() {
 get_variety_assessment() {
     local diversity="$1"
     local concentration="$2"
-    
+
     if [[ $diversity -gt 15 && $concentration -lt 70 ]]; then
         echo "Excellent - diverse command usage"
     elif [[ $diversity -gt 10 && $concentration -lt 80 ]]; then
@@ -366,55 +366,55 @@ get_variety_assessment() {
 # Generate predictive optimization suggestions
 generate_predictive_optimizations() {
     log_info "🔮 Generating predictive optimization suggestions..."
-    
+
     local suggestions_file
     suggestions_file=$(mktemp)
     local suggestions_made=0
-    
+
     echo
     log_success "=== PREDICTIVE OPTIMIZATION SUGGESTIONS ==="
     echo
-    
+
     # Analyze command patterns for optimization opportunities
     if [[ -f "$COMMAND_FREQ_CACHE" ]]; then
         # Alias opportunities
         analyze_alias_opportunities "$suggestions_file"
-        
+
         # Function opportunities
         analyze_function_opportunities "$suggestions_file"
-        
+
         # Performance optimizations
         analyze_performance_optimizations "$suggestions_file"
-        
+
         # Workflow optimizations
         analyze_workflow_optimizations "$suggestions_file"
-        
+
         # Tool upgrade suggestions
         analyze_tool_upgrades "$suggestions_file"
     fi
-    
+
     # Display suggestions
     if [[ -s "$suggestions_file" ]]; then
         cat "$suggestions_file"
         suggestions_made=$(wc -l < "$suggestions_file")
-        
+
         # Log optimization suggestion
         echo "$(date +%s),suggestions_generated,$suggestions_made" >> "$OPTIMIZATION_HISTORY"
     else
         log_success "🎉 Your workflow is already well optimized!"
     fi
-    
+
     rm -f "$suggestions_file"
 }
 
 # Analyze alias opportunities
 analyze_alias_opportunities() {
     local suggestions_file="$1"
-    
+
     # Find frequently used long commands
     local alias_candidates
     alias_candidates=$(awk '$1 > 10 && length($2) > 15 {print $1, $2}' "$COMMAND_FREQ_CACHE" | head -5)
-    
+
     if [[ -n "$alias_candidates" ]]; then
         echo "🔗 Alias Opportunities:" >> "$suggestions_file"
         echo "$alias_candidates" | while read -r count cmd; do
@@ -429,11 +429,11 @@ analyze_alias_opportunities() {
 # Analyze function opportunities
 analyze_function_opportunities() {
     local suggestions_file="$1"
-    
+
     # Find command patterns that could be functions
     local function_candidates
     function_candidates=$(awk '$1 > 5 && $2 ~ /&&|\|/ {print $1, $2}' "$COMMAND_FREQ_CACHE" | head -3)
-    
+
     if [[ -n "$function_candidates" ]]; then
         echo "⚙️ Function Opportunities:" >> "$suggestions_file"
         echo "$function_candidates" | while read -r count cmd; do
@@ -448,12 +448,12 @@ analyze_function_opportunities() {
 # Analyze performance optimization opportunities
 analyze_performance_optimizations() {
     local suggestions_file="$1"
-    
+
     # Check for slow commands that could be optimized
     if [[ -f "$PERF_DATA" ]]; then
         local slow_frequent_commands
         slow_frequent_commands=$(join -1 2 -2 5 <(sort -k2,2 "$COMMAND_FREQ_CACHE") <(grep "command_exec" "$PERF_DATA" | awk -F',' '$3/1000000 > 1000 {print $5}' | sort) | sort -nr | head -3)
-        
+
         if [[ -n "$slow_frequent_commands" ]]; then
             echo "⚡️ Performance Optimizations:" >> "$suggestions_file"
             echo "$slow_frequent_commands" | while read -r count cmd _; do
@@ -480,21 +480,21 @@ analyze_performance_optimizations() {
 # Analyze workflow optimization opportunities
 analyze_workflow_optimizations() {
     local suggestions_file="$1"
-    
+
     # Find command sequences that could be optimized
     local git_workflow docker_workflow
     git_workflow=$(grep -c 'git add\|git commit\|git push' "$COMMAND_FREQ_CACHE" 2>/dev/null | head -1 || echo "0")
     docker_workflow=$(grep -c 'docker build\|docker run\|docker push' "$COMMAND_FREQ_CACHE" 2>/dev/null | head -1 || echo "0")
-    
+
     if [[ $git_workflow -gt 10 ]]; then
         echo "🔄 Workflow Optimizations:" >> "$suggestions_file"
         echo "  Consider git aliases: 'gac' for 'git add . && git commit', 'gp' for 'git push'" >> "$suggestions_file"
     fi
-    
+
     if [[ $docker_workflow -gt 5 ]]; then
         echo "  Consider docker-compose for repeated docker workflows" >> "$suggestions_file"
     fi
-    
+
     if [[ $git_workflow -gt 10 || $docker_workflow -gt 5 ]]; then
         echo >> "$suggestions_file"
     fi
@@ -503,22 +503,22 @@ analyze_workflow_optimizations() {
 # Analyze tool upgrade opportunities
 analyze_tool_upgrades() {
     local suggestions_file="$1"
-    
+
     echo "🔧 Tool Upgrade Suggestions:" >> "$suggestions_file"
-    
+
     # Check for outdated tool usage patterns
     if grep -q '^cat ' "$COMMAND_FREQ_CACHE" 2>/dev/null; then
         echo "  Consider using 'bat' instead of 'cat' for syntax highlighting" >> "$suggestions_file"
     fi
-    
+
     if grep -q '^top ' "$COMMAND_FREQ_CACHE" 2>/dev/null; then
         echo "  Consider using 'htop' or 'btop' instead of 'top' for better interface" >> "$suggestions_file"
     fi
-    
+
     if grep -q '^curl ' "$COMMAND_FREQ_CACHE" 2>/dev/null; then
         echo "  Consider 'httpie' (http) for more user-friendly HTTP requests" >> "$suggestions_file"
     fi
-    
+
     echo >> "$suggestions_file"
 }
 
@@ -529,29 +529,29 @@ analyze_tool_upgrades() {
 # Run comprehensive enhanced analytics
 run_comprehensive_analytics() {
     local days="${1:-30}"
-    
+
     clear
     echo -e "${PURPLE}🚀 Enhanced Dotfiles Analytics Dashboard${NC}"
     echo "========================================"
     echo
-    
+
     # Run all analytics components
     analyze_productivity_metrics "$days"
     analyze_command_frequency "$days"
     generate_predictive_optimizations
-    
+
     # Integration with existing analytics
     log_info "🔗 Integration with existing analytics..."
     if command -v ./scripts/analyze-package-usage.sh >/dev/null 2>&1; then
         echo
         ./scripts/analyze-package-usage.sh analyze "$days"
     fi
-    
+
     if command -v ./bin/perf-dashboard >/dev/null 2>&1; then
         echo
         ./bin/perf-dashboard metrics
     fi
-    
+
     echo
     log_success "✨ Enhanced analytics complete!"
     echo
@@ -563,22 +563,22 @@ run_comprehensive_analytics() {
 export_enhanced_report() {
     local output_file="${1:-$HOME/enhanced-analytics-report.txt}"
     log_info "📋 Generating comprehensive enhanced analytics report..."
-    
+
     {
         echo "Enhanced Dotfiles Analytics Report"
         echo "Generated: $(date)"
         echo "=================================="
         echo
-        
+
         # Run all analytics and capture output
         analyze_productivity_metrics 30 2>&1
         echo
         analyze_command_frequency 30 2>&1
         echo
         generate_predictive_optimizations 2>&1
-        
+
     } > "$output_file"
-    
+
     log_success "Enhanced analytics report saved to: $output_file"
 }
 
@@ -591,7 +591,7 @@ show_help() {
     echo "Commands:"
     echo "  comprehensive [days]    Run complete enhanced analytics (default: 30 days)"
     echo "  productivity [days]     Analyze productivity metrics only"
-    echo "  frequency [days]        Analyze command frequency patterns only" 
+    echo "  frequency [days]        Analyze command frequency patterns only"
     echo "  optimize                Generate predictive optimization suggestions"
     echo "  export [file]           Export comprehensive report"
     echo ""

@@ -50,39 +50,39 @@ check_iterm_running() {
 
 export_settings() {
     log_info "Exporting current iTerm2 settings to dotfiles..."
-    
+
     if [[ ! -f "$ITERM_PLIST" ]]; then
         log_error "iTerm2 preferences file not found at $ITERM_PLIST"
         exit 1
     fi
-    
+
     cp "$ITERM_PLIST" "$DOTFILES_PLIST"
     log_success "Settings exported to $DOTFILES_PLIST"
 }
 
 import_settings() {
     log_info "Importing iTerm2 settings from dotfiles..."
-    
+
     if [[ ! -f "$DOTFILES_PLIST" ]]; then
         log_error "Dotfiles preferences file not found at $DOTFILES_PLIST"
         log_info "Run 'export' first to create the initial settings file"
         exit 1
     fi
-    
+
     check_iterm_running
-    
+
     # Backup current settings
     if [[ -f "$ITERM_PLIST" ]]; then
         backup_file="${ITERM_PLIST}.backup.$(date +%Y%m%d_%H%M%S)"
         cp "$ITERM_PLIST" "$backup_file"
         log_info "Current settings backed up to $backup_file"
     fi
-    
+
     cp "$DOTFILES_PLIST" "$ITERM_PLIST"
-    
+
     # Reload preferences (this forces macOS to reload the plist)
     defaults read com.googlecode.iterm2 > /dev/null 2>&1 || true
-    
+
     log_success "Settings imported from dotfiles"
     log_warning "Restart iTerm2 for all changes to take effect"
 }
@@ -114,19 +114,19 @@ show_status() {
     echo "iTerm2 Settings Status"
     echo "======================"
     echo ""
-    
+
     if [[ -f "$ITERM_PLIST" ]]; then
         echo "✅ Current iTerm2 settings: $(stat -f '%z %Sm' "$ITERM_PLIST")"
     else
         echo "❌ No current iTerm2 settings found"
     fi
-    
+
     if [[ -f "$DOTFILES_PLIST" ]]; then
         echo "✅ Dotfiles iTerm2 settings: $(stat -f '%z %Sm' "$DOTFILES_PLIST")"
     else
         echo "❌ No dotfiles iTerm2 settings found (run 'export' first)"
     fi
-    
+
     echo ""
     if pgrep -f "iTerm" > /dev/null; then
         echo "🟡 iTerm2 is currently running"

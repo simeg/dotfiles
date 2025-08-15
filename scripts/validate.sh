@@ -264,18 +264,18 @@ check_bin_directory() {
 # Check modular configuration
 check_modular_config() {
     log_info "Checking modular configuration..."
-    
+
     local config_dir="$HOME/.config/zsh"
     local configs=("aliases.zsh" "exports.zsh" "functions.zsh" "misc.zsh" "path.zsh")
-    
+
     # Check if modular config directory exists
     check_directory_exists "$config_dir" "Modular config directory"
-    
+
     # Check each config file
     for config in "${configs[@]}"; do
         local config_file="$config_dir/$config"
         check_file_exists "$config_file" "Modular config: $config"
-        
+
         # Syntax check
         if [[ -f "$config_file" ]]; then
             check
@@ -286,13 +286,13 @@ check_modular_config() {
             fi
         fi
     done
-    
+
     # Check private config handling
     check
     local private_config="$config_dir/private.zsh"
     if grep -q "private.zsh" "$HOME/.zshrc"; then
         log_success "Private config: .zshrc sources private.zsh"
-        
+
         if [[ -f "$private_config" ]]; then
             if zsh -n "$private_config" 2>/dev/null; then
                 log_success "Private config: private.zsh syntax is valid"
@@ -305,7 +305,7 @@ check_modular_config() {
     else
         log_error "Private config: .zshrc doesn't source private.zsh"
     fi
-    
+
     # Check .gitignore for private files
     check
     local gitignore_file="$config_dir/.gitignore"
@@ -319,7 +319,7 @@ check_modular_config() {
 # Check shell performance
 check_shell_performance() {
     log_info "Checking shell performance..."
-    
+
     # Measure shell startup time
     check
     local startup_times=()
@@ -328,9 +328,9 @@ check_shell_performance() {
         time_output=$(time (/bin/zsh -c 'exit') 2>&1 | grep real | awk '{print $2}')
         startup_times+=("$time_output")
     done
-    
+
     log_info "Shell startup times: ${startup_times[*]}"
-    
+
     # Check if startup is reasonable (average under 1.5 seconds)
     local total_seconds=0
     local count=0
@@ -344,7 +344,7 @@ check_shell_performance() {
             count=$((count + 1))
         fi
     done
-    
+
     if [[ $count -gt 0 ]]; then
         local avg_ms=$((total_seconds / count))
         # avg_seconds calculation removed - was unused
@@ -381,7 +381,7 @@ check_shell_functionality() {
     else
         log_warning "Zsh completions: May not be working properly"
     fi
-    
+
     # Check znap plugin manager
     check
     if [[ -d "$HOME/.zsh/znap" ]]; then
@@ -389,7 +389,7 @@ check_shell_functionality() {
     else
         log_error "Plugin manager: znap not found"
     fi
-    
+
     # Check essential aliases
     check
     if /bin/zsh -c 'source ~/.zshrc && type l' &>/dev/null; then

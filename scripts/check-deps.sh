@@ -73,7 +73,7 @@ check_core_deps() {
 
     check_command "git" "Git version control" "brew install git"
     check_command "zsh" "Zsh shell" "brew install zsh"
-    
+
     # For CI environments, accept either vim or nvim
     DEPS_CHECKED=$((DEPS_CHECKED + 1))
     if check_command_exists "nvim"; then
@@ -89,7 +89,7 @@ check_core_deps() {
         log_error_with_counter "Text editor (Missing)"
         echo "    Install with: brew install neovim (or vim)"
     fi
-    
+
     check_command "bash" "Bash shell" "Should be available by default"
 
     echo
@@ -173,20 +173,20 @@ check_brewfile() {
     # Count total packages first
     local total_packages
     total_packages=$(grep -cE '^(brew|cask)' "$brewfile")
-    
+
     echo -n "  📦 Checking $total_packages packages"
-    
+
     # Use shared brew utilities for checking packages
     if check_brewfile_packages "$brewfile"; then
         echo # New line after progress message
         log_success "All Brewfile packages are installed"
     else
         echo # New line after progress message
-        
+
         # Get detailed info about missing packages using shared utility
         local missing_output
         missing_output=$(get_missing_brewfile_packages "$brewfile")
-        
+
         if [[ -n "$missing_output" ]]; then
             log_warning "Some Brewfile packages are missing:"
             echo "${missing_output//$'\n'/$'\n'    }"

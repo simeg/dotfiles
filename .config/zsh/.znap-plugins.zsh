@@ -49,10 +49,10 @@ znap source lukechilds/zsh-nvm
 ########################################
 # 📝 Performance Notes
 ########################################
-# 
+#
 # Plugin load times (from profiling):
 # - ohmyzsh core: ~80ms (40% of startup time)
-# - ohmyzsh git plugin: ~44ms (16% of startup time)  
+# - ohmyzsh git plugin: ~44ms (16% of startup time)
 # - zsh-autocomplete: ~30ms + conflicts with autosuggestions
 # - history-search-multi-word: ~15ms + redundant with atuin
 # - 256color: ~5ms + unnecessary on modern terminals

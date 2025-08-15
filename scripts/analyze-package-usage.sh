@@ -39,16 +39,16 @@ mkdir -p "$ANALYTICS_DIR"
 # Create package mapping (command -> package)
 create_package_mapping() {
     log_info "Creating package mapping cache..."
-    
+
     # Clear existing cache
     true > "$PACKAGE_MAPPING"
-    
+
     # Map brew formulae to their commands
     while IFS= read -r formula; do
         if command -v "$formula" &> /dev/null; then
             echo "$formula:$formula" >> "$PACKAGE_MAPPING"
         fi
-        
+
         # Check for common alternative command names
         case "$formula" in
             "ripgrep") echo "rg:ripgrep" >> "$PACKAGE_MAPPING" ;;
@@ -80,7 +80,7 @@ create_package_mapping() {
             "sbt") echo "sbt:sbt" >> "$PACKAGE_MAPPING" ;;
         esac
     done < <(brew list --formula)
-    
+
     log_success "Package mapping cache created with $(wc -l < "$PACKAGE_MAPPING") entries"
 }
 
@@ -89,7 +89,7 @@ get_package_for_command() {
     local cmd="$1"
     local base_cmd
     base_cmd=$(echo "$cmd" | awk '{print $1}')
-    
+
     if [[ -f "$PACKAGE_MAPPING" ]]; then
         grep "^$base_cmd:" "$PACKAGE_MAPPING" | cut -d: -f2 | head -1
     fi
@@ -99,26 +99,26 @@ get_package_for_command() {
 analyze_usage_patterns() {
     local days="${1:-30}"
     log_info "Analyzing package usage for last $days days..."
-    
+
     if [[ ! -f "$USAGE_LOG" ]]; then
         log_warning "No usage data found. Usage tracking needs to be enabled."
         log_info "Add the tracking hooks to your .zshrc to start collecting data."
         return 1
     fi
-    
+
     local cutoff_date
     cutoff_date=$(date -d "$days days ago" +%s 2>/dev/null || date -v-"$days"d +%s)
-    
+
     # Create temporary files for analysis
     local recent_commands used_packages unused_packages package_frequency
     recent_commands=$(mktemp)
     used_packages=$(mktemp)
     unused_packages=$(mktemp)
     package_frequency=$(mktemp)
-    
+
     # Extract recent commands
     awk -F',' -v cutoff="$cutoff_date" '$1 >= cutoff {print $2}' "$USAGE_LOG" > "$recent_commands"
-    
+
     # Map commands to packages and count usage
     while IFS= read -r cmd; do
         local package
@@ -127,24 +127,24 @@ analyze_usage_patterns() {
             echo "$package"
         fi
     done < "$recent_commands" | sort | uniq -c | sort -nr > "$package_frequency"
-    
+
     # Get list of used packages
     awk '{print $2}' "$package_frequency" > "$used_packages"
-    
+
     # Find unused packages
     comm -23 <(brew list --formula | sort) <(sort "$used_packages") > "$unused_packages"
-    
+
     echo
     log_success "=== PACKAGE USAGE ANALYSIS ($days days) ==="
     echo
-    
+
     # Show most used packages
     log_info "🏆 Most Frequently Used Packages:"
     head -10 "$package_frequency" | while read -r count package; do
         echo "  $count uses: $package"
     done
     echo
-    
+
     # Show recently used packages
     local total_used
     total_used=$(wc -l < "$used_packages")
@@ -154,7 +154,7 @@ analyze_usage_patterns() {
         echo "  ... and $((total_used - 20)) more"
     fi
     echo
-    
+
     # Show unused packages
     local total_unused
     total_unused=$(wc -l < "$unused_packages")
@@ -165,18 +165,18 @@ analyze_usage_patterns() {
             echo "  ... and $((total_unused - 20)) more"
         fi
         echo
-        
+
         log_info "💡 To remove unused packages:"
         echo "  brew uninstall $(head -10 "$unused_packages" | tr '\n' ' ')"
     else
         log_success "🎉 All packages have been used recently!"
     fi
     echo
-    
+
     # Package size analysis
     log_info "📦 Package Size Analysis:"
     analyze_package_sizes "$unused_packages" "$used_packages"
-    
+
     # Cleanup
     rm -f "$recent_commands" "$used_packages" "$unused_packages" "$package_frequency"
 }
@@ -185,29 +185,29 @@ analyze_usage_patterns() {
 analyze_package_sizes() {
     local unused_packages="$1"
     local used_packages="$2"
-    
+
     local total_unused_size=0
     local package_count=0
     local total_packages
     total_packages=$(wc -l < "$unused_packages")
-    
+
     # Skip size analysis if there are too many packages (would be too slow)
     if [[ $total_packages -gt 50 ]]; then
         echo "  💾 Estimated space savings: ~$((total_packages * 50))MB (${total_packages} unused packages × 50MB average)"
         return
     fi
-    
+
     echo -n "  📊 Analyzing package sizes"
-    
+
     while IFS= read -r package; do
         if [[ -n "$package" ]]; then
             ((package_count++))
-            
+
             # Show progress indicator
             if (( package_count % 5 == 0 )); then
                 echo -n "."
             fi
-            
+
             local size
             size=$(brew info --json "$package" 2>/dev/null | jq -r '.[0].installed[0].installed_on_request // empty' 2>/dev/null || echo "")
             if [[ -n "$size" ]]; then
@@ -215,9 +215,9 @@ analyze_package_sizes() {
             fi
         fi
     done < "$unused_packages"
-    
+
     echo # New line after progress dots
-    
+
     if [[ $total_unused_size -gt 0 ]]; then
         echo "  💾 Estimated space savings from removing unused packages: ~${total_unused_size}MB"
     fi
@@ -227,26 +227,26 @@ analyze_package_sizes() {
 generate_usage_report() {
     local output_file="${1:-$HOME/package-usage-report.txt}"
     log_info "Generating comprehensive usage report..."
-    
+
     {
         echo "Package Usage Report"
         echo "Generated: $(date)"
         echo "================================="
         echo
-        
+
         echo "SUMMARY:"
         echo "- Total brew packages: $(brew list --formula | wc -l)"
         echo "- Usage data points: $(wc -l < "$USAGE_LOG" 2>/dev/null || echo "0")"
         echo "- Data collection period: $(get_data_collection_period)"
         echo
-        
+
         # Run analysis and capture output
         analyze_usage_patterns 30
         echo
         analyze_usage_patterns 7
-        
+
     } > "$output_file"
-    
+
     log_success "Report saved to: $output_file"
 }
 
@@ -256,7 +256,7 @@ get_data_collection_period() {
         local first_entry last_entry
         first_entry=$(head -1 "$USAGE_LOG" | cut -d',' -f1)
         last_entry=$(tail -1 "$USAGE_LOG" | cut -d',' -f1)
-        
+
         if [[ -n "$first_entry" && -n "$last_entry" ]]; then
             local days_diff
             days_diff=$(( (last_entry - first_entry) / 86400 ))
@@ -273,15 +273,15 @@ get_data_collection_period() {
 clean_old_data() {
     local keep_days="${1:-90}"
     log_info "Cleaning usage data older than $keep_days days..."
-    
+
     if [[ -f "$USAGE_LOG" ]]; then
         local cutoff_date temp_file
         cutoff_date=$(date -d "$keep_days days ago" +%s 2>/dev/null || date -v-"$keep_days"d +%s)
         temp_file=$(mktemp)
-        
+
         awk -F',' -v cutoff="$cutoff_date" '$1 >= cutoff' "$USAGE_LOG" > "$temp_file"
         mv "$temp_file" "$USAGE_LOG"
-        
+
         log_success "Cleaned old usage data"
     fi
 }
@@ -308,13 +308,13 @@ show_help() {
 # Set up usage tracking
 setup_tracking() {
     log_info "Setting up package usage tracking..."
-    
+
     local zshrc_addition="
 # Package Usage Analytics (added by analyze-package-usage.sh)
 if [[ -f ~/.config/dotfiles/usage-analytics.sh ]]; then
     source ~/.config/dotfiles/usage-analytics.sh
 fi"
-    
+
     # Check if already added
     if grep -q "Package Usage Analytics" ~/.zshrc 2>/dev/null; then
         log_info "Usage tracking already set up in .zshrc"

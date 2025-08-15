@@ -54,13 +54,13 @@ run_test() {
 # Test functions
 test_zsh_syntax() {
     local zshrc="$HOME/.zshrc"
-    
+
     # In CI environment, test the source file instead of symlink
     if [[ ! -f "$zshrc" ]]; then
         local script_dir
         script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
         local source_zshrc="$script_dir/../.config/zsh/.zshrc"
-        
+
         if [[ -f "$source_zshrc" ]]; then
             echo "Testing source .zshrc (CI environment)"
             if ! zsh -n "$source_zshrc" 2>/dev/null; then
@@ -115,7 +115,7 @@ test_modular_configs_syntax() {
 
     for config in "${configs[@]}"; do
         local config_file=""
-        
+
         # Find the config file (prefer installed version)
         if [[ -f "$config_dir/$config" ]]; then
             config_file="$config_dir/$config"
@@ -126,7 +126,7 @@ test_modular_configs_syntax() {
             echo "Config file not found: $config"
             return 1
         fi
-        
+
         # Test syntax
         if ! zsh -n "$config_file" 2>/dev/null; then
             echo "Syntax error in $config_file"

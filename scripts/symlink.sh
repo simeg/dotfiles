@@ -25,15 +25,15 @@ symlink_dir_contents() {
   local src_dir="$1"
   local dst_dir="$2"
   local description="$3"
-  
+
   if [[ ! -d "$src_dir" ]]; then
     echo "⚠️  Source directory $src_dir doesn't exist, skipping $description"
     return
   fi
-  
+
   echo "Setting up $description"
   mkdir -p "$dst_dir"
-  
+
   for item in "$src_dir"/*; do
     if [[ -e "$item" ]]; then
       local item_name
@@ -62,7 +62,7 @@ mkdir -p "$HOME/.config"
 for config_item in .config/*; do
   if [[ -e "$config_item" ]]; then
     item_name="$(basename "$config_item")"
-    
+
     # Special handling for zsh directory - symlink individual files
     if [[ "$item_name" == "zsh" ]]; then
       echo "Setting up zsh configuration files"
@@ -88,7 +88,7 @@ echo "Setting up starship theme (default: catppuccin)"
 if [[ -x "$(pwd)/bin/starship-theme" ]]; then
     "$(pwd)/bin/starship-theme" set catppuccin
 elif [[ -f "$(pwd)/.config/starship/themes/catppuccin.toml" ]]; then
-    # Fallback: direct symlink if script not available  
+    # Fallback: direct symlink if script not available
     safe_ln "$(pwd)/.config/starship/themes/catppuccin.toml" "$HOME/.config/starship.toml"
 fi
 
@@ -109,7 +109,7 @@ if [[ -f ".config/zsh/.znap-plugins.zsh" ]]; then
   safe_ln "$(pwd)/.config/zsh/.znap-plugins.zsh" "$HOME/.znap-plugins.zsh"
 fi
 
-# ideavimrc (goes to home directory) 
+# ideavimrc (goes to home directory)
 if [[ -f ".config/nvim/.ideavimrc" ]]; then
   safe_ln "$(pwd)/.config/nvim/.ideavimrc" "$HOME/.ideavimrc"
 fi
@@ -127,7 +127,7 @@ echo "✅ All symlinks set with new structure!"
 echo ""
 echo "📁 Structure summary:"
 echo "  ~/.config/nvim       ← .config/nvim"
-echo "  ~/.config/starship   ← .config/starship" 
+echo "  ~/.config/starship   ← .config/starship"
 echo "  ~/.config/atuin      ← .config/atuin"
 echo "  ~/.config/zsh        ← .config/zsh"
 echo "  ~/.bin               ← bin"

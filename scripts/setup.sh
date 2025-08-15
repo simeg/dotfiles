@@ -263,7 +263,7 @@ install_packages() {
     if [[ "$DOTFILES_CI" == "true" ]] && [[ -f "install/Brewfile.ci-minimal" ]]; then
         brewfile="install/Brewfile.ci-minimal"
         log_info "Using minimal CI Brewfile for faster installation"
-        
+
         # Handle common CI package conflicts
         log_info "Resolving package conflicts in CI environment..."
         brew unlink openssl@1.1 2>/dev/null || true

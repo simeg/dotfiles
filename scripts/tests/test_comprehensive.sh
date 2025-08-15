@@ -21,20 +21,20 @@ run_test_suite() {
     local suite_name="$1"
     local test_script="$2"
     local suite_args="${3:-}"
-    
+
     echo
     echo -e "${PURPLE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo -e "${CYAN}🧪 Running Test Suite: ${suite_name}${NC}"
     echo -e "${PURPLE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    
+
     SUITES_RUN=$((SUITES_RUN + 1))
-    
+
     if [[ ! -f "$test_script" ]]; then
         log_error "Test script not found: $test_script"
         SUITES_FAILED=$((SUITES_FAILED + 1))
         return 1
     fi
-    
+
     if bash "$test_script" "$suite_args"; then
         log_success "✅ $suite_name completed successfully"
         SUITES_PASSED=$((SUITES_PASSED + 1))
@@ -81,7 +81,7 @@ run_quick_tests() {
     echo -e "${CYAN}🚀 Running Quick Test Suite${NC}"
     echo "This runs essential validation tests for rapid feedback"
     echo
-    
+
     run_test_suite "Quick Basic Tests" "$SCRIPT_DIR/test_dotfiles.sh" "--quick"
     run_test_suite "Configuration Validation" "$SCRIPT_DIR/test_advanced.sh" "config"
 }
@@ -91,19 +91,19 @@ run_full_tests() {
     echo -e "${CYAN}🚀 Running Full Comprehensive Test Suite${NC}"
     echo "This includes all available tests: basic, CI, and advanced"
     echo
-    
+
     local start_time
     start_time=$(date +%s)
-    
+
     # Run all test suites
     run_basic_tests
     run_ci_tests
     run_advanced_tests
-    
+
     local end_time duration
     end_time=$(date +%s)
     duration=$((end_time - start_time))
-    
+
     echo
     echo -e "${PURPLE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo -e "${BLUE}📊 Comprehensive Test Summary${NC}"
@@ -113,7 +113,7 @@ run_full_tests() {
     echo -e "  ${RED}❌ Failed: $SUITES_FAILED${NC}"
     echo -e "  ⏱️  Duration: ${duration}s"
     echo
-    
+
     if [[ $SUITES_FAILED -gt 0 ]]; then
         echo -e "${RED}💥 Some test suites failed. Please review the output above for details.${NC}"
         echo -e "${YELLOW}💡 Try running individual test suites to isolate issues:${NC}"
@@ -133,7 +133,7 @@ run_precommit_tests() {
     echo -e "${CYAN}🔍 Running Pre-Commit Tests${NC}"
     echo "Fast essential checks before committing changes"
     echo
-    
+
     # Only run syntax and basic validation
     run_test_suite "Syntax Validation" "$SCRIPT_DIR/test_dotfiles.sh" "--syntax-only"
     run_test_suite "CI Tests" "$SCRIPT_DIR/test_ci.sh"
@@ -143,26 +143,26 @@ run_precommit_tests() {
 # Create test report
 generate_test_report() {
     local output_file="${1:-$HOME/dotfiles-test-report.txt}"
-    
+
     log_info "Generating comprehensive test report..."
-    
+
     {
         echo "Dotfiles Comprehensive Test Report"
         echo "Generated: $(date)"
         echo "=================================="
         echo
-        
+
         echo "SYSTEM INFORMATION:"
         echo "- OS: $(uname -s) $(uname -r)"
         echo "- Shell: $SHELL"
         echo "- Date: $(date)"
         echo
-        
+
         echo "TEST EXECUTION:"
         run_full_tests 2>&1
-        
+
     } > "$output_file"
-    
+
     log_success "Test report saved to: $output_file"
 }
 
@@ -206,29 +206,29 @@ show_help() {
 check_dependencies() {
     local missing_deps=()
     local required_deps=("zsh" "bash" "git")
-    
+
     for dep in "${required_deps[@]}"; do
         if ! command -v "$dep" >/dev/null 2>&1; then
             missing_deps+=("$dep")
         fi
     done
-    
+
     if [[ ${#missing_deps[@]} -gt 0 ]]; then
         log_error "Missing required dependencies: ${missing_deps[*]}"
         echo "Please install missing dependencies and try again."
         exit 2
     fi
-    
+
     # Check for optional but recommended dependencies
     local recommended_deps=("jq" "bc")
     local missing_recommended=()
-    
+
     for dep in "${recommended_deps[@]}"; do
         if ! command -v "$dep" >/dev/null 2>&1; then
             missing_recommended+=("$dep")
         fi
     done
-    
+
     if [[ ${#missing_recommended[@]} -gt 0 ]]; then
         log_warning "Missing recommended dependencies: ${missing_recommended[*]}"
         log_warning "Some advanced tests may not work properly"
@@ -239,7 +239,7 @@ check_dependencies() {
 main() {
     # Check dependencies first
     check_dependencies
-    
+
     case "${1:-full}" in
         full|"")
             run_full_tests

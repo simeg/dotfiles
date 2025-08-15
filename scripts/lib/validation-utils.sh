@@ -33,13 +33,13 @@ get_validation_summary() {
 validate_zsh_syntax() {
     local config_file="$1"
     local description="${2:-Zsh config file}"
-    
+
     if [[ ! -f "$config_file" ]]; then
         log_error "$description: File not found - $config_file"
         ((VALIDATIONS_FAILED++))
         return 1
     fi
-    
+
     if zsh -n "$config_file" 2>/dev/null; then
         log_success "$description: Syntax is valid"
         ((VALIDATIONS_PASSED++))
@@ -56,7 +56,7 @@ check_symlink_target() {
     local link_path="$1"
     local expected_target="$2"
     local description="${3:-Symlink}"
-    
+
     if [[ ! -L "$link_path" ]]; then
         if [[ -e "$link_path" ]]; then
             log_warning "$description: $link_path exists but is not a symlink"
@@ -67,10 +67,10 @@ check_symlink_target() {
         fi
         return 1
     fi
-    
+
     local actual_target
     actual_target=$(readlink "$link_path")
-    
+
     if [[ "$actual_target" == "$expected_target" ]]; then
         log_success "$description: $link_path → $expected_target"
         ((VALIDATIONS_PASSED++))
@@ -86,7 +86,7 @@ check_symlink_target() {
 check_file_exists() {
     local file_path="$1"
     local description="${2:-File}"
-    
+
     if [[ -f "$file_path" ]]; then
         log_success "$description: $file_path exists"
         ((VALIDATIONS_PASSED++))
@@ -102,7 +102,7 @@ check_file_exists() {
 check_directory_exists() {
     local dir_path="$1"
     local description="${2:-Directory}"
-    
+
     if [[ -d "$dir_path" ]]; then
         log_success "$description: $dir_path exists"
         ((VALIDATIONS_PASSED++))
@@ -120,11 +120,11 @@ validate_config_directory() {
     local description="${2:-Configuration directory}"
     shift 2
     local required_files=("$@")
-    
+
     if ! check_directory_exists "$config_dir" "$description"; then
         return 1
     fi
-    
+
     local missing_files=()
     for file in "${required_files[@]}"; do
         local file_path="$config_dir/$file"
@@ -132,7 +132,7 @@ validate_config_directory() {
             missing_files+=("$file")
         fi
     done
-    
+
     if [[ ${#missing_files[@]} -eq 0 ]]; then
         log_success "$description: All required files present"
         ((VALIDATIONS_PASSED++))
@@ -149,13 +149,13 @@ check_command_with_version() {
     local command_name="$1"
     local description="${2:-$command_name}"
     local min_version="${3:-}"
-    
+
     if ! check_command_exists "$command_name"; then
         log_error "$description: Command not found"
         ((VALIDATIONS_FAILED++))
         return 1
     fi
-    
+
     local version=""
     case "$command_name" in
         git) version=$(git --version 2>/dev/null | sed 's/git version //') ;;
@@ -164,7 +164,7 @@ check_command_with_version() {
         nvim) version=$(nvim --version 2>/dev/null | head -1 | sed 's/NVIM v//') ;;
         *) version="Available" ;;
     esac
-    
+
     if [[ -n "$min_version" ]] && [[ "$version" != "Available" ]]; then
         if version_gte "$version" "$min_version"; then
             log_success "$description: $command_name v$version (>= $min_version)"
@@ -187,19 +187,19 @@ validate_shell_config() {
     local shell_name="$1"
     local config_file="$2"
     local description="${3:-$shell_name configuration}"
-    
+
     # Check if shell is available
     if ! check_command_exists "$shell_name"; then
         log_error "$description: $shell_name not installed"
         ((VALIDATIONS_FAILED++))
         return 1
     fi
-    
+
     # Check if config file exists
     if ! check_file_exists "$config_file" "$description file"; then
         return 1
     fi
-    
+
     # Validate syntax for known shells
     case "$shell_name" in
         zsh)
@@ -228,10 +228,10 @@ validate_shell_config() {
 validate_git_config() {
     local git_config_name="$1"
     local description="${2:-Git $git_config_name}"
-    
+
     local config_value
     config_value=$(git config --global "$git_config_name" 2>/dev/null || echo "")
-    
+
     if [[ -n "$config_value" ]]; then
         log_success "$description: '$config_value'"
         ((VALIDATIONS_PASSED++))
@@ -248,16 +248,16 @@ check_file_permissions() {
     local file_path="$1"
     local expected_perms="$2"
     local description="${3:-File permissions}"
-    
+
     if [[ ! -e "$file_path" ]]; then
         log_error "$description: $file_path does not exist"
         ((VALIDATIONS_FAILED++))
         return 1
     fi
-    
+
     local actual_perms
     actual_perms=$(stat -f "%A" "$file_path" 2>/dev/null || stat -c "%a" "$file_path" 2>/dev/null)
-    
+
     if [[ "$actual_perms" == "$expected_perms" ]]; then
         log_success "$description: $file_path has correct permissions ($expected_perms)"
         ((VALIDATIONS_PASSED++))
@@ -273,7 +273,7 @@ check_file_permissions() {
 validate_default_shell() {
     local expected_shell="$1"
     local description="${2:-Default shell}"
-    
+
     if [[ "$SHELL" == *"$expected_shell"* ]]; then
         log_success "$description: $expected_shell is set as default"
         ((VALIDATIONS_PASSED++))
@@ -290,13 +290,13 @@ validate_config_file_syntax() {
     local config_file="$1"
     local file_type="${2:-auto}"
     local description="${3:-Configuration file}"
-    
+
     if [[ ! -f "$config_file" ]]; then
         log_error "$description: File not found - $config_file"
         ((VALIDATIONS_FAILED++))
         return 1
     fi
-    
+
     # Auto-detect file type if not specified
     if [[ "$file_type" == "auto" ]]; then
         case "$config_file" in
@@ -306,7 +306,7 @@ validate_config_file_syntax() {
             *) file_type="unknown" ;;
         esac
     fi
-    
+
     case "$file_type" in
         json)
             if command -v jq >/dev/null 2>&1; then

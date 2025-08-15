@@ -22,7 +22,7 @@ if command -v kubectl &>/dev/null; then
     unset -f _kubectl_completion_lazy_load
     source <(command kubectl completion zsh)
   }
-  
+
   # Hook into kubecolor to load completions on first use
   kubecolor() {
     if typeset -f _kubectl_completion_lazy_load > /dev/null; then
@@ -35,7 +35,7 @@ fi
 # ☁️ Google Cloud SDK (lazy load completions on first use)
 if [[ -f "$(brew --prefix)/share/google-cloud-sdk/path.zsh.inc" ]]; then
   source "$(brew --prefix)/share/google-cloud-sdk/path.zsh.inc"
-  
+
   # Lazy load completions
   gcloud() {
     unset -f gcloud

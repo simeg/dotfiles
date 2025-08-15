@@ -21,7 +21,7 @@ if [[ -f "$HOME/.sdkman/bin/sdkman-init.sh" ]]; then
     source "$HOME/.sdkman/bin/sdkman-init.sh"
     sdk "$@"
   }
-  
+
   # Create wrappers for commands not already in PATH
   for cmd in java scala sbt gradle mvn; do
     if ! command -v $cmd &>/dev/null; then

@@ -298,7 +298,7 @@ check_dependency_health() {
 find_path_source() {
     local target_path="$1"
     local possible_sources=()
-    
+
     # Check common locations where PATH might be set
     local config_files=(
         "$HOME/.zshrc"
@@ -311,13 +311,13 @@ find_path_source() {
         "/etc/paths"
         "/etc/paths.d/*"
     )
-    
+
     for config_file in "${config_files[@]}"; do
         if [[ -f "$config_file" ]] && grep -q "$target_path" "$config_file" 2>/dev/null; then
             possible_sources+=("$config_file")
         fi
     done
-    
+
     # Check /etc/paths.d/ directory
     if [[ -d "/etc/paths.d" ]]; then
         while IFS= read -r -d '' file; do
@@ -326,7 +326,7 @@ find_path_source() {
             fi
         done < <(find "/etc/paths.d" -type f -print0 2>/dev/null)
     fi
-    
+
     # Check if it might be set by a tool installation
     local tool_indicators=(
         "homebrew:brew --prefix"
@@ -337,11 +337,11 @@ find_path_source() {
         "go:GOPATH"
         "google-cloud-sdk:gcloud info --format='value(installation.sdk_root)'"
     )
-    
+
     for indicator in "${tool_indicators[@]}"; do
         local tool_name="${indicator%:*}"
         local check_cmd="${indicator#*:}"
-        
+
         if command -v "${tool_name}" &>/dev/null || [[ -n "${!tool_name}" ]]; then
             local tool_path
             if [[ "$check_cmd" == *"gcloud"* ]]; then
@@ -349,13 +349,13 @@ find_path_source() {
             else
                 tool_path=$(eval "echo \$${check_cmd}" 2>/dev/null || echo "")
             fi
-            
+
             if [[ -n "$tool_path" ]] && [[ "$target_path" == *"$tool_path"* ]]; then
                 possible_sources+=("$tool_name installation")
             fi
         fi
     done
-    
+
     printf '%s\n' "${possible_sources[@]}"
 }
 
@@ -390,7 +390,7 @@ check_path_health() {
         log_warning "Found ${#bad_paths[@]} non-existent directories in PATH:"
         for bad_path in "${bad_paths[@]}"; do
             echo "    ❌ $bad_path"
-            
+
             # Try to find where this PATH entry might be coming from
             local sources
             sources=$(find_path_source "$bad_path")

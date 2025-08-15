@@ -85,30 +85,30 @@ if which_key_ok then
     { '<leader>fg', desc = 'Live grep' },
     { '<leader>fb', desc = 'Find buffers' },
     { '<leader>fh', desc = 'Find help' },
-    
+
     -- Git operations (avoiding overlap with zen mode)
     { '<leader>h', group = 'hunk' },
     { '<leader>hp', desc = 'Preview hunk' },
     { '<leader>hs', desc = 'Stage hunk' },
     { '<leader>hr', desc = 'Reset hunk' },
     { '<leader>hb', desc = 'Blame line' },
-    
+
     -- Git signs (using different prefix to avoid overlap)
     { '<leader>gp', desc = 'Preview hunk' },
     { '<leader>gt', desc = 'Toggle line blame' },
-    
+
     -- Toggle operations
     { '<leader>t', group = 'toggle' },
     { '<leader>tb', desc = 'Toggle git blame' },
     { '<leader>td', desc = 'Toggle deleted' },
-    
+
     -- Single key operations
     { '<leader>c', desc = 'Clear search highlights' },
     { '<leader>n', desc = 'Toggle file tree' },
     { '<leader>s', desc = 'Toggle spell check' },
     { '<leader>i', desc = 'Toggle comment' },
     { '<leader>g', desc = 'Zen mode' },
-    
+
     -- LSP operations
     { '<leader>r', group = 'refactor' },
     { '<leader>rn', desc = 'Rename symbol' },
@@ -116,7 +116,7 @@ if which_key_ok then
     { '<leader>ca', desc = 'Code actions' },
     { '<leader>e', desc = 'Show diagnostics' },
     { '<leader>q', desc = 'Diagnostic list' },
-    
+
     -- Navigation
     { 'gd', desc = 'Go to definition' },
     { 'gD', desc = 'Go to declaration' },
