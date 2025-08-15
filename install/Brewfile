@@ -51,6 +51,8 @@ brew "eza"                    # Modern ls replacement
 brew "glow"                   # Markdown reader
 brew "git-delta"              # Enhanced git diff viewer (better than diff-so-fancy)
 brew "gawk"                   # GNU awk with advanced features
+brew "findutils"              # gives you gfind, gxargs, etc.
+brew "gnu-sed"                # gsed for consistent -i behavior
 
 # File Management
 brew "zoxide"                 # Smart cd command
