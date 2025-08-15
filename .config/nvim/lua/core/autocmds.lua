@@ -194,3 +194,16 @@ autocmd('FileType', {
     vim.opt_local.spell = true
   end,
 })
+
+-- User Commands
+-- Toggle spelling command
+vim.api.nvim_create_user_command('Spelling', function()
+  if vim.opt.spell:get() then
+    vim.opt.spell = false
+    print('Spelling disabled')
+  else
+    vim.opt.spell = true
+    vim.opt.spelllang = 'en_us'
+    print('Spelling enabled (en_us)')
+  end
+end, { desc = 'Toggle English US spelling' })
