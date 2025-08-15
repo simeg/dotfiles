@@ -10,7 +10,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 make setup                 # Complete dotfiles setup (symlinks, packages, validation)
 make update                # Update all components (git, packages, plugins)
 make validate              # Verify all configurations are working correctly
-make test                  # Run complete test suite (with options: quick, advanced, ci)
+make test                  # Run complete Bats test suite
+make test-quick            # Quick configuration validation tests
+make test-advanced         # Advanced tests (performance + security)
+make test-ci               # CI-compatible tests
+make test-legacy           # Legacy shell-based test suite (for compatibility)
 make packages              # Install and sync packages from Brewfile
 make health                # System diagnostics and health checks
 make clean                 # Remove broken symlinks and temporary files
@@ -152,6 +156,6 @@ This dotfiles repository includes 8 major feature areas, each with comprehensive
 **File**: [`docs/development/features/CUSTOM_UTILITIES.md`](docs/development/features/CUSTOM_UTILITIES.md)  
 **Summary**: Collection of custom command-line tools for file operations, Git workflow, and productivity
 
-### 9. Advanced Testing Framework
+### 9. Advanced Testing Framework (Bats-based)
 **File**: [`docs/development/TESTING_FRAMEWORK.md`](docs/development/TESTING_FRAMEWORK.md)  
-**Summary**: Comprehensive testing system with configuration validation, performance regression testing, and security compliance checks
+**Summary**: Bats-based testing system with configuration validation, performance regression testing, and security compliance checks
