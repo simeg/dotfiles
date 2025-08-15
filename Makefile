@@ -91,42 +91,42 @@ help:
 # Complete setup process for new dotfiles installation
 setup:
 	@echo "🚀 Starting complete dotfiles setup..."
-	$(SCRIPTS_DIR)/setup.sh
+	@$(SCRIPTS_DIR)/setup.sh
 
 # Minimal setup (essential only, faster)
 setup-minimal:
 	@echo "🔧 Running minimal setup (essential only)..."
-	DOTFILES_MINIMAL=true $(SCRIPTS_DIR)/setup.sh
+	@DOTFILES_MINIMAL=true $(SCRIPTS_DIR)/setup.sh
 
 # Update all components: git repos, packages, plugins, and configurations
 update:
 	@echo "🔄 Updating all dotfiles components..."
-	$(SCRIPTS_DIR)/update.sh
+	@$(SCRIPTS_DIR)/update.sh
 
 # Validate that all configurations are working correctly
 validate:
 	@echo "✅ Validating dotfiles configuration..."
-	$(SCRIPTS_DIR)/validate.sh
+	@$(SCRIPTS_DIR)/validate.sh
 
 # Comprehensive test suite
 test:
 	@echo "🧪 Running complete test suite..."
-	$(TEST_COMPREHENSIVE) full
+	@$(TEST_COMPREHENSIVE) full
 
 # Quick validation tests
 test-quick:
-	@echo "⚡ Running quick validation tests..."
-	$(TEST_COMPREHENSIVE) quick
+	@echo "⚡️ Running quick validation tests..."
+	@$(TEST_COMPREHENSIVE) quick
 
 # Advanced test suite (performance + security)
 test-advanced:
 	@echo "🚀 Running advanced test suite..."
-	$(TEST_ADVANCED) all
+	@$(TEST_ADVANCED) all
 
 # CI-compatible tests
 test-ci:
 	@echo "🤖 Running CI-compatible tests..."
-	$(TEST_CI)
+	@$(TEST_CI)
 	@if [[ "$${CI:-false}" == "true" ]] || [[ -n "$${GITHUB_ACTIONS:-}" ]] || [[ "$${DOTFILES_CI:-false}" == "true" ]]; then \
 		echo "🧪 Running integration tests in CI..."; \
 		$(TEST_INTEGRATION); \
@@ -135,7 +135,8 @@ test-ci:
 # Run shellcheck linting on all shell scripts
 lint:
 	@echo "🔍 Running shellcheck on all shell scripts..."
-	$(SCRIPTS_DIR)/shellcheck.sh
+	@$(SCRIPTS_DIR)/shellcheck.sh
+	@echo "✅ Linting completed"
 
 # Clean up broken symlinks, temporary files, and caches
 clean:
@@ -170,27 +171,27 @@ packages:
 # Check all dependencies are installed and properly configured
 deps:
 	@echo "🔧 Checking all dependencies..."
-	$(SCRIPTS_DIR)/check-deps.sh
+	@$(SCRIPTS_DIR)/check-deps.sh
 
 # System health and diagnostics
 health:
 	@echo "🏥 Running comprehensive system health check..."
-	$(MONITOR_HEALTH)
+	@$(MONITOR_HEALTH)
 	@echo ""
 	@echo "💡 Tip: Use 'make health-monitor', 'make health-analytics', or 'make health-profile' for specialized diagnostics"
 
 # Real-time system monitoring dashboard
 health-monitor:
 	@echo "📊 Starting real-time system monitoring dashboard..."
-	$(MONITOR_SYSTEM) dashboard
+	@$(MONITOR_SYSTEM) dashboard
 
 # Comprehensive analytics (package usage and performance)
 health-analytics:
-	@echo "🔍 Running comprehensive analytics..."
+	@echo "📈 Running comprehensive analytics..."
 	@echo "📊 Package Usage Analysis:"
 	@$(ANALYTICS_PACKAGE) analyze || echo "⚠️  Package analytics require data collection (run commands first)"
 	@echo ""
-	@echo "⚡ Performance Analysis:"
+	@echo "⚡️ Performance Analysis:"
 	@$(ANALYTICS_PERFORMANCE) comprehensive || echo "⚠️  Performance monitoring requires data collection"
 	@echo ""
 	@echo "🚀 Enhanced Analytics:"
@@ -199,12 +200,12 @@ health-analytics:
 # Shell startup performance profiling
 health-profile:
 	@echo "📊 Profiling shell startup performance..."
-	$(PROFILE_SHELL)
+	@$(PROFILE_SHELL)
 
 # Take system metrics snapshot
 snapshot:
 	@echo "📸 Taking system metrics snapshot..."
-	$(MONITOR_SYSTEM) snapshot
+	@$(MONITOR_SYSTEM) snapshot --quiet
 
 # =============================================================================
 # LEGACY COMPATIBILITY TARGETS
@@ -214,7 +215,7 @@ install: packages
 
 symlink:
 	@echo "🔗 Creating symbolic links..."
-	$(SCRIPTS_DIR)/symlink.sh
+	@$(SCRIPTS_DIR)/symlink.sh
 
 uninstall: clean
 

@@ -83,31 +83,31 @@ analyze_productivity_metrics() {
     unique_commands=$(sort "$dev_commands" | uniq | wc -l)
     
     log_info "📈 Overall Activity:"
-    echo "  Total commands executed: $total_commands"
-    echo "  Unique commands used: $unique_commands"
-    echo "  Command diversity: $(( (unique_commands * 100) / (total_commands + 1) ))%"
+    printf "  %-25s %s\n" "Total commands executed:" "$total_commands"
+    printf "  %-25s %s\n" "Unique commands used:" "$unique_commands"
+    printf "  %-25s %s\n" "Command diversity:" "$(( (unique_commands * 100) / (total_commands + 1) ))%"
     echo
     
     # Git productivity
     local git_count git_commits
     git_count=$(wc -l < "$git_commands")
-    git_commits=$(grep -c '^git commit\|^git add\|^git push' "$git_commands" 2>/dev/null || echo 0)
+    git_commits=$(grep -cE '^(git commit|git add|git push)' "$git_commands" 2>/dev/null) || git_commits=0
     
     log_info "🔧 Git Productivity:"
-    echo "  Git commands: $git_count"
-    echo "  Estimated commits/pushes: $git_commits"
-    echo "  Git usage frequency: $(( git_count * 100 / (total_commands + 1) ))%"
+    printf "  %-25s %s\n" "Git commands:" "$git_count"
+    printf "  %-25s %s\n" "Estimated commits/pushes:" "$git_commits"
+    printf "  %-25s %s\n" "Git usage frequency:" "$(( git_count * 100 / (total_commands + 1) ))%"
     echo
     
     # File editing productivity
     local edit_count view_count
-    edit_count=$(grep -cE '^(nvim|vim|code|nano|emacs)' "$file_commands" 2>/dev/null || echo 0)
-    view_count=$(grep -cE '^(cat|less|more|bat)' "$file_commands" 2>/dev/null || echo 0)
+    edit_count=$(grep -cE '^(nvim|vim|code|nano|emacs)' "$file_commands" 2>/dev/null) || edit_count=0
+    view_count=$(grep -cE '^(cat|less|more|bat)' "$file_commands" 2>/dev/null) || view_count=0
     
     log_info "📝 File Management:"
-    echo "  Editing sessions: $edit_count"
-    echo "  File views: $view_count"
-    echo "  Edit/view ratio: $(( (edit_count * 100) / (view_count + edit_count + 1) ))%"
+    printf "  %-25s %s\n" "Editing sessions:" "$edit_count"
+    printf "  %-25s %s\n" "File views:" "$view_count"
+    printf "  %-25s %s\n" "Edit/view ratio:" "$(( (edit_count * 100) / (view_count + edit_count + 1) ))%"
     echo
     
     # Time-based patterns
@@ -177,7 +177,7 @@ analyze_time_patterns() {
 analyze_efficiency_metrics() {
     local commands_file="$1"
     
-    log_info "⚡ Efficiency Metrics:"
+    log_info "⚡️ Efficiency Metrics:"
     
     # Command repetition patterns (potential for aliasing)
     local repeated_commands
@@ -455,7 +455,7 @@ analyze_performance_optimizations() {
         slow_frequent_commands=$(join -1 2 -2 5 <(sort -k2,2 "$COMMAND_FREQ_CACHE") <(grep "command_exec" "$PERF_DATA" | awk -F',' '$3/1000000 > 1000 {print $5}' | sort) | sort -nr | head -3)
         
         if [[ -n "$slow_frequent_commands" ]]; then
-            echo "⚡ Performance Optimizations:" >> "$suggestions_file"
+            echo "⚡️ Performance Optimizations:" >> "$suggestions_file"
             echo "$slow_frequent_commands" | while read -r count cmd _; do
                 case "$cmd" in
                     find*)

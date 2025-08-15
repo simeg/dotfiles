@@ -37,20 +37,22 @@ get_system_metrics() {
     # Memory Usage - align with Activity Monitor calculation
     local memory_info
     if check_command_exists "vm_stat"; then
-        local pages_free pages_active pages_inactive pages_wired pages_compressed
+        local pages_free pages_active pages_inactive pages_speculative pages_wired
         pages_free=$(vm_stat | awk '/Pages free/ {print $3}' | sed 's/\.//')
         pages_active=$(vm_stat | awk '/Pages active/ {print $3}' | sed 's/\.//')
         pages_inactive=$(vm_stat | awk '/Pages inactive/ {print $3}' | sed 's/\.//')
+        pages_speculative=$(vm_stat | awk '/Pages speculative/ {print $3}' | sed 's/\.//')
         pages_wired=$(vm_stat | awk '/Pages wired down/ {print $4}' | sed 's/\.//')
-        pages_compressed=$(vm_stat | awk '/Pages stored in compressor/ {print $5}' | sed 's/\.//')
         
-        # Calculate total physical memory
-        local total_pages=$((pages_free + pages_active + pages_inactive + pages_wired))
+        # Calculate total physical memory (include speculative pages)
+        local total_pages=$((pages_free + pages_active + pages_inactive + pages_speculative + pages_wired))
         
         # App Memory = active pages (apps currently using memory)
-        # Wired Memory = wired pages (kernel and essential system memory)
-        # This matches Activity Monitor's "Memory Used" calculation
-        local used_pages=$((pages_active + pages_wired + pages_compressed))
+        # Wired Memory = wired pages (kernel and essential system memory)  
+        # Compressed Memory = compressed pages (these are saved memory, not used)
+        # Activity Monitor shows: App Memory + Wired Memory + Compressed Memory
+        # But compressed memory is actually saved space, so we'll count it differently
+        local used_pages=$((pages_active + pages_wired))
         local memory_usage_percent=$((used_pages * 100 / total_pages))
         
         memory_info="$memory_usage_percent"
@@ -230,7 +232,7 @@ draw_metrics_section() {
     printf "  %-20s %s\n" "💻 CPU Usage:" "$(format_percentage "$cpu_usage")"
     printf "  %-20s %s\n" "🧠 Memory Usage:" "$(format_percentage "$memory_usage")"
     printf "  %-20s %s\n" "💾 Disk Usage:" "$(format_percentage "$disk_usage")"
-    printf "  %-20s %s\n" "⚡ Load Average:" "$(format_load_average "$load_avg")"
+    printf "  %-18s %s\n" "⚡️ Load Average:" "$(format_load_average "$load_avg")"
     printf "  %-20s %s\n" "🔄 Processes:" "${process_count:-N/A}"
     
     echo
@@ -287,7 +289,7 @@ draw_analytics_section() {
 
 draw_performance_section() {
     echo
-    echo -e "${BOLD}${PURPLE}⚡ Performance Monitor${NC}"
+    echo -e "${BOLD}${PURPLE}⚡️ Performance Monitor${NC}"
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     
     # Performance data from analytics
@@ -313,7 +315,7 @@ draw_performance_section() {
             }'
         fi
     else
-        echo "  ⚡ No performance data available"
+        echo "  ⚡️ No performance data available"
         echo "  💡 Run 'make analytics' to start monitoring"
     fi
 }
@@ -355,7 +357,7 @@ format_startup_time() {
     
     # Use arithmetic expansion for comparison (safer with integers)
     if (( ms_time < 100 )); then
-        echo -e "${GREEN}${ms_time}ms ⚡${NC}"
+        echo -e "${GREEN}${ms_time}ms ⚡️${NC}"
     elif (( ms_time < 500 )); then
         echo -e "${YELLOW}${ms_time}ms ⚠️${NC}"
     else
@@ -477,7 +479,7 @@ show_analytics_detail() {
 
 show_performance_detail() {
     clear
-    echo -e "${BOLD}${PURPLE}⚡ Performance Dashboard${NC}"
+    echo -e "${BOLD}${PURPLE}⚡️ Performance Dashboard${NC}"
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo
     
@@ -609,14 +611,20 @@ show_help() {
 
 take_snapshot() {
     local system_metrics dotfiles_metrics health_status
+    local suppress_message="$1"
     
-    # Show loading message with spinner
-    echo -e "${BLUE}📸 Taking system metrics snapshot...${NC}"
+    # Show loading message with spinner (unless suppressed)
+    if [[ "$suppress_message" != "--quiet" ]]; then
+        echo -e "${BLUE}📸 Taking system metrics snapshot...${NC}"
+    fi
     
-    # Collect metrics directly
-    get_system_metrics > "/tmp/system_metrics.json"
-    get_dotfiles_metrics > "/tmp/dotfiles_metrics.json" 
-    get_health_status > "/tmp/health_status.json"
+    # Collect metrics with spinner
+    (
+        get_system_metrics > "/tmp/system_metrics.json"
+        get_dotfiles_metrics > "/tmp/dotfiles_metrics.json" 
+        get_health_status > "/tmp/health_status.json"
+    ) &
+    show_spinner $! "Analyzing system state..."
     
     # Read collected metrics
     system_metrics=$(cat "/tmp/system_metrics.json" 2>/dev/null)
@@ -664,7 +672,8 @@ main() {
                 exit 0
                 ;;
             --snapshot|snapshot)
-                take_snapshot
+                shift  # consume the snapshot command
+                take_snapshot "$@"  # pass any remaining arguments
                 exit 0
                 ;;
             --health|health)

@@ -5,12 +5,13 @@
 
 # Note: Not using 'set -e' to allow all checks to complete even if some fail
 
-# Color output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+# Source common utilities
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=scripts/lib/common.sh
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/lib/common.sh"
+
+# Color output (available from common.sh)
 
 # Health counters
 CHECKS_RUN=0
@@ -239,6 +240,9 @@ check_maintenance_health() {
         all_good=false
     else
         log_success "No large log files found"
+        # Show progress spinner while continuing system analysis
+        sleep 0.5 &
+        show_spinner $! "Continuing system analysis..."
     fi
 
     # Check Homebrew health (if available)

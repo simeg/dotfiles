@@ -75,15 +75,20 @@ check_core_deps() {
     check_command "zsh" "Zsh shell" "brew install zsh"
     
     # For CI environments, accept either vim or nvim
+    DEPS_CHECKED=$((DEPS_CHECKED + 1))
     if check_command_exists "nvim"; then
-        check_command "nvim" "Neovim editor" "brew install neovim"
+        if check_command_with_version "nvim" "Neovim editor"; then
+            DEPS_FOUND=$((DEPS_FOUND + 1))
+        else
+            DEPS_MISSING=$((DEPS_MISSING + 1))
+            echo "    Install with: brew install neovim"
+        fi
     elif check_command_exists "vim"; then
         log_success_with_counter "Vim editor ($(vim --version | head -1))"
     else
         log_error_with_counter "Text editor (Missing)"
         echo "    Install with: brew install neovim (or vim)"
     fi
-    DEPS_CHECKED=$((DEPS_CHECKED + 1))
     
     check_command "bash" "Bash shell" "Should be available by default"
 

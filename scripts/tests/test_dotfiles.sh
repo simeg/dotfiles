@@ -5,23 +5,21 @@
 
 set -e
 
-# Color output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+# Source shared libraries
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=../lib/common.sh
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/../lib/common.sh"
+# shellcheck source=../lib/validation-utils.sh
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/../lib/validation-utils.sh"
 
 # Test counters
 TESTS_RUN=0
 TESTS_PASSED=0
 TESTS_FAILED=0
 
-# Logging functions
-log_info() {
-    echo -e "${BLUE}[INFO]${NC} $1"
-}
-
+# Override logging functions for test format
 log_success() {
     echo -e "${GREEN}[PASS]${NC} $1"
 }

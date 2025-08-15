@@ -70,7 +70,7 @@ eval "$(zoxide init zsh)"
 
 
 ########################################
-# ⚡ Quality-of-Life Tweaks
+# ⚡️ Quality-of-Life Tweaks
 ########################################
 
 # Speed up Git prompt by ignoring untracked files
