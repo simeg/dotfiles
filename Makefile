@@ -213,7 +213,7 @@ packages:
 # Check all dependencies are installed and properly configured
 deps:
 	@echo "🔧 Checking all dependencies..."
-	@$(SCRIPTS_DIR)/check-deps.sh
+	@$(SCRIPTS_DIR)/check-deps.sh || (echo "⚠️  Some dependencies are missing. This is normal for new setups."; echo "💡 Run 'make packages' to install missing packages.")
 
 # System health and diagnostics
 health:
