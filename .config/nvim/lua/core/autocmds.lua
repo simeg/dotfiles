@@ -195,6 +195,51 @@ autocmd('FileType', {
   end,
 })
 
+-- Git commit message highlighting
+autocmd('FileType', {
+  group = languages,
+  pattern = 'gitcommit',
+  callback = function()
+    -- Define highlight groups for commit message length warnings
+    vim.api.nvim_set_hl(0, 'GitCommitWarning', { bg = '#3a3a2a', fg = '#ffdd44' })
+    vim.api.nvim_set_hl(0, 'GitCommitError', { bg = '#3a2a2a', fg = '#ff6666' })
+
+    -- Function to highlight subject line based on length
+    local function highlight_subject_line()
+      local line = vim.api.nvim_get_current_line()
+      local line_num = vim.api.nvim_win_get_cursor(0)[1]
+
+      -- Only check the first line (subject line)
+      if line_num == 1 then
+        local ns_id = vim.api.nvim_create_namespace('gitcommit_length')
+        vim.api.nvim_buf_clear_namespace(0, ns_id, 0, -1)
+
+        local line_len = #line
+        if line_len > 72 then
+          -- Warning: chars 51-72 (over recommended)
+          vim.api.nvim_buf_add_highlight(0, ns_id, 'GitCommitWarning', 0, 50, 72)
+          -- Error: chars 73+ (GitHub truncation)
+          vim.api.nvim_buf_add_highlight(0, ns_id, 'GitCommitError', 0, 72, -1)
+        elseif line_len > 50 then
+          -- Warning: over 50 chars (recommended limit)
+          vim.api.nvim_buf_add_highlight(0, ns_id, 'GitCommitWarning', 0, 50, -1)
+        end
+      end
+    end
+
+    -- Set up autocommands for real-time highlighting
+    local commit_group = augroup('GitCommitLength', { clear = true })
+    autocmd({'TextChanged', 'TextChangedI', 'CursorMoved', 'CursorMovedI'}, {
+      group = commit_group,
+      buffer = 0,
+      callback = highlight_subject_line,
+    })
+
+    -- Initial highlight
+    highlight_subject_line()
+  end,
+})
+
 -- User Commands
 -- Toggle spelling command
 vim.api.nvim_create_user_command('Spelling', function()
