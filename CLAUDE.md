@@ -14,7 +14,6 @@ make test                  # Run complete Bats test suite
 make test-quick            # Quick configuration validation tests
 make test-advanced         # Advanced tests (performance + security)
 make test-ci               # CI-compatible tests
-make test-legacy           # Legacy shell-based test suite (for compatibility)
 make packages              # Install and sync packages from Brewfile
 make health                # System diagnostics and health checks
 make clean                 # Remove broken symlinks and temporary files

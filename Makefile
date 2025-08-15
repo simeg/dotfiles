@@ -25,11 +25,6 @@ TEST_ADVANCED := $(BATS_TESTS_DIR)/test_advanced_config.bats
 TEST_PERFORMANCE := $(BATS_TESTS_DIR)/test_performance.bats
 TEST_SECURITY := $(BATS_TESTS_DIR)/test_security.bats
 TEST_CONFIG := $(BATS_TESTS_DIR)/test_configuration.bats
-
-# Legacy test files (kept for reference)
-LEGACY_TEST_COMPREHENSIVE := $(TESTS_DIR)/test_comprehensive.sh
-LEGACY_TEST_CI := $(TESTS_DIR)/test_ci.sh
-LEGACY_TEST_ADVANCED := $(TESTS_DIR)/test_advanced.sh
 TEST_INTEGRATION := $(TESTS_DIR)/test_integration_local.sh
 
 # Analytics and monitoring scripts
@@ -50,7 +45,7 @@ check_mas := command -v mas >/dev/null 2>&1
 
 # Define all phony targets (targets that don't create files)
 .PHONY: all setup setup-minimal update validate test test-quick test-advanced test-ci lint clean packages deps health help \
-        health-monitor health-analytics health-profile snapshot fix-whitespace
+        health-monitor health-analytics health-profile snapshot fix-whitespace lint-whitespace
 
 # =============================================================================
 # MAIN TARGETS
@@ -165,21 +160,9 @@ test-ci:
 		$(TEST_INTEGRATION); \
 	fi
 
-# Legacy test runners (for backward compatibility)
-test-legacy:
-	@echo "🔄 Running legacy test suite..."
-	@$(LEGACY_TEST_COMPREHENSIVE) full
-
-test-legacy-quick:
-	@echo "⚡️ Running legacy quick tests..."
-	@$(LEGACY_TEST_COMPREHENSIVE) quick
-
-test-legacy-advanced:
-	@echo "🚀 Running legacy advanced tests..."
-	@$(LEGACY_TEST_ADVANCED) all
 
 # Run shellcheck linting on all shell scripts
-lint:
+lint: lint-whitespace
 	@echo "🔍 Running shellcheck on all shell scripts..."
 	@$(SCRIPTS_DIR)/shellcheck.sh
 	@echo "✅ Linting completed"
@@ -269,6 +252,24 @@ fix-whitespace:
 	  -not -path "./.git/*" \
 	  -exec $(SED) $(SED_INPLACE) -e 's/[[:space:]]\{1,\}$$//' {} +
 	@echo "✅ Done"
+
+# Finds trailing whitespace chars
+lint-whitespace:
+	@echo "🔎 Checking for trailing whitespace..."
+	@bad=$$($(FIND) . -type f \
+	  \( -name "*.zsh" -o -name "*.yml" -o -name "*.yaml" -o -name "*.toml" -o \
+	     -name "*.sh"  -o -name "*.md"  -o -name "*.lua"  -o -name "*.json" -o \
+	     -name "*.bash" -o -name "*.bats" -o -name "*.txt" \) \
+	  -not -path "./.git/*" \
+	  -exec grep -nE '[[:blank:]]+$$' {} + || true); \
+	if [ -n "$$bad" ]; then \
+	  echo "$$bad"; \
+	  echo "❌ Trailing whitespace detected"; \
+	  exit 1; \
+	else \
+	  echo "✅ No trailing whitespace found"; \
+	fi
+
 # =============================================================================
 # LEGACY COMPATIBILITY TARGETS
 # =============================================================================
