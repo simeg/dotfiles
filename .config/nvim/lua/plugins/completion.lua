@@ -11,33 +11,8 @@ if not luasnip_ok then
   return
 end
 
-local kind_icons = {
-  Text = '',
-  Method = 'm',
-  Function = '',
-  Constructor = '',
-  Field = '',
-  Variable = '',
-  Class = '',
-  Interface = '',
-  Module = '',
-  Property = '',
-  Unit = '',
-  Value = '',
-  Enum = '',
-  Keyword = '',
-  Snippet = '',
-  Color = '',
-  File = '',
-  Reference = '',
-  Folder = '',
-  EnumMember = '',
-  Constant = '',
-  Struct = '',
-  Event = '',
-  Operator = '',
-  TypeParameter = '',
-}
+-- Load VSCode-style snippets (from friendly-snippets or your own)
+require('luasnip.loaders.from_vscode').lazy_load()
 
 cmp.setup({
   snippet = {
@@ -73,19 +48,20 @@ cmp.setup({
     end, { 'i', 's' }),
   }),
   formatting = {
-    fields = { 'kind', 'abbr', 'menu' },
-    format = function(entry, vim_item)
-      vim_item.kind = string.format('%s', kind_icons[vim_item.kind])
-      vim_item.menu = ({
+    format = require('lspkind').cmp_format({
+      mode = 'symbol_text', -- 'symbol' | 'text' | 'symbol_text'
+      maxwidth = 50,
+      ellipsis_char = '…',
+      menu = {
         nvim_lsp = '[LSP]',
-        luasnip = '[Snippet]',
-        buffer = '[Buffer]',
-        path = '[Path]',
-      })[entry.source.name]
-      return vim_item
-    end,
-  },
-  sources = {
+        luasnip  = '[Snippet]',
+        buffer   = '[Buffer]',
+        path     = '[Path]',
+      },
+      -- optional: override specific icons
+      -- symbol_map = { Method = '󰆧', Variable = '󰀫' },
+    }),
+  },  sources = {
     { name = 'nvim_lsp' },
     { name = 'luasnip' },
     { name = 'buffer' },

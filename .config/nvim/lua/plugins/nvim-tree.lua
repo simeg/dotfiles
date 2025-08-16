@@ -48,25 +48,11 @@ nvim_tree.setup({
         git = true,
       },
       glyphs = {
-        default = '',
-        symlink = '',
-        folder = {
-          arrow_closed = '',
-          arrow_open = '',
-          default = '',
-          open = '',
-          empty = '',
-          empty_open = '',
-          symlink = '',
-          symlink_open = '',
-        },
         git = {
           unstaged = '✗',
           staged = '✓',
-          unmerged = '',
           renamed = '➜',
           untracked = '★',
-          deleted = '',
           ignored = '◌',
         },
       },
@@ -114,12 +100,6 @@ nvim_tree.setup({
   diagnostics = {
     enable = true,
     show_on_dirs = true,
-    icons = {
-      hint = '',
-      info = '',
-      warning = '',
-      error = '',
-    },
   },
   trash = {
     cmd = 'trash',

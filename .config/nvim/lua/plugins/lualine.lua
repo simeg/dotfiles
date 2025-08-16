@@ -10,8 +10,6 @@ lualine.setup {
   options = {
     icons_enabled = true,
     theme = 'wombat', -- Matching your vim airline theme
-    component_separators = { left = '', right = ''},
-    section_separators = { left = '', right = ''},
     disabled_filetypes = {
       statusline = {},
       winbar = {},

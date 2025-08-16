@@ -150,6 +150,7 @@ require('lazy').setup({
   -- Completion (completor.vim replacement)
   {
     'hrsh7th/nvim-cmp',
+    event = 'InsertEnter',
     dependencies = {
       'hrsh7th/cmp-nvim-lsp',
       'hrsh7th/cmp-buffer',
@@ -157,6 +158,7 @@ require('lazy').setup({
       'hrsh7th/cmp-cmdline',
       'L3MON4D3/LuaSnip',
       'saadparwaiz1/cmp_luasnip',
+      'onsails/lspkind.nvim',
     },
   },
 
@@ -222,13 +224,6 @@ require('lazy').setup({
       require('notify').setup({
         background_colour = '#000000',
         fps = 30,
-        icons = {
-          DEBUG = '',
-          ERROR = '',
-          INFO = '',
-          TRACE = '✎',
-          WARN = ''
-        },
         level = 2,
         minimum_width = 50,
         render = 'default',
@@ -300,6 +295,9 @@ require('lazy').setup({
       end, { desc = 'Hop to line' })
     end,
   },
+
+  { 'rafamadriz/friendly-snippets' },
+
 }, {
   -- Lazy.nvim configuration
   ui = {
