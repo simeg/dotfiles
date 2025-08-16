@@ -37,12 +37,30 @@ profile_startup_time() {
     local times=()
 
     for i in $(seq 1 $runs); do
-        local start_time
-        start_time=$(gdate +%s%3N 2>/dev/null || date +%s%3N)
+        local start_time end_time duration
+        if command -v gdate &> /dev/null; then
+            start_time=$(gdate +%s%3N)
+        else
+            # Fallback to seconds and convert to milliseconds
+            start_time=$(($(date +%s) * 1000))
+        fi
+
         zsh -c 'exit' 2>/dev/null
-        local end_time
-        end_time=$(gdate +%s%3N 2>/dev/null || date +%s%3N)
-        local duration=$((end_time - start_time))
+
+        if command -v gdate &> /dev/null; then
+            end_time=$(gdate +%s%3N)
+        else
+            # Fallback to seconds and convert to milliseconds
+            end_time=$(($(date +%s) * 1000))
+        fi
+
+        # Use bc for safe arithmetic with large numbers
+        if command -v bc &> /dev/null; then
+            duration=$(echo "$end_time - $start_time" | bc)
+        else
+            # Fallback to bash arithmetic (may fail with very large numbers)
+            duration=$((end_time - start_time))
+        fi
 
         times+=("${duration}ms")
         total_ms=$((total_ms + duration))
@@ -104,12 +122,26 @@ profile_config_sections() {
     for config in "${configs[@]}"; do
         local config_file="$config_dir/$config"
         if [[ -f "$config_file" ]]; then
-            local start_time
-        start_time=$(gdate +%s%3N 2>/dev/null || date +%s%3N)
+            local start_time end_time duration
+            if command -v gdate &> /dev/null; then
+                start_time=$(gdate +%s%3N)
+            else
+                start_time=$(($(date +%s) * 1000))
+            fi
+
             zsh -c "source '$config_file'" 2>/dev/null || true
-            local end_time
-        end_time=$(gdate +%s%3N 2>/dev/null || date +%s%3N)
-            local duration=$((end_time - start_time))
+
+            if command -v gdate &> /dev/null; then
+                end_time=$(gdate +%s%3N)
+            else
+                end_time=$(($(date +%s) * 1000))
+            fi
+
+            if command -v bc &> /dev/null; then
+                duration=$(echo "$end_time - $start_time" | bc)
+            else
+                duration=$((end_time - start_time))
+            fi
 
             printf "| %-17s | %7dms |\n" "$config" "$duration"
         fi
@@ -127,15 +159,29 @@ profile_plugins() {
         return
     fi
 
-    local start_time
-    start_time=$(gdate +%s%3N 2>/dev/null || date +%s%3N)
+    local start_time end_time duration
+    if command -v gdate &> /dev/null; then
+        start_time=$(gdate +%s%3N)
+    else
+        start_time=$(($(date +%s) * 1000))
+    fi
+
     zsh -c "
         source ~/.zsh/znap/znap.zsh
         source ~/.znap-plugins.zsh
     " 2>/dev/null || true
-    local end_time
-    end_time=$(gdate +%s%3N 2>/dev/null || date +%s%3N)
-    local duration=$((end_time - start_time))
+
+    if command -v gdate &> /dev/null; then
+        end_time=$(gdate +%s%3N)
+    else
+        end_time=$(($(date +%s) * 1000))
+    fi
+
+    if command -v bc &> /dev/null; then
+        duration=$(echo "$end_time - $start_time" | bc)
+    else
+        duration=$((end_time - start_time))
+    fi
 
     echo "Plugin loading time: ${duration}ms"
 
@@ -154,15 +200,29 @@ profile_plugins() {
 profile_completions() {
     log_info "Testing completion loading time..."
 
-    local start_time
-    start_time=$(gdate +%s%3N 2>/dev/null || date +%s%3N)
+    local start_time end_time duration
+    if command -v gdate &> /dev/null; then
+        start_time=$(gdate +%s%3N)
+    else
+        start_time=$(($(date +%s) * 1000))
+    fi
+
     zsh -c "
         autoload -U compinit
         compinit -C
     " 2>/dev/null || true
-    local end_time
-    end_time=$(gdate +%s%3N 2>/dev/null || date +%s%3N)
-    local duration=$((end_time - start_time))
+
+    if command -v gdate &> /dev/null; then
+        end_time=$(gdate +%s%3N)
+    else
+        end_time=$(($(date +%s) * 1000))
+    fi
+
+    if command -v bc &> /dev/null; then
+        duration=$(echo "$end_time - $start_time" | bc)
+    else
+        duration=$((end_time - start_time))
+    fi
 
     echo "Completion loading time: ${duration}ms"
 
@@ -282,6 +342,13 @@ check_dependencies() {
     if ! command -v gdate &> /dev/null && ! date +%s%3N &> /dev/null; then
         log_warning "High-resolution timing not available. Install 'coreutils' for better precision:"
         log_warning "  brew install coreutils"
+        echo
+    fi
+
+    # Check if we have bc for safe arithmetic
+    if ! command -v bc &> /dev/null; then
+        log_warning "bc not available for large number arithmetic. Install for better compatibility:"
+        log_warning "  brew install bc"
         echo
     fi
 }
