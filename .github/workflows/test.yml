@@ -73,12 +73,12 @@ jobs:
     - name: Test health check system
       run: |
         # Test health check script
-        make health || echo "Health check completed with warnings"
+        make health
 
     - name: Test performance profiling
       run: |
         # Test performance script
-        make health-profile || echo "Performance profiling completed"
+        make health-profile
 
   lint:
     runs-on: ubuntu-latest
@@ -137,8 +137,8 @@ jobs:
       run: |
         # Check if essential documentation exists
         grep -q "Private Configuration" README.md || echo "Private config documentation missing"
-        grep -q "setup.sh" README.md || echo "Setup documentation missing"
-        test -f CLAUDE.md || echo "CLAUDE.md not found"
+        grep -q "setup.sh" README.md
+        test -f CLAUDE.md
 
   compatibility:
     runs-on: ${{ matrix.os }}
@@ -161,7 +161,7 @@ jobs:
       if: matrix.os == 'macos-latest'
       run: |
         # macOS should have these by default, but ensure they're available
-        which zsh bash git vim || echo "Some tools missing"
+        which zsh bash git vim
 
     - name: Test cross-platform compatibility
       run: |
@@ -171,10 +171,10 @@ jobs:
         bash -n scripts/symlink.sh
 
         # Test that config files are valid
-        zsh -n .config/zsh/.zshrc || echo ".zshrc syntax test failed"
+        zsh -n .config/zsh/.zshrc
 
     - name: Test shell performance
       run: |
         # Quick performance test
         chmod +x scripts/profile-shell.sh
-        ./scripts/profile-shell.sh --startup || echo "Performance test skipped"
+        ./scripts/profile-shell.sh --startup

@@ -109,7 +109,7 @@ jobs:
         brew link --overwrite --force pyenv 2>/dev/null || true
 
     - name: Verify Brew bundle
-      run: brew bundle check --file=install/Brewfile.ci-minimal || true
+      run: brew bundle check --file=install/Brewfile.ci-minimal
 
     - name: Validate core installation
       run: |
