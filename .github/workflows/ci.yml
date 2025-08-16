@@ -43,21 +43,21 @@ jobs:
     - name: Test brew installation check
       run: |
         # Test that brew check works
-        ./scripts/install/brew.sh || true
+        ./scripts/install/brew.sh
 
     - name: Test symlink creation (dry run)Y
       run: |
-        # Create a temporary test dFirectory structure
+        # Create a temporary test directory structure
         mkdir -p test_home
         export HOME="$(pwd)/test_home"
 
         # Test symlink script
-        ./scripts/symlink.sh || true
+        ./scripts/symlink.sh
 
     - name: Validate vim setup script
       run: |
         # Test Neovim config exists
-        test -f .config/nvim/.ideavimrc || echo "Neovim config not found"
+        test -f .config/nvim/.ideavimrc
 
     - name: Validate zsh setup script
       run: |
