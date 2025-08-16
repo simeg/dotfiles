@@ -20,6 +20,12 @@ jobs:
 
     - name: Set up shell environment
       run: |
+        # Wait for apt locks to be released
+        while sudo fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
+          echo "Waiting for apt lock to be released..."
+          sleep 5
+        done
+
         # Install required shells
         sudo apt-get update
         sudo apt-get install -y zsh bash shellcheck
