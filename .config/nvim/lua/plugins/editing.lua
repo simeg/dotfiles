@@ -38,37 +38,6 @@ if autopairs_ok then
   end
 end
 
--- Zen Mode setup (replacement for Goyo)
-local zen_ok, zen = pcall(require, 'zen-mode')
-if zen_ok then
-  zen.setup({
-    window = {
-      backdrop = 0.95, -- shade the backdrop of the Zen window
-      width = 100, -- width of the Zen window (matching your Goyo config)
-      height = 1, -- height of the Zen window
-      options = {
-        signcolumn = 'no', -- disable signcolumn
-        number = false, -- disable number column
-        relativenumber = false, -- disable relative numbers
-        cursorline = false, -- disable cursorline
-        cursorcolumn = false, -- disable cursor column
-        foldcolumn = '0', -- disable fold column
-        list = false, -- disable whitespace characters
-      },
-    },
-    plugins = {
-      options = {
-        enabled = true,
-        ruler = false, -- disables the ruler text in the cmd line area
-        showcmd = false, -- disables the command in the last line of the screen
-      },
-      twilight = { enabled = true }, -- enable to start Twilight when zen mode opens
-      gitsigns = { enabled = false }, -- disables git signs
-      tmux = { enabled = false }, -- disables the tmux statusline
-    },
-  })
-end
-
 -- Rainbow delimiters setup (replacement for rainbow_parentheses.vim)
 local rainbow_ok, rainbow = pcall(require, 'rainbow-delimiters.setup')
 if rainbow_ok then
@@ -86,15 +55,12 @@ if which_key_ok then
     { '<leader>fb', desc = 'Find buffers' },
     { '<leader>fh', desc = 'Find help' },
 
-    -- Git operations (avoiding overlap with zen mode)
-    { '<leader>h', group = 'hunk' },
-    { '<leader>hp', desc = 'Preview hunk' },
-    { '<leader>hs', desc = 'Stage hunk' },
-    { '<leader>hr', desc = 'Reset hunk' },
-    { '<leader>hb', desc = 'Blame line' },
-
-    -- Git signs (using different prefix to avoid overlap)
+    -- Git operations
+    { '<leader>g', group = 'git' },
     { '<leader>gp', desc = 'Preview hunk' },
+    { '<leader>gs', desc = 'Stage hunk' },
+    { '<leader>gr', desc = 'Reset hunk' },
+    { '<leader>gb', desc = 'Blame line' },
     { '<leader>gt', desc = 'Toggle line blame' },
 
     -- Toggle operations
@@ -107,7 +73,6 @@ if which_key_ok then
     { '<leader>n', desc = 'Toggle file tree' },
     { '<leader>s', desc = 'Toggle spell check' },
     { '<leader>i', desc = 'Toggle comment' },
-    { '<leader>g', desc = 'Zen mode' },
 
     -- LSP operations
     { '<leader>r', group = 'refactor' },

@@ -122,10 +122,6 @@ require('lazy').setup({
     'windwp/nvim-autopairs',
   },
 
-  -- Zen mode (Goyo replacement)
-  {
-    'folke/zen-mode.nvim',
-  },
 
   -- Rainbow parentheses
   {

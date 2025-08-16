@@ -10,7 +10,6 @@
 
 alias vm="nvim ./Makefile"
 alias vp="nvim ./package.json"
-alias vt="nvim ./.travis.*"
 
 alias vimrc="nvim ~/.config/nvim/init.lua"
 alias nvimrc="nvim ~/.config/nvim/init.lua"
@@ -33,6 +32,7 @@ alias cat="smart-cat"
 alias tt="tree -C"
 alias path='echo -e ${PATH//:/\\n}'
 alias l="ls -lah"
+alias m="make"
 
 # Better directory navigation
 alias ..="cd .."
@@ -79,8 +79,7 @@ alias deps='check_maven_deps "$(list_maven_modules | fzf)"'
 # 🔧 GNU Coreutils Overrides
 ########################################
 
-# Note: if using GNU coreutils, oh-my-zsh may alias `ls` weirdly
-# Override it manually:
+# Note: if using GNU coreutils
 alias ls="eza"  # Better modern ls alternative
 
 ########################################

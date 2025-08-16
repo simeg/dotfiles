@@ -101,9 +101,6 @@ keymap('n', '<leader>q', vim.diagnostic.setloclist, opts)
 keymap('n', '<leader>gp', ':Gitsigns preview_hunk<CR>', opts)
 keymap('n', '<leader>gt', ':Gitsigns toggle_current_line_blame<CR>', opts)
 
--- Zen mode (replaces Goyo)
-keymap('n', '<leader>g', ':ZenMode<CR>', opts)
-
 -- Comments (using Comment.nvim, similar to vim-commentary)
 keymap('n', '<leader>i', function()
   require('Comment.api').toggle.linewise.current()
