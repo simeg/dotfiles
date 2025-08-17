@@ -232,7 +232,7 @@ The advanced testing system provides three categories of validation:
 
 ```bash
 # Individual test categories
-make test-advanced          # Run all advanced tests
+make test-advanced                           # Run all advanced tests
 ./scripts/tests/test_advanced.sh config      # Configuration validation only
 ./scripts/tests/test_advanced.sh performance # Performance regression tests
 ./scripts/tests/test_advanced.sh security    # Security compliance checks
@@ -260,8 +260,8 @@ The original `validate.sh` script provides basic checks:
 
 **Plugins not loading?**
 ```bash
-./scripts/update.sh --zsh-only  # Update Zsh plugins
-source ~/.zshrc                 # Reload configuration
+./scripts/update.sh --zsh-only   # Update Zsh plugins
+source ~/.zshrc                  # Reload configuration
 ```
 
 **Homebrew packages missing?**
