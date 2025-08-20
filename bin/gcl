@@ -34,8 +34,8 @@ show_usage() {
 validate_repo_url() {
     local url="$1"
 
-    # Basic URL validation
-    if [[ ! "$url" =~ ^(https?://|git@|ssh://|git://) ]]; then
+    # Basic URL validation (including file:// for testing)
+    if [[ ! "$url" =~ ^(https?://|git@|ssh://|git://|file://) ]]; then
         echo "❌ Error: Invalid repository URL format" >&2
         echo "Expected formats:" >&2
         echo "  HTTPS: https://github.com/user/repo.git" >&2

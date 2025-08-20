@@ -135,7 +135,14 @@ test:
 test-ci:
 	@echo "🧪 Running complete test suite (including CI-only tests)..."
 	@if command -v bats >/dev/null 2>&1; then \
-		bats $(BATS_TESTS_DIR); \
+		echo "Using bats: $$(which bats) (version: $$(bats --version 2>/dev/null || echo 'unknown'))"; \
+		if bats $(BATS_TESTS_DIR); then \
+			echo "✅ All tests completed successfully"; \
+		else \
+			exit_code=$$?; \
+			echo "❌ Bats test suite failed with exit code $$exit_code"; \
+			exit $$exit_code; \
+		fi; \
 	else \
 		echo "❌ Bats not found. Install with: brew install bats-core"; \
 		exit 1; \
@@ -273,3 +280,4 @@ lint-whitespace:
 symlink:
 	@echo "🔗 Creating symbolic links..."
 	@$(SCRIPTS_DIR)/symlink.sh
+

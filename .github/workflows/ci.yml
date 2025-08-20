@@ -45,7 +45,7 @@ jobs:
         # Test that brew check works
         ./scripts/install/brew.sh
 
-    - name: Test symlink creation (dry run)Y
+    - name: Test symlink creation (dry run)
       run: |
         # Create a temporary test directory structure
         mkdir -p test_home

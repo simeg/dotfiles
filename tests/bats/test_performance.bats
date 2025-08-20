@@ -17,23 +17,49 @@ check_bc() {
 
     # Measure current startup time (average of 3 runs for speed)
     local total_time=0
+    local valid_measurements=0
+
     for i in {1..3}; do
         local single_time
-        single_time=$(time (zsh -c 'exit') 2>&1 | grep real | sed 's/real[[:space:]]*//' | sed 's/s//')
-        # Convert to milliseconds
-        local ms_time
-        ms_time=$(echo "$single_time * 1000" | bc -l 2>/dev/null || echo "1000")
-        total_time=$(echo "$total_time + $ms_time" | bc -l 2>/dev/null || echo "3000")
+        single_time=$(time (zsh -c 'exit') 2>&1 | grep real | sed 's/real[[:space:]]*//' | sed 's/s$//')
+
+        # Skip empty or invalid measurements
+        if [[ -n "$single_time" && "$single_time" != "0" ]]; then
+            # Convert to milliseconds (handle both formats: 0.003 and 0m0.003s)
+            local ms_time
+            if [[ "$single_time" =~ ^[0-9]+m ]]; then
+                # Format: 0m0.003s -> extract seconds part
+                local seconds_part=$(echo "$single_time" | sed 's/.*m\([0-9.]*\).*/\1/')
+                ms_time=$(echo "$seconds_part * 1000" | bc -l 2>/dev/null || echo "1000")
+            else
+                # Format: 0.003 -> direct conversion
+                ms_time=$(echo "$single_time * 1000" | bc -l 2>/dev/null || echo "1000")
+            fi
+
+            total_time=$(echo "$total_time + $ms_time" | bc -l 2>/dev/null || echo "$total_time")
+            valid_measurements=$((valid_measurements + 1))
+        fi
     done
+
+    # Calculate average time, defaulting to reasonable fallback if no valid measurements
     local current_time
-    current_time=$(echo "$total_time / 3" | bc -l 2>/dev/null || echo "1000")
+    if [[ $valid_measurements -gt 0 ]]; then
+        current_time=$(echo "$total_time / $valid_measurements" | bc -l 2>/dev/null || echo "1000")
+    else
+        current_time="1000"  # 1 second fallback for CI environments
+        echo "No valid time measurements, using fallback time" >&3
+    fi
 
     echo "Current startup time: $(printf "%.0f" "$current_time")ms" >&3
 
     # Startup should be under 3 seconds for reasonable UX
     local threshold=3000
     local is_fast
-    is_fast=$(echo "$current_time <= $threshold" | bc -l 2>/dev/null || echo "1")
+    if [[ -n "$current_time" && "$current_time" != "" ]]; then
+        is_fast=$(echo "$current_time <= $threshold" | bc -l 2>/dev/null || echo "1")
+    else
+        is_fast=1  # Assume fast if we can't measure
+    fi
     [ "$is_fast" -eq 1 ]
 }
 

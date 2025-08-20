@@ -17,6 +17,8 @@ setup() {
     mkdir -p "$TEMP_DOTFILES/bin"
 
     # Copy scripts to test environment
+    # Ensure DOTFILES_DIR is set
+    ensure_dotfiles_dir
     cp "$DOTFILES_DIR/bin/gcl" "$TEMP_DOTFILES/bin/"
     cp "$DOTFILES_DIR/bin/use-private-git" "$TEMP_DOTFILES/bin/"
 
@@ -35,7 +37,7 @@ EOF
     export PATH="$TEMP_DOTFILES/bin:$PATH"
 
     # Update HOME references in scripts to use test directory
-    sed -i.bak "s|$HOME/repos/dotfiles|$TEMP_DOTFILES|g" "$TEMP_DOTFILES/bin/use-private-git"
+    sed -i.bak "s|\$HOME/repos/dotfiles|$TEMP_DOTFILES|g" "$TEMP_DOTFILES/bin/use-private-git"
 
     cd "$TEST_DIR"
 }
@@ -52,20 +54,20 @@ create_test_remote_repo() {
     # Create a "remote" repository
     mkdir -p "remote_repos/$repo_name.git"
     cd "remote_repos/$repo_name.git"
-    git init --bare --initial-branch="$default_branch"
+    git init --bare --initial-branch="$default_branch" >/dev/null 2>&1
 
     # Create a working copy to push initial content
     cd ../..
-    git clone "remote_repos/$repo_name.git" "temp_$repo_name"
+    git clone "remote_repos/$repo_name.git" "temp_$repo_name" >/dev/null 2>&1
     cd "temp_$repo_name"
 
     git config user.email "test@example.com"
     git config user.name "Test User"
 
     echo "# $repo_name" > README.md
-    git add README.md
-    git commit -m "Initial commit"
-    git push origin "$default_branch"
+    git add README.md >/dev/null 2>&1
+    git commit -m "Initial commit" >/dev/null 2>&1
+    git push origin "$default_branch" >/dev/null 2>&1
 
     cd ..
     rm -rf "temp_$repo_name"
@@ -79,7 +81,7 @@ create_test_remote_repo() {
     repo_url=$(create_test_remote_repo "test-main-repo" "main")
 
     # Use gcl to clone (simulate non-private repo)
-    run bash -c "echo 'n' | gcl '$repo_url' test-clone"
+    run bash -c "export PATH='$TEMP_DOTFILES/bin:$PATH'; echo 'n' | gcl '$repo_url' test-clone"
     [ "$status" -eq 0 ]
 
     cd test-clone
@@ -95,7 +97,7 @@ create_test_remote_repo() {
     repo_url=$(create_test_remote_repo "test-main-private" "main")
 
     # Use gcl to clone and set up as private repo
-    run bash -c "echo 'y' | gcl '$repo_url' test-private-main"
+    run bash -c "export PATH='$TEMP_DOTFILES/bin:$PATH'; echo 'y' | gcl '$repo_url' test-private-main"
     [ "$status" -eq 0 ]
 
     cd test-private-main
@@ -116,7 +118,7 @@ create_test_remote_repo() {
     repo_url=$(create_test_remote_repo "test-master-private" "master")
 
     # Use gcl to clone and set up as private repo
-    run bash -c "echo 'y' | gcl '$repo_url' test-private-master"
+    run bash -c "export PATH='$TEMP_DOTFILES/bin:$PATH'; echo 'y' | gcl '$repo_url' test-private-master"
     [ "$status" -eq 0 ]
 
     cd test-private-master
@@ -137,7 +139,7 @@ create_test_remote_repo() {
     repo_url=$(create_test_remote_repo "test-shallow" "main")
 
     # Use gcl with shallow clone and private setup
-    run bash -c "echo 'y' | gcl --shallow '$repo_url' test-shallow-private"
+    run bash -c "export PATH='$TEMP_DOTFILES/bin:$PATH'; echo 'y' | gcl --shallow '$repo_url' test-shallow-private"
     [ "$status" -eq 0 ]
 
     cd test-shallow-private
@@ -173,7 +175,7 @@ create_test_remote_repo() {
     rm -rf temp-for-branch
 
     # Use gcl to clone specific branch and set up as private
-    run bash -c "echo 'y' | gcl --branch develop '$repo_url' test-branch-private"
+    run bash -c "export PATH='$TEMP_DOTFILES/bin:$PATH'; echo 'y' | gcl --branch develop '$repo_url' test-branch-private"
     [ "$status" -eq 0 ]
 
     cd test-branch-private
@@ -244,7 +246,7 @@ create_test_remote_repo() {
     repo_url=$(create_test_remote_repo "test-info" "main")
 
     # Clone without private setup
-    run bash -c "echo 'n' | gcl '$repo_url' test-info-clone"
+    run bash -c "export PATH='$TEMP_DOTFILES/bin:$PATH'; echo 'n' | gcl '$repo_url' test-info-clone"
     [ "$status" -eq 0 ]
 
     # Check that output contains repository information
@@ -255,14 +257,14 @@ create_test_remote_repo() {
 }
 
 @test "gcl handles missing use-private-git gracefully" {
-    # Remove use-private-git from PATH
-    export PATH="${PATH//$TEMP_DOTFILES\/bin:/}"
+    # Remove use-private-git from the test environment but keep gcl
+    rm -f "$TEMP_DOTFILES/bin/use-private-git"
 
     # Create test remote repo
     repo_url=$(create_test_remote_repo "test-missing-tool" "main")
 
     # Try to clone with private setup
-    run bash -c "echo 'y' | gcl '$repo_url' test-missing-tool-clone"
+    run bash -c "export PATH='$TEMP_DOTFILES/bin:$PATH'; echo 'y' | gcl '$repo_url' test-missing-tool-clone"
     [ "$status" -eq 0 ]
 
     # Should show warning but continue

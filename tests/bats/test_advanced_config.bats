@@ -6,6 +6,7 @@
 load setup_suite
 
 @test "Zsh configuration validation" {
+    ensure_dotfiles_dir
     local zsh_config_dir="$DOTFILES_DIR/.config/zsh"
     local required_files=(".zshrc" "aliases.zsh" "exports.zsh" "functions.zsh" "misc.zsh" "path.zsh")
 
@@ -35,6 +36,7 @@ load setup_suite
 }
 
 @test "Neovim configuration validation" {
+    ensure_dotfiles_dir
     local nvim_config="$DOTFILES_DIR/.config/nvim"
 
     [ -d "$nvim_config" ]
@@ -55,6 +57,7 @@ load setup_suite
 }
 
 @test "Git configuration validation" {
+    ensure_dotfiles_dir
     local git_dir="$DOTFILES_DIR/git"
     local local_gitconfig="$git_dir/.gitconfig"
     local use_global=false
@@ -99,6 +102,7 @@ load setup_suite
 }
 
 @test "Starship configuration validation" {
+    ensure_dotfiles_dir
     local starship_dir="$DOTFILES_DIR/.config/starship"
 
     [ -d "$starship_dir" ]
@@ -119,6 +123,7 @@ load setup_suite
 }
 
 @test "Package configuration validation" {
+    ensure_dotfiles_dir
     local brewfile="$DOTFILES_DIR/install/Brewfile"
 
     [ -f "$brewfile" ]

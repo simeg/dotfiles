@@ -16,6 +16,8 @@ setup() {
     mkdir -p "$TEMP_DOTFILES/bin"
 
     # Copy scripts to test environment
+    # Ensure DOTFILES_DIR is set
+    ensure_dotfiles_dir
     cp "$DOTFILES_DIR/bin/gcl" "$TEMP_DOTFILES/bin/"
     cp "$DOTFILES_DIR/bin/use-private-git" "$TEMP_DOTFILES/bin/"
 
