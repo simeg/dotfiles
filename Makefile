@@ -44,7 +44,7 @@ check_brew := command -v brew >/dev/null 2>&1
 check_mas := command -v mas >/dev/null 2>&1
 
 # Define all phony targets (targets that don't create files)
-.PHONY: all setup setup-minimal update validate test test-quick test-advanced test-ci lint clean packages deps health help \
+.PHONY: all setup setup-minimal update validate test test-ci test-advanced lint clean packages deps health help \
         health-monitor health-analytics health-profile snapshot fix-whitespace lint-whitespace symlink
 
 # =============================================================================
@@ -64,10 +64,9 @@ help:
 	@echo "  setup-minimal      Essential setup only (faster)"
 	@echo "  update             Update all components (git, packages, plugins)"
 	@echo "  validate           Verify all configurations are working correctly"
-	@echo "  test               Run complete test suite"
-	@echo "  test-quick         Quick validation tests only"
+	@echo "  test               Run local test suite (safe, non-destructive)"
+	@echo "  test-ci            Run CI test suite (includes destructive tests)"
 	@echo "  test-advanced      Advanced tests (performance + security)"
-	@echo "  test-ci            CI-compatible tests (no symlink dependencies)"
 	@echo "  packages           Install and sync packages from Brewfile"
 	@echo "  health             System diagnostics and health checks"
 	@echo "  health-monitor     Real-time system monitoring dashboard"
@@ -85,9 +84,9 @@ help:
 	@echo "  symlink            Create symbolic links (run as part of setup)"
 	@echo ""
 	@echo "Advanced Usage Examples:"
-	@echo "  make test-quick         # Quick validation tests only"
+	@echo "  make test               # Local test suite (safe, non-destructive)"
+	@echo "  make test-ci            # CI test suite (includes destructive tests)"
 	@echo "  make test-advanced      # Advanced tests (performance + security)"
-	@echo "  make test-ci            # CI-compatible tests (no symlink dependencies)"
 	@echo "  make health-monitor     # Real-time system monitoring dashboard"
 	@echo "  make health-analytics   # Package usage and performance analytics"
 	@echo "  make health-profile     # Shell startup performance profiling"
@@ -96,7 +95,7 @@ help:
 	@echo "  make fix-whitespace     # Remove trailing whitespace from all files"
 	@echo ""
 	@echo "Development & CI:"
-	@echo "  DOTFILES_CI=true make test  # Force CI mode for integration tests"
+	@echo "  make test-ci            # Run destructive tests (use in CI only)"
 
 # =============================================================================
 # CORE TARGETS
@@ -122,21 +121,21 @@ validate:
 	@echo "✅ Validating dotfiles configuration..."
 	@$(SCRIPTS_DIR)/validate.sh
 
-# Comprehensive test suite (using Bats)
+# Local test suite (excludes CI-only destructive tests)
 test:
-	@echo "🧪 Running complete test suite with Bats..."
+	@echo "🧪 Running local test suite with Bats..."
 	@if command -v bats >/dev/null 2>&1; then \
-		bats $(BATS_TESTS_DIR); \
+		find $(BATS_TESTS_DIR) -name "*.bats" ! -name "*_ci.bats" -exec bats {} \;; \
 	else \
 		echo "❌ Bats not found. Install with: brew install bats-core"; \
 		exit 1; \
 	fi
 
-# Quick validation tests (configuration only)
-test-quick:
-	@echo "⚡️ Running quick validation tests..."
+# CI test suite including destructive tests (for CI environments)
+test-ci:
+	@echo "🧪 Running complete test suite (including CI-only tests)..."
 	@if command -v bats >/dev/null 2>&1; then \
-		bats $(TEST_CONFIG); \
+		bats $(BATS_TESTS_DIR); \
 	else \
 		echo "❌ Bats not found. Install with: brew install bats-core"; \
 		exit 1; \
@@ -152,19 +151,6 @@ test-advanced:
 		exit 1; \
 	fi
 
-# CI-compatible tests
-test-ci:
-	@echo "🤖 Running CI-compatible tests..."
-	@if command -v bats >/dev/null 2>&1; then \
-		bats $(TEST_CI); \
-	else \
-		echo "❌ Bats not found. Install with: brew install bats-core"; \
-		exit 1; \
-	fi
-	@if [[ "$${CI:-false}" == "true" ]] || [[ -n "$${GITHUB_ACTIONS:-}" ]] || [[ "$${DOTFILES_CI:-false}" == "true" ]]; then \
-		echo "🧪 Running integration tests in CI..."; \
-		$(TEST_INTEGRATION); \
-	fi
 
 
 # Run shellcheck linting on all shell scripts

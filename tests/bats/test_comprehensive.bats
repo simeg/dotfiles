@@ -5,12 +5,8 @@
 
 load setup_suite
 
-# Import all other test files
-load test_configuration
-load test_advanced_config
-load test_performance
-load test_security
-load test_ci
+# Note: This comprehensive test relies on other test files existing
+# Individual test files should be run separately with: bats test_*.bats
 
 # Add a summary test that can be run to show overall status
 @test "Test suite summary" {
