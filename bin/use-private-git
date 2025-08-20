@@ -16,6 +16,21 @@ PROFILE="default"
 STATUS=false
 AUTO_DETECT=false
 
+# Function to get current remote origin URL
+get_origin_url() {
+    git remote get-url origin 2>/dev/null || echo ""
+}
+
+# Function to get current branch name
+get_current_branch() {
+    git branch --show-current 2>/dev/null || echo ""
+}
+
+# Function to get all remote branches
+get_remote_branches() {
+    git branch -r 2>/dev/null | grep -v "HEAD" | sed 's/^[[:space:]]*origin\///' | head -5
+}
+
 # Show usage
 show_usage() {
     echo "Usage: $0 [options]"
@@ -86,6 +101,11 @@ fi
 # Get the git directory (handles both normal repos and worktrees)
 GIT_DIR=$(git rev-parse --git-dir)
 LOCAL_GITCONFIG="$GIT_DIR/config"
+
+# Capture current repository info immediately (before any config modifications)
+CURRENT_ORIGIN_URL=$(get_origin_url)
+CURRENT_BRANCH=$(get_current_branch)
+CURRENT_REMOTE_BRANCHES=$(get_remote_branches)
 
 # Function to show current status
 show_status() {
@@ -261,7 +281,6 @@ detect_default_branch() {
     echo "main"
 }
 
-# Function to create dynamic git config
 create_dynamic_config() {
     local temp_config
     temp_config=$(mktemp)
@@ -275,6 +294,35 @@ create_dynamic_config() {
     echo "" >> "$temp_config"
     echo "[init]" >> "$temp_config"
     echo "	defaultBranch = $default_branch" >> "$temp_config"
+
+    # Add remote origin configuration if it exists
+    if [[ -n "$CURRENT_ORIGIN_URL" ]]; then
+        echo "" >> "$temp_config"
+        echo "[remote \"origin\"]" >> "$temp_config"
+        echo "	url = $CURRENT_ORIGIN_URL" >> "$temp_config"
+        echo "	fetch = +refs/heads/*:refs/remotes/origin/*" >> "$temp_config"
+        echo "	prune = true" >> "$temp_config"
+    fi
+
+    # Add branch tracking configuration
+    if [[ -n "$CURRENT_BRANCH" && -n "$CURRENT_ORIGIN_URL" ]]; then
+        echo "" >> "$temp_config"
+        echo "[branch \"$CURRENT_BRANCH\"]" >> "$temp_config"
+        echo "	remote = origin" >> "$temp_config"
+        echo "	merge = refs/heads/$CURRENT_BRANCH" >> "$temp_config"
+    fi
+
+    # Add tracking for other important branches (main/master/develop)
+    local important_branches=("main" "master" "develop" "dev")
+
+    for branch in "${important_branches[@]}"; do
+        if [[ "$branch" != "$CURRENT_BRANCH" ]] && echo "$CURRENT_REMOTE_BRANCHES" | grep -q "^$branch$"; then
+            echo "" >> "$temp_config"
+            echo "[branch \"$branch\"]" >> "$temp_config"
+            echo "	remote = origin" >> "$temp_config"
+            echo "	merge = refs/heads/$branch" >> "$temp_config"
+        fi
+    done
 
     # Add profile-specific configuration if it exists
     if [[ -n "$PRIVATE_GITCONFIG" && -f "$PRIVATE_GITCONFIG" ]]; then
@@ -303,6 +351,19 @@ if [[ -n "$PRIVATE_GITCONFIG" && -f "$PRIVATE_GITCONFIG" ]]; then
     echo "Profile config: $PRIVATE_GITCONFIG"
 fi
 echo "Default branch: $(detect_default_branch)"
+
+# Show what was auto-configured
+if [[ -n "$CURRENT_ORIGIN_URL" ]]; then
+    echo "Remote origin: $CURRENT_ORIGIN_URL"
+fi
+
+if [[ -n "$CURRENT_BRANCH" ]]; then
+    echo "Current branch: $CURRENT_BRANCH (tracking configured)"
+fi
+
+if [[ -n "$CURRENT_REMOTE_BRANCHES" ]]; then
+    echo "Branch tracking configured for: $CURRENT_BRANCH $(echo "$CURRENT_REMOTE_BRANCHES" | grep -v "^$CURRENT_BRANCH$" | head -3 | tr '\n' ' ')"
+fi
 echo ""
 
 # Show current user configuration
