@@ -27,13 +27,5 @@
 	colorMoved = default
 [url "ssh://git@github.com/"]
 	insteadOf = https://github.com/
-[init]
-	defaultBranch = main
 [alias]
 	x = !git-x
-[submodule "themes/archie-zola"]
-	url = https://github.com/XXXMrG/archie-zola.git
-	active = true
-[remote "origin"]
-	url = git@github.com:simeg/simeg.github.io.git
-	fetch = +refs/heads/*:refs/remotes/origin/*

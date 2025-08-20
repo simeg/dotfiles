@@ -198,10 +198,20 @@ if "${clone_cmd[@]}"; then
     if [[ $reply =~ ^[Yy]$ ]]; then
         echo "🔧 Setting up private git configuration..."
         if command -v use-private-git >/dev/null 2>&1; then
+            # Set up the remote HEAD reference for proper default branch detection
+            if git remote set-head origin --auto >/dev/null 2>&1; then
+                echo "🎯 Configured remote HEAD for default branch detection"
+            fi
+
             use-private-git --force
         else
             echo "⚠️  Warning: use-private-git command not found"
             echo "   Private git configuration not applied"
+        fi
+    else
+        # Still set up remote HEAD for consistency
+        if git remote set-head origin --auto >/dev/null 2>&1; then
+            echo "🎯 Configured remote HEAD for future branch operations"
         fi
     fi
 

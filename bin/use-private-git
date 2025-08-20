@@ -94,7 +94,7 @@ show_status() {
     echo "Repository: $(pwd)"
     echo "Git directory: $GIT_DIR"
     echo ""
-    
+
     if [[ -L "$LOCAL_GITCONFIG" ]]; then
         echo "🔗 Configuration: Symlinked"
         echo "Target: $(readlink "$LOCAL_GITCONFIG")"
@@ -103,18 +103,18 @@ show_status() {
     else
         echo "⚠️  Configuration: Not found"
     fi
-    
+
     echo ""
     echo "Current user configuration:"
     echo "  user.name: $(git config user.name 2>/dev/null || echo '(not set)')"
     echo "  user.email: $(git config user.email 2>/dev/null || echo '(not set)')"
-    
+
     # Show remote information
     if git remote get-url origin >/dev/null 2>&1; then
         remote_url=$(git remote get-url origin)
         echo "  remote.origin.url: $remote_url"
     fi
-    
+
     return 0
 }
 
@@ -142,7 +142,7 @@ auto_detect_profile() {
             return
         fi
     fi
-    
+
     # Default to personal
     echo "personal"
 }
@@ -161,9 +161,12 @@ if $AUTO_DETECT; then
 fi
 
 # Find private gitconfig based on profile
+PRIVATE_GITCONFIG_BASE="$HOME/repos/dotfiles/git/.gitconfig.private.base"
 if [[ "$PROFILE" == "default" ]]; then
-    PRIVATE_GITCONFIG="$HOME/repos/dotfiles/git/.gitconfig.private"
+    # Default profile uses only the base config
+    PRIVATE_GITCONFIG=""
 else
+    # Non-default profiles can have additional config
     PRIVATE_GITCONFIG="$HOME/repos/dotfiles/git/.gitconfig.private.$PROFILE"
 fi
 
@@ -172,7 +175,7 @@ if $REMOVE; then
     if [[ -L "$LOCAL_GITCONFIG" ]]; then
         rm "$LOCAL_GITCONFIG"
         echo "✅ Private gitconfig symlink removed"
-        
+
         # Restore backup if it exists
         if [[ -f "${LOCAL_GITCONFIG}.backup" ]]; then
             mv "${LOCAL_GITCONFIG}.backup" "$LOCAL_GITCONFIG"
@@ -185,18 +188,33 @@ if $REMOVE; then
     exit 0
 fi
 
-# Check if private gitconfig exists
-if [[ ! -f "$PRIVATE_GITCONFIG" ]]; then
-    echo "❌ Error: Private gitconfig not found at $PRIVATE_GITCONFIG" >&2
-    echo "Available profiles:" >&2
-    find "$HOME/repos/dotfiles/git" -name ".gitconfig.private*" -maxdepth 1 2>/dev/null | sed 's/.*\.gitconfig\.private/  /' | sed 's/^  $/  default/' || echo "  No private configs found" >&2
+# Check if base config exists
+if [[ ! -f "$PRIVATE_GITCONFIG_BASE" ]]; then
+    echo "❌ Error: Base private gitconfig not found at $PRIVATE_GITCONFIG_BASE" >&2
     exit 1
 fi
 
-# Validate git config syntax
-if ! git config -f "$PRIVATE_GITCONFIG" --list >/dev/null 2>&1; then
-    echo "❌ Error: Invalid git configuration syntax in $PRIVATE_GITCONFIG" >&2
+# Validate base config syntax
+if ! git config -f "$PRIVATE_GITCONFIG_BASE" --list >/dev/null 2>&1; then
+    echo "❌ Error: Invalid git configuration syntax in $PRIVATE_GITCONFIG_BASE" >&2
     exit 1
+fi
+
+# Check if profile-specific config exists (optional for non-default profiles)
+if [[ "$PROFILE" != "default" && -n "$PRIVATE_GITCONFIG" && ! -f "$PRIVATE_GITCONFIG" ]]; then
+    echo "⚠️  Warning: Profile-specific gitconfig not found at $PRIVATE_GITCONFIG" >&2
+    echo "Using base configuration only." >&2
+    echo "Available profiles:" >&2
+    find "$HOME/repos/dotfiles/git" -name ".gitconfig.private*" -maxdepth 1 2>/dev/null | sed 's/.*\.gitconfig\.private/  /' | sed 's/^  \.base$/  base (required)/' | sed 's/^  \.old$/  old (backup)/' || echo "  No private configs found" >&2
+    # Don't exit - continue with base config only
+fi
+
+# Validate profile-specific config syntax if it exists
+if [[ -n "$PRIVATE_GITCONFIG" && -f "$PRIVATE_GITCONFIG" ]]; then
+    if ! git config -f "$PRIVATE_GITCONFIG" --list >/dev/null 2>&1; then
+        echo "❌ Error: Invalid git configuration syntax in $PRIVATE_GITCONFIG" >&2
+        exit 1
+    fi
 fi
 
 # Check if local config already exists and is not a symlink
@@ -216,17 +234,75 @@ if [[ -f "$LOCAL_GITCONFIG" && ! -L "$LOCAL_GITCONFIG" ]]; then
     echo "💾 Backed up existing config to ${LOCAL_GITCONFIG}.backup"
 fi
 
+# Function to detect repository's default branch
+detect_default_branch() {
+    local default_branch
+
+    # Try to get the default branch from origin
+    if default_branch=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null); then
+        echo "${default_branch#refs/remotes/origin/}"
+        return 0
+    fi
+
+    # Try to detect from available branches
+    local branches
+    if branches=$(git branch -r 2>/dev/null | grep -E "(origin/main|origin/master)" | head -1); then
+        echo "${branches#*origin/}"
+        return 0
+    fi
+
+    # Fallback to current branch
+    if default_branch=$(git branch --show-current 2>/dev/null); then
+        echo "$default_branch"
+        return 0
+    fi
+
+    # Last resort
+    echo "main"
+}
+
+# Function to create dynamic git config
+create_dynamic_config() {
+    local temp_config
+    temp_config=$(mktemp)
+
+    # Start with base configuration
+    cp "$PRIVATE_GITCONFIG_BASE" "$temp_config"
+
+    # Add repository-specific init.defaultBranch
+    local default_branch
+    default_branch=$(detect_default_branch)
+    echo "" >> "$temp_config"
+    echo "[init]" >> "$temp_config"
+    echo "	defaultBranch = $default_branch" >> "$temp_config"
+
+    # Add profile-specific configuration if it exists
+    if [[ -n "$PRIVATE_GITCONFIG" && -f "$PRIVATE_GITCONFIG" ]]; then
+        echo "" >> "$temp_config"
+        echo "# Profile-specific configuration" >> "$temp_config"
+        # Skip [user] section from profile config to avoid duplicates
+        git config -f "$PRIVATE_GITCONFIG" --list | grep -v "^user\." >> "$temp_config" || true
+    fi
+
+    echo "$temp_config"
+}
+
 # Remove existing symlink if it exists
 if [[ -L "$LOCAL_GITCONFIG" ]]; then
     rm "$LOCAL_GITCONFIG"
 fi
 
-# Create the symlink
-ln -sf "$PRIVATE_GITCONFIG" "$LOCAL_GITCONFIG"
+# Create dynamic configuration
+TEMP_CONFIG=$(create_dynamic_config)
+mv "$TEMP_CONFIG" "$LOCAL_GITCONFIG"
 
-echo "✅ Private gitconfig linked successfully"
+echo "✅ Private gitconfig created successfully"
 echo "Profile: $PROFILE"
-echo "Target: $PRIVATE_GITCONFIG"
+echo "Base config: $PRIVATE_GITCONFIG_BASE"
+if [[ -n "$PRIVATE_GITCONFIG" && -f "$PRIVATE_GITCONFIG" ]]; then
+    echo "Profile config: $PRIVATE_GITCONFIG"
+fi
+echo "Default branch: $(detect_default_branch)"
 echo ""
 
 # Show current user configuration
