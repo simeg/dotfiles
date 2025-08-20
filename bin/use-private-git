@@ -291,25 +291,31 @@ create_dynamic_config() {
     # Add repository-specific init.defaultBranch
     local default_branch
     default_branch=$(detect_default_branch)
-    echo "" >> "$temp_config"
-    echo "[init]" >> "$temp_config"
-    echo "	defaultBranch = $default_branch" >> "$temp_config"
+    {
+        echo ""
+        echo "[init]"
+        echo "	defaultBranch = $default_branch"
+    } >> "$temp_config"
 
     # Add remote origin configuration if it exists
     if [[ -n "$CURRENT_ORIGIN_URL" ]]; then
-        echo "" >> "$temp_config"
-        echo "[remote \"origin\"]" >> "$temp_config"
-        echo "	url = $CURRENT_ORIGIN_URL" >> "$temp_config"
-        echo "	fetch = +refs/heads/*:refs/remotes/origin/*" >> "$temp_config"
-        echo "	prune = true" >> "$temp_config"
+        {
+            echo ""
+            echo "[remote \"origin\"]"
+            echo "	url = $CURRENT_ORIGIN_URL"
+            echo "	fetch = +refs/heads/*:refs/remotes/origin/*"
+            echo "	prune = true"
+        } >> "$temp_config"
     fi
 
     # Add branch tracking configuration
     if [[ -n "$CURRENT_BRANCH" && -n "$CURRENT_ORIGIN_URL" ]]; then
-        echo "" >> "$temp_config"
-        echo "[branch \"$CURRENT_BRANCH\"]" >> "$temp_config"
-        echo "	remote = origin" >> "$temp_config"
-        echo "	merge = refs/heads/$CURRENT_BRANCH" >> "$temp_config"
+        {
+            echo ""
+            echo "[branch \"$CURRENT_BRANCH\"]"
+            echo "	remote = origin"
+            echo "	merge = refs/heads/$CURRENT_BRANCH"
+        } >> "$temp_config"
     fi
 
     # Add tracking for other important branches (main/master/develop)
@@ -317,10 +323,12 @@ create_dynamic_config() {
 
     for branch in "${important_branches[@]}"; do
         if [[ "$branch" != "$CURRENT_BRANCH" ]] && echo "$CURRENT_REMOTE_BRANCHES" | grep -q "^$branch$"; then
-            echo "" >> "$temp_config"
-            echo "[branch \"$branch\"]" >> "$temp_config"
-            echo "	remote = origin" >> "$temp_config"
-            echo "	merge = refs/heads/$branch" >> "$temp_config"
+            {
+                echo ""
+                echo "[branch \"$branch\"]"
+                echo "	remote = origin"
+                echo "	merge = refs/heads/$branch"
+            } >> "$temp_config"
         fi
     done
 

@@ -17,7 +17,7 @@ load setup_suite
 
 @test "git private base config exists and is valid" {
     [ -f "$DOTFILES_DIR/git/.gitconfig.private.base" ]
-    
+
     # Test that it's valid git config syntax
     run git config -f "$DOTFILES_DIR/git/.gitconfig.private.base" --list
     [ "$status" -eq 0 ]
@@ -27,7 +27,7 @@ load setup_suite
     run git config -f "$DOTFILES_DIR/git/.gitconfig.private.base" user.name
     [ "$status" -eq 0 ]
     [ -n "$output" ]
-    
+
     run git config -f "$DOTFILES_DIR/git/.gitconfig.private.base" user.email
     [ "$status" -eq 0 ]
     [ -n "$output" ]
@@ -43,12 +43,12 @@ load setup_suite
     # Should not contain init.defaultBranch
     run git config -f "$DOTFILES_DIR/git/.gitconfig.private.base" init.defaultBranch
     [ "$status" -ne 0 ]
-    
+
     # Should not contain submodule sections
     run grep -q "\[submodule" "$DOTFILES_DIR/git/.gitconfig.private.base"
     [ "$status" -ne 0 ]
-    
-    # Should not contain remote sections  
+
+    # Should not contain remote sections
     run grep -q "\[remote" "$DOTFILES_DIR/git/.gitconfig.private.base"
     [ "$status" -ne 0 ]
 }
@@ -81,7 +81,7 @@ load setup_suite
     run "$DOTFILES_DIR/bin/gcl" "not-a-url"
     [ "$status" -ne 0 ]
     [[ "$output" == *"Invalid repository URL format"* ]]
-    
+
     run "$DOTFILES_DIR/bin/gcl" "just-text"
     [ "$status" -ne 0 ]
     [[ "$output" == *"Invalid repository URL format"* ]]
@@ -91,11 +91,11 @@ load setup_suite
     # Test HTTPS to SSH conversion (this just tests the logic, doesn't clone)
     temp_dir=$(mktemp -d)
     cd "$temp_dir"
-    
+
     # This should show the protocol conversion message but fail to clone (expected)
     run "$DOTFILES_DIR/bin/gcl" --ssh "https://github.com/user/repo.git" test-repo 2>&1 || true
     [[ "$output" == *"Using ssh protocol"* ]]
-    
+
     cd - >/dev/null
     rm -rf "$temp_dir"
 }
@@ -106,10 +106,10 @@ load setup_suite
         # Verify it contains the problematic sections we removed
         run grep -q "\[init\]" "$DOTFILES_DIR/git/.gitconfig.private.old"
         [ "$status" -eq 0 ]
-        
+
         run grep -q "\[submodule" "$DOTFILES_DIR/git/.gitconfig.private.old"
         [ "$status" -eq 0 ]
-        
+
         run grep -q "\[remote" "$DOTFILES_DIR/git/.gitconfig.private.old"
         [ "$status" -eq 0 ]
     else
