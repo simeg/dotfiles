@@ -72,6 +72,7 @@ brew "tldr"                   # Simplified man pages
 brew "readline"               # GNU readline library
 brew "sqlite"                 # SQL database engine
 brew "pssh"                   # Parallel SSH
+brew "pstree"                 # See which process spawned which
 
 # Testing Tools
 brew "bats-core"              # Bash Automated Testing System

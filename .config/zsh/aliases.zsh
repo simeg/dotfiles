@@ -21,6 +21,7 @@ alias ali="nvim ~/.config/zsh/aliases.zsh"
 alias dotfiles="pushd ~/repos/dotfiles"
 alias reload="source ~/.zshrc"
 alias brewfile="vim ~/repos/dotfiles/install/Brewfile"
+alias vr="vim README.md"
 
 ########################################
 # 🧰 Core CLI Enhancements
