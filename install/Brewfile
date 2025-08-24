@@ -154,6 +154,9 @@ brew "starship"               # Cross-shell prompt
 brew "zsh"                    # Z shell
 cask "iterm2"                 # Terminal emulator
 
+# QuickLook
+cacsk "qlmarkdown"            # Markdown QuickLook
+
 # ============================================================================
 # MAC APP STORE APPS
 # ============================================================================
