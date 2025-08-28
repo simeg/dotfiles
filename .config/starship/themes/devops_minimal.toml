@@ -1,16 +1,17 @@
 # 🌟 Minimal Starship Theme
 # Clean and fast prompt with essential information only
 
-format = """$directory$git_branch$character"""
+format = """$directory$character"""
 
-add_newline = false
+#add_newline = false
 
 # Directory
 [directory]
 style = "blue"
 truncation_length = 2
 truncate_to_repo = true
-format = "[$path]($style) "
+format = ""
+#format = "[$path]($style) "
 
 # Git branch (very simple)
 [git_branch]
