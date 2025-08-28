@@ -35,13 +35,14 @@ alias path='echo -e ${PATH//:/\\n}'
 alias l="ls -lah"
 alias m="make"
 
-# Better directory navigation
-alias ..="cd .."
-alias ...="cd ../.."
-alias ....="cd ../../.."
-alias .....="cd ../../../.."
-alias -- -="cd -"
-alias dir="dirs -v | head -10"
+# Better directory navigation (using AUTO_CD for "../dirname" style commands)
+alias ..="cd .."              # Go up one level
+alias ...="../.."             # Go up two levels (can append /dirname)
+alias ....="../../.."         # Go up three levels (can append /dirname)
+alias .....="../../../.."     # Go up four levels (can append /dirname)
+alias ......="../../../../.." # Go up five levels (can append /dirname)
+alias -- -="cd -"             # Go to previous directory
+alias dir="dirs -v | head -10" # Show directory stack
 
 # Fuzzy helpers
 alias fali="alias | fzf"
