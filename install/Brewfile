@@ -156,6 +156,7 @@ cask "iterm2"                 # Terminal emulator
 
 # QuickLook
 cacsk "qlmarkdown"            # Markdown QuickLook
+cacsk "qlstephen"             # QuickLook for many files
 
 # ============================================================================
 # MAC APP STORE APPS
