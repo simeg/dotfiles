@@ -1,3 +1,4 @@
+
 -- Keymaps for Neovim
 -- Based on your existing vim keybindings with modern improvements
 
@@ -70,6 +71,16 @@ keymap('n', '<leader>y', [["+y]], opts)
 keymap('v', '<leader>y', [["+y]], opts)
 keymap('n', '<leader>Y', [["+Y]], opts)
 
+-- macOS clipboard: make Cmd+V behave like Vim's visual 'p'
+-- Placed here next to clipboard maps.
+keymap('v', '<D-v>', '"+p', opts)          -- Visual: replace selection with clipboard
+keymap('i', '<D-v>', '<C-r>+', opts)       -- Insert: paste clipboard
+keymap('c', '<D-v>', '<C-r>+', opts)       -- Cmdline: paste clipboard
+-- Fallback for terminals that send Shift+Insert as paste:
+keymap('v', '<S-Insert>', '"+p', opts)
+keymap('i', '<S-Insert>', '<C-r>+', opts)
+keymap('c', '<S-Insert>', '<C-r>+', opts)
+
 -- Plugin-specific keymaps (will be available when plugins load)
 
 -- File explorer (nvim-tree replaces NERDTree)
@@ -123,3 +134,4 @@ keymap('n', '<leader>x', ':x<CR>', opts)
 
 -- Source config
 keymap('n', '<leader><leader>s', ':source ~/.config/nvim/init.lua<CR>', opts)
+
