@@ -10,7 +10,7 @@
 
 alias vm="nvim ./Makefile"
 alias vp="nvim ./package.json"
-alias vr="vim ./README.md"
+alias vr="nvim ./README.md"
 
 alias vimrc="nvim ~/.config/nvim/init.lua ; reload"
 alias zshrc="nvim ~/.zshrc ; reload"
