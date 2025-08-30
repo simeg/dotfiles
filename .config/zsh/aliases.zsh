@@ -10,18 +10,17 @@
 
 alias vm="nvim ./Makefile"
 alias vp="nvim ./package.json"
+alias vr="vim ./README.md"
 
-alias vimrc="nvim ~/.config/nvim/init.lua"
-alias nvimrc="nvim ~/.config/nvim/init.lua"
+alias vimrc="nvim ~/.config/nvim/init.lua ; reload"
 alias zshrc="nvim ~/.zshrc ; reload"
 alias gitignore="nvim ~/.gitignore"
 alias gitconfig="nvim ~/.gitconfig"
-alias ali="nvim ~/.config/zsh/aliases.zsh"
 
 alias dotfiles="pushd ~/repos/dotfiles"
 alias reload="source ~/.zshrc"
 alias brewfile="vim ~/repos/dotfiles/install/Brewfile"
-alias vr="vim README.md"
+alias copy='pbcopy <'
 
 ########################################
 # 🧰 Core CLI Enhancements
@@ -44,8 +43,9 @@ alias ......="../../../../.." # Go up five levels (can append /dirname)
 alias -- -="cd -"             # Go to previous directory
 alias dir="dirs -v | head -10" # Show directory stack
 
-# Fuzzy helpers
+# Alias helpers
 alias fali="alias | fzf"
+alias ali="nvim ~/.config/zsh/aliases.zsh"
 
 ########################################
 # 🐳 Docker & CLI Utilities
