@@ -21,8 +21,8 @@ format = "[$branch]($style) "
 
 # Character (simple arrow)
 [character]
-success_symbol = "[>](white)"
-error_symbol = "[>](red)"
+success_symbol = "[>](fg:#1E1E1E)"
+error_symbol = "[>](fg:#D70022)"
 
 # Disable most modules for minimal theme
 [package]
