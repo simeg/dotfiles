@@ -36,12 +36,12 @@ alias l="ls -lah"
 alias m="make"
 
 # Better directory navigation (using AUTO_CD for "../dirname" style commands)
-alias ..="cd .."              # Go up one level
-alias ...="../.."             # Go up two levels (can append /dirname)
-alias ....="../../.."         # Go up three levels (can append /dirname)
-alias .....="../../../.."     # Go up four levels (can append /dirname)
-alias ......="../../../../.." # Go up five levels (can append /dirname)
-alias -- -="cd -"             # Go to previous directory
+alias ..="cd .."               # Go up one level
+alias ...="../.."              # Go up two levels (can append /dirname)
+alias ....="../../.."          # Go up three levels (can append /dirname)
+alias .....="../../../.."      # Go up four levels (can append /dirname)
+alias ......="../../../../.."  # Go up five levels (can append /dirname)
+alias -- -="cd -"              # Go to previous directory
 alias dir="dirs -v | head -10" # Show directory stack
 
 # Alias helpers
@@ -148,7 +148,7 @@ alias gfa="git fetch --all"
 alias gm="git merge"
 
 # Custom git aliases
-alias gcom="git checkout master &>/dev/null || git checkout main"
+alias gcom="git checkout $(git symbolic-ref --short refs/remotes/origin/HEAD | sed 's|^origin/||')"
 alias gap="git add --patch"
 alias gs="git-show"
 alias gf!="super-amend"
