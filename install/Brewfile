@@ -68,7 +68,7 @@ brew "coreutils"              # GNU core utilities
 brew "shellcheck"             # Shell script linter
 brew "mas"                    # Mac App Store CLI
 brew "btop"                   # Beautiful process viewer
-brew "tldr"                   # Simplified man pages
+brew "tlrc"                   # Simplified man pages (tldr in Rust)
 brew "readline"               # GNU readline library
 brew "sqlite"                 # SQL database engine
 brew "pssh"                   # Parallel SSH
