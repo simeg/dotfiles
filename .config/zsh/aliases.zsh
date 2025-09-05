@@ -11,6 +11,7 @@
 alias vm="nvim ./Makefile"
 alias vp="nvim ./package.json"
 alias vr="nvim ./README.md"
+alias gwf="cd ./.github/workflows/"
 
 alias vimrc="nvim ~/.config/nvim/init.lua ; reload"
 alias zshrc="nvim ~/.zshrc ; reload"
