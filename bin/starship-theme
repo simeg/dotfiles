@@ -84,24 +84,24 @@ show_usage() {
 list_themes() {
     log_info "Available Starship themes:"
     echo ""
-    
+
     if [[ ! -d "$THEMES_DIR" ]]; then
         log_error "Themes directory not found: $THEMES_DIR"
         return 1
     fi
-    
+
     local current_theme
     current_theme=$(get_current_theme)
-    
+
     for theme_file in "$THEMES_DIR"/*.toml; do
         if [[ -f "$theme_file" ]]; then
             local theme_name
             theme_name=$(basename "$theme_file" .toml)
-            
+
             # Read description from theme file
             local description
             description=$(grep "^#.*Theme" "$theme_file" | head -1 | sed 's/^# *//; s/ *Theme.*$//')
-            
+
             if [[ "$theme_name" == "$current_theme" ]]; then
                 echo -e "  ${GREEN}●${NC} ${GREEN}$theme_name${NC} - $description ${GREEN}(current)${NC}"
             else
@@ -125,7 +125,7 @@ get_current_theme() {
 show_current() {
     local current_theme
     current_theme=$(get_current_theme)
-    
+
     if [[ "$current_theme" == "unknown" ]]; then
         log_warning "No theme currently set or theme file missing"
         if [[ -f "$CONFIG_PATH" ]]; then
@@ -135,7 +135,7 @@ show_current() {
         fi
     else
         log_success "Current theme: $current_theme"
-        
+
         # Show theme description if available
         local theme_file="$THEMES_DIR/$current_theme.toml"
         if [[ -f "$theme_file" ]]; then
@@ -152,17 +152,17 @@ show_current() {
 preview_theme() {
     local theme_name="$1"
     local theme_file="$THEMES_DIR/$theme_name.toml"
-    
+
     if [[ ! -f "$theme_file" ]]; then
         log_error "Theme '$theme_name' not found"
         log_info "Available themes:"
         list_themes
         return 1
     fi
-    
+
     log_info "Preview of theme: $theme_name"
     echo ""
-    
+
     # Show theme description
     local description
     description=$(grep "^#.*Theme" "$theme_file" | head -1 | sed 's/^# *//')
@@ -170,11 +170,11 @@ preview_theme() {
         echo "Description: $description"
         echo ""
     fi
-    
+
     # Show what the prompt will look like
     echo "How this theme will look:"
     echo "========================="
-    
+
     case "$theme_name" in
         "minimal")
             echo "Example prompt:"
@@ -190,7 +190,7 @@ preview_theme() {
             echo -e "\033[33msegersand\033[0m@\033[36m~/repos/dotfiles\033[0m on \033[35m⎇ work\033[0m \033[31m[+1 ~2]\033[0m"
             echo -e "❯"
             echo ""
-            echo "• Shows username when relevant" 
+            echo "• Shows username when relevant"
             echo "• Git branch with ⎇ symbol"
             echo "• Git status indicators"
             echo "• Language versions when in projects"
@@ -211,7 +211,7 @@ preview_theme() {
             echo "Generic preview - switch to this theme to see how it looks!"
             ;;
     esac
-    
+
     echo ""
     echo "Configuration preview (first 15 lines):"
     echo "========================================"
@@ -227,30 +227,30 @@ preview_theme() {
 set_theme() {
     local theme_name="$1"
     local theme_file="$THEMES_DIR/$theme_name.toml"
-    
+
     if [[ ! -f "$theme_file" ]]; then
         log_error "Theme '$theme_name' not found"
         log_info "Available themes:"
         list_themes
         return 1
     fi
-    
+
     # Ensure config directory exists
     mkdir -p "$(dirname "$CONFIG_PATH")"
-    
+
     # Backup current config if it exists and no backup exists
     if [[ -f "$CONFIG_PATH" && ! -f "$CONFIG_PATH.backup" ]]; then
         log_info "Backing up current configuration..."
         cp "$CONFIG_PATH" "$CONFIG_PATH.backup"
     fi
-    
+
     # Copy theme to starship config location
     log_info "Switching to theme: $theme_name"
     cp "$theme_file" "$CONFIG_PATH"
-    
+
     # Save current theme name
     echo "$theme_name" > "$CURRENT_THEME_FILE"
-    
+
     log_success "Theme switched to: $theme_name"
     log_info "Restart your shell or run 'source ~/.zshrc' to see changes"
 }
@@ -261,7 +261,7 @@ backup_config() {
         log_error "No starship configuration found to backup"
         return 1
     fi
-    
+
     local backup_path
     backup_path="$CONFIG_PATH.backup.$(date +%Y%m%d_%H%M%S)"
     cp "$CONFIG_PATH" "$backup_path"
@@ -285,7 +285,7 @@ restore_config() {
 # Validate theme file
 validate_theme() {
     local theme_file="$1"
-    
+
     # Basic TOML syntax check
     if ! command -v toml >/dev/null 2>&1; then
         # Fallback validation - check for basic TOML structure
@@ -298,7 +298,7 @@ validate_theme() {
             return 1
         fi
     fi
-    
+
     return 0
 }
 
@@ -306,25 +306,25 @@ validate_theme() {
 add_theme() {
     local theme_name="$1"
     local source_file="$2"
-    
+
     if [[ -z "$theme_name" || -z "$source_file" ]]; then
         log_error "Usage: $0 add <theme_name> <source_file>"
         return 1
     fi
-    
+
     if [[ ! -f "$source_file" ]]; then
         log_error "Source file not found: $source_file"
         return 1
     fi
-    
+
     # Validate theme file before adding
     if ! validate_theme "$source_file"; then
         log_error "Invalid TOML syntax in source file: $source_file"
         return 1
     fi
-    
+
     local theme_file="$THEMES_DIR/$theme_name.toml"
-    
+
     if [[ -f "$theme_file" ]]; then
         log_warning "Theme '$theme_name' already exists"
         read -p "Overwrite? (y/N): " -n 1 -r
@@ -334,10 +334,10 @@ add_theme() {
             return 0
         fi
     fi
-    
+
     # Ensure themes directory exists
     mkdir -p "$THEMES_DIR"
-    
+
     # Copy theme file
     cp "$source_file" "$theme_file"
     log_success "Theme '$theme_name' added successfully"
