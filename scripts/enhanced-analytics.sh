@@ -41,6 +41,84 @@ OPTIMIZATION_HISTORY="$ANALYTICS_DIR/optimization-history.log"
 # Ensure analytics directory exists
 mkdir -p "$ANALYTICS_DIR"
 
+# Check if usage tracking is enabled and working
+check_usage_tracking() {
+    local days="${1:-7}"
+
+    if [[ ! -f "$USAGE_LOG" ]]; then
+        log_warning "Usage log file does not exist"
+        return 1
+    fi
+
+    local line_count
+    line_count=$(wc -l < "$USAGE_LOG" 2>/dev/null || echo "0")
+
+    if [[ $line_count -eq 0 ]]; then
+        log_warning "Usage log is empty"
+        return 1
+    fi
+
+    # Check if we have data within the specified time period
+    local cutoff_date recent_entries
+    cutoff_date=$(date -d "$days days ago" +%s 2>/dev/null || date -v-"$days"d +%s)
+    recent_entries=$(awk -F',' -v cutoff="$cutoff_date" '$1 >= cutoff && $1 <= '$(date +%s)' {print}' "$USAGE_LOG" | wc -l)
+
+    if [[ $recent_entries -eq 0 ]]; then
+        log_warning "No usage data found within last $days days"
+        return 1
+    fi
+
+    return 0
+}
+
+# Generate sample data for testing/demo
+generate_sample_data() {
+    log_info "Generating sample data for demonstration..."
+
+    local sample_file
+    sample_file=$(mktemp)
+
+    # Generate realistic sample data for the last 30 days
+    local end_date start_date
+    end_date=$(date +%s)
+    start_date=$(date -d "30 days ago" +%s 2>/dev/null || date -v-30d +%s)
+
+    # Common commands with realistic frequency
+    local commands=(
+        "git:150" "ls:120" "cd:100" "nvim:80" "grep:60" "find:40"
+        "npm:35" "docker:30" "kubectl:25" "cat:45" "eza:90" "rg:50"
+        "fd:30" "bat:25" "fzf:20" "jq:15" "htop:10" "tree:20"
+        "python:40" "node:25" "go:15" "cargo:20" "make:30" "vim:60"
+        "git status:100" "git add:80" "git commit:70" "git push:50" "git pull:40"
+        "docker build:15" "docker run:25" "kubectl get:20" "kubectl describe:10"
+    )
+
+    # Generate entries across the time period
+    for cmd_freq in "${commands[@]}"; do
+        local cmd freq
+        cmd="${cmd_freq%:*}"
+        freq="${cmd_freq#*:}"
+
+        for (( i=0; i<freq; i++ )); do
+            # Random timestamp within the last 30 days
+            local random_offset random_timestamp
+            random_offset=$((RANDOM % (end_date - start_date)))
+            random_timestamp=$((start_date + random_offset))
+            echo "$random_timestamp,$cmd"
+        done
+    done | sort -n > "$sample_file"
+
+    # Backup existing log if it exists
+    if [[ -f "$USAGE_LOG" ]]; then
+        cp "$USAGE_LOG" "$USAGE_LOG.backup.$(date +%Y%m%d)"
+    fi
+
+    # Use sample data
+    mv "$sample_file" "$USAGE_LOG"
+
+    log_success "Generated $(wc -l < "$USAGE_LOG") sample entries for demonstration"
+}
+
 # =============================================================================
 # PRODUCTIVITY METRICS
 # =============================================================================
@@ -50,9 +128,13 @@ analyze_productivity_metrics() {
     local days="${1:-7}"
     log_info "🚀 Analyzing productivity metrics for last $days days..."
 
-    if [[ ! -f "$USAGE_LOG" ]]; then
-        log_warning "No usage data found. Enable tracking first."
-        return 1
+    if ! check_usage_tracking "$days"; then
+        log_error "Insufficient usage data for analysis"
+        if [[ "${AUTO_GENERATE_SAMPLE:-}" == "true" ]]; then
+            generate_sample_data
+        else
+            return 1
+        fi
     fi
 
     local cutoff_date
@@ -83,9 +165,9 @@ analyze_productivity_metrics() {
     unique_commands=$(sort "$dev_commands" | uniq | wc -l)
 
     log_info "📈 Overall Activity:"
-    printf "  %-25s %s\n" "Total commands executed:" "$total_commands"
-    printf "  %-25s %s\n" "Unique commands used:" "$unique_commands"
-    printf "  %-25s %s\n" "Command diversity:" "$(( (unique_commands * 100) / (total_commands + 1) ))%"
+    printf "  %-27s %s\n" "Total commands executed:" "$total_commands"
+    printf "  %-27s %s\n" "Unique commands used:" "$unique_commands"
+    printf "  %-27s %s\n" "Command diversity:" "$(( (unique_commands * 100) / (total_commands + 1) ))%"
     echo
 
     # Git productivity
@@ -94,9 +176,9 @@ analyze_productivity_metrics() {
     git_commits=$(grep -cE '^(git commit|git add|git push)' "$git_commands" 2>/dev/null) || git_commits=0
 
     log_info "🔧 Git Productivity:"
-    printf "  %-25s %s\n" "Git commands:" "$git_count"
-    printf "  %-25s %s\n" "Estimated commits/pushes:" "$git_commits"
-    printf "  %-25s %s\n" "Git usage frequency:" "$(( git_count * 100 / (total_commands + 1) ))%"
+    printf "  %-27s %s\n" "Git commands:" "$git_count"
+    printf "  %-27s %s\n" "Estimated commits/pushes:" "$git_commits"
+    printf "  %-27s %s\n" "Git usage frequency:" "$(( git_count * 100 / (total_commands + 1) ))%"
     echo
 
     # File editing productivity
@@ -105,9 +187,9 @@ analyze_productivity_metrics() {
     view_count=$(grep -cE '^(cat|less|more|bat)' "$file_commands" 2>/dev/null) || view_count=0
 
     log_info "📝 File Management:"
-    printf "  %-25s %s\n" "Editing sessions:" "$edit_count"
-    printf "  %-25s %s\n" "File views:" "$view_count"
-    printf "  %-25s %s\n" "Edit/view ratio:" "$(( (edit_count * 100) / (view_count + edit_count + 1) ))%"
+    printf "  %-27s %s\n" "Editing sessions:" "$edit_count"
+    printf "  %-27s %s\n" "File views:" "$view_count"
+    printf "  %-27s %s\n" "Edit/view ratio:" "$(( (edit_count * 100) / (view_count + edit_count + 1) ))%"
     echo
 
     # Time-based patterns
@@ -146,21 +228,33 @@ analyze_time_patterns() {
     local cutoff_date
     cutoff_date=$(date -d "$days days ago" +%s 2>/dev/null || date -v-"$days"d +%s)
 
+    # Show loading indicator for time pattern analysis
+    echo -n "  📊 Analyzing timestamp patterns"
+
     # Most active hours (simplified analysis - using date command instead of strftime)
     local activity_by_hour
     activity_by_hour=$(awk -F',' -v cutoff="$cutoff_date" '
+        BEGIN { processed = 0 }
         $1 >= cutoff {
             # Use system date command for macOS compatibility
             cmd = "date -r " $1 " +%H"
             cmd | getline hour
             close(cmd)
             count[hour]++
+            processed++
+
+            # Show progress dots every 100 entries
+            if (processed % 100 == 0) {
+                printf "." > "/dev/stderr"
+            }
         }
         END {
             for (h in count) {
                 printf "%02d:00 %d\n", h, count[h]
             }
         }' "$USAGE_LOG" | sort -n)
+
+    echo # New line after loading indicator
 
     if [[ -n "$activity_by_hour" ]]; then
         echo "  Most active hours:"
@@ -213,9 +307,13 @@ analyze_command_frequency() {
     local days="${1:-30}"
     log_info "📊 Analyzing command frequency patterns for last $days days..."
 
-    if [[ ! -f "$USAGE_LOG" ]]; then
-        log_warning "No usage data found"
-        return 1
+    if ! check_usage_tracking "$days"; then
+        log_error "Insufficient usage data for analysis"
+        if [[ "${AUTO_GENERATE_SAMPLE:-}" == "true" ]]; then
+            generate_sample_data
+        else
+            return 1
+        fi
     fi
 
     local cutoff_date temp_commands freq_analysis
@@ -594,6 +692,8 @@ show_help() {
     echo "  frequency [days]        Analyze command frequency patterns only"
     echo "  optimize                Generate predictive optimization suggestions"
     echo "  export [file]           Export comprehensive report"
+    echo "  sample-data             Generate sample data for demonstration"
+    echo "  demo [days]             Run analytics with auto-generated sample data"
     echo ""
     echo "Examples:"
     echo "  $0 comprehensive 7      # Last 7 days comprehensive analysis"
@@ -601,6 +701,8 @@ show_help() {
     echo "  $0 frequency 30         # 30-day command frequency analysis"
     echo "  $0 optimize             # Get optimization suggestions"
     echo "  $0 export report.txt    # Export full report"
+    echo "  $0 sample-data          # Generate sample usage data"
+    echo "  $0 demo 7               # Run 7-day analysis with sample data"
 }
 
 # Main function
@@ -620,6 +722,12 @@ main() {
             ;;
         export)
             export_enhanced_report "$2"
+            ;;
+        sample-data)
+            generate_sample_data
+            ;;
+        demo)
+            AUTO_GENERATE_SAMPLE=true run_comprehensive_analytics "${2:-30}"
             ;;
         --help|help)
             show_help

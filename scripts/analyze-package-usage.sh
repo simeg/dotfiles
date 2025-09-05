@@ -189,11 +189,11 @@ analyze_package_sizes() {
     local total_unused_size=0
     local package_count=0
     local total_packages
-    total_packages=$(wc -l < "$unused_packages")
+    total_packages=$(wc -l < "$unused_packages" | tr -d ' ')
 
     # Skip size analysis if there are too many packages (would be too slow)
     if [[ $total_packages -gt 50 ]]; then
-        echo "  💾 Estimated space savings: ~$((total_packages * 50))MB (${total_packages} unused packages × 50MB average)"
+        echo "  💾 Estimated space savings: ~$((total_packages * 50))MB ($total_packages unused packages × 50MB average)"
         return
     fi
 
