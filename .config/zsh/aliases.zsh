@@ -112,6 +112,7 @@ alias ggpull="git pull origin \$(git branch --show-current)"
 alias gst="git status"
 alias gss="git status --short"
 alias grb="git rebase"
+alias grbc="git rebase --continue"
 
 # Branch management
 alias gb="git branch"
