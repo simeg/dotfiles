@@ -6,6 +6,7 @@
 # ============================================================================
 
 tap "nahive/spotify-notify"     # Spotify notification tool
+tap "mvndaemon/mvnd"            # Maven daemon tap
 
 # ============================================================================
 # CORE DEVELOPMENT TOOLS
@@ -30,7 +31,7 @@ brew "openjdk@17"             # Java 17 LTS
 brew "scala"                  # Scala programming language
 brew "sbt"                    # Scala build tool
 brew "maven"                  # Java build tool
-brew "mvndaemon/homebrew-mvnd/mvnd" # Maven daemon for faster builds
+brew "mvnd"                   # Maven daemon for faster builds
 cask "corretto@11"            # Amazon Corretto 11 JDK
 cask "corretto@17"            # Amazon Corretto 17 JDK
 
@@ -106,8 +107,7 @@ brew "kubecolor"              # Colorized kubectl
 brew "kubeconform"            # Kubernetes manifest validation
 
 # Containers
-cask "docker"                 # Docker Desktop
-cask "docker-desktop"         # Docker Desktop (explicit)
+cask "docker-desktop"         # Docker Desktop
 
 # ============================================================================
 # PRODUCTIVITY & UTILITIES
