@@ -39,6 +39,8 @@ fi
 
 path+=("/opt/homebrew/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/bin")
 [[ -f "$HOME/google-cloud-sdk/path.zsh.inc" ]] && source "$HOME/google-cloud-sdk/path.zsh.inc"
+path+=("/opt/homebrew/share/google-cloud-sdk/bin/gcloud")
+path+=("/opt/homebrew/share/google-cloud-sdk/bin/docker-credential-gcloud")
 
 ############################################
 # 🧰 Utilities & Custom Tools

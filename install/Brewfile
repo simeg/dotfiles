@@ -132,7 +132,7 @@ brew "hyperfine"              # Performance measure tool
 # Media Players & Tools
 cask "vlc"                    # Media player
 brew "flac"                   # FLAC audio codec
-cask "spotify-notify", args: ["no-quarantine"] # Spotify notification tool
+cask "spotify-notify"         # Spotify notification tool
 
 # Fonts
 cask "font-fira-code"         # Programming font with ligatures
@@ -155,8 +155,8 @@ brew "zsh"                    # Z shell
 cask "iterm2"                 # Terminal emulator
 
 # QuickLook
-cacsk "qlmarkdown"            # Markdown QuickLook
-cacsk "qlstephen"             # QuickLook for many files
+cask "qlmarkdown"             # Markdown QuickLook
+cask "qlstephen"              # QuickLook for many files
 
 # ============================================================================
 # MAC APP STORE APPS
