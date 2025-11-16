@@ -18,9 +18,9 @@ alias zshrc="nvim ~/.zshrc ; reload"
 alias gitignore="nvim ~/.gitignore"
 alias gitconfig="nvim ~/.gitconfig"
 
-alias dotfiles="pushd ~/repos/dotfiles"
+alias dotfiles="pushd ~/repos_personal/dotfiles"
 alias reload="source ~/.zshrc"
-alias brewfile="vim ~/repos/dotfiles/install/Brewfile"
+alias brewfile="vim ~/repos_personal/dotfiles/install/Brewfile"
 alias copy='pbcopy <'
 
 ########################################
