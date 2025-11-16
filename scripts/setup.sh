@@ -320,6 +320,39 @@ install_macos_settings() {
     fi
 }
 
+# Import iTerm2 settings
+import_iterm2_settings() {
+    # Check if iTerm2 is installed and the import script exists
+    if [[ ! -f "iterm2/manage-iterm2.sh" ]]; then
+        log_info "iTerm2 management script not found, skipping..."
+        return 0
+    fi
+
+    # Check if iTerm2 settings file exists in dotfiles
+    if [[ ! -f "iterm2/com.googlecode.iterm2.plist" ]]; then
+        log_info "No iTerm2 settings in dotfiles, skipping import..."
+        return 0
+    fi
+
+    # Ask user if they want to import iTerm2 settings
+    if ask_yes_no "📱 Import iTerm2 profile settings?" "y"; then
+        log_info "Importing iTerm2 settings..."
+
+        # Make script executable if it isn't
+        chmod +x iterm2/manage-iterm2.sh
+
+        if ./iterm2/manage-iterm2.sh import; then
+            log_success "iTerm2 settings imported successfully"
+            log_info "💡 Restart iTerm2 for all changes to take effect"
+        else
+            log_warning "iTerm2 settings import failed, continuing..."
+        fi
+    else
+        log_info "Skipping iTerm2 settings import"
+        log_info "💡 You can manually import later with: ./iterm2/manage-iterm2.sh import"
+    fi
+}
+
 # Create symlinks
 create_symlinks() {
     log_info "Creating symlinks..."
@@ -411,6 +444,7 @@ main() {
     # Always try rust and macOS settings (they check internally)
     install_rust
     install_macos_settings
+    import_iterm2_settings
 
     # Create symlinks
     if [[ "$CREATE_SYMLINKS" == true ]]; then

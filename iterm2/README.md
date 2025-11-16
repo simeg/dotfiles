@@ -37,11 +37,17 @@ iTerm2 stores its settings in `~/Library/Preferences/com.googlecode.iterm2.plist
 
 When setting up dotfiles on a new machine:
 
-1. **Run the main dotfiles setup to install everything, including iTerm2:** `make setup`
-2. **Import iTerm2 settings:** `./iterm2/manage-iterm2.sh import`
-3. **Restart iTerm2** to apply all settings
+1. **Run the main dotfiles setup:** `make setup`
+   - The setup process will now **interactively prompt** you to import iTerm2 settings
+   - Answer "yes" when asked "📱 Import iTerm2 profile settings?"
+2. **Restart iTerm2** to apply all settings
 
-The iTerm2 settings are not automatically symlinked because macOS caches plist files, so manual import is required.
+Alternatively, you can manually import at any time:
+```bash
+./iterm2/manage-iterm2.sh import
+```
+
+The iTerm2 settings cannot be symlinked because macOS caches plist files, so they must be copied to `~/Library/Preferences/`.
 
 ## Notes
 
