@@ -33,3 +33,12 @@
 	defaultBranch = main
 [alias]
 	x = !git-x
+[filter "lfs"]
+	required = true
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+[lfs]
+	locksverify = false
+[maintenance]
+	repo = /Users/segersand/repos/services-pilot
