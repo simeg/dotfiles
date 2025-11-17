@@ -78,6 +78,9 @@ brew "pstree"                 # See which process spawned which
 # Testing Tools
 brew "bats-core"              # Bash Automated Testing System
 
+# Shell History Tools
+brew "atuin"                  # Improved shell history
+
 # ============================================================================
 # DEVELOPMENT ENVIRONMENT
 # ============================================================================
