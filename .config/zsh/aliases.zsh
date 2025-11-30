@@ -105,8 +105,8 @@ alias gdca="git diff --cached"
 alias gds="git diff --staged"
 alias gl="git pull"
 alias gp="git push"
-alias ggpush="git push origin \$(git branch --show-current)"
-alias ggpull="git pull origin \$(git branch --show-current)"
+alias ggpush='git push origin $(git branch --show-current)'
+alias ggpull='git pull origin $(git branch --show-current)'
 alias gst="git status"
 alias gss="git status --short"
 alias grb="git rebase"
@@ -147,7 +147,7 @@ alias gfa="git fetch --all"
 alias gm="git merge"
 
 # Custom git aliases
-alias gcom="git checkout $(git symbolic-ref --short refs/remotes/origin/HEAD | sed 's|^origin/||')"
+alias gcom='git checkout $(git symbolic-ref --short refs/remotes/origin/HEAD | sed "s|^origin/||")'
 alias gap="git add --patch"
 alias gs="git-show"
 alias gf!="super-amend"
@@ -172,3 +172,5 @@ alias jj="zi"
 ########################################
 
 alias h="help"
+alias cl="claude --dangerously-skip-permissions"
+alias claude="cl"
