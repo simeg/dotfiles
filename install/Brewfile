@@ -19,6 +19,7 @@ brew "git-filter-repo"        # Git repo filtering tool
 
 # Languages & Runtimes
 brew "node"                   # Node.js
+brew "pnpm"                   # pnpm
 brew "python@3.13"            # Python 3.13
 brew "go"                     # Go programming language
 brew "ruby"                   # Ruby programming language

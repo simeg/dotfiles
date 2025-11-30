@@ -49,11 +49,9 @@ alias fali="alias | fzf"
 alias ali="nvim ~/.config/zsh/aliases.zsh"
 
 ########################################
-# 🐳 Docker & CLI Utilities
+# 💾 CLI Utilities
 ########################################
 
-alias d="docker"
-alias h="heroku"
 alias cpd="copydir"
 alias cpf="copyfile"
 
@@ -167,4 +165,10 @@ alias kubectl="kubecolor"
 
 alias j="z"
 alias ji="zi"
+alias jj="zi"
 
+########################################
+# 🌈 Other
+########################################
+
+alias h="help"

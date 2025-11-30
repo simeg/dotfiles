@@ -1,0 +1,275 @@
+#!/usr/bin/env bash
+
+# Global help command - quick reference for useful commands
+# Usage: help [category|search <term>]
+
+set -euo pipefail
+
+# Colors
+readonly RED='\033[0;31m'
+readonly GREEN='\033[0;32m'
+readonly YELLOW='\033[0;33m'
+readonly MAGENTA='\033[0;35m'
+readonly CYAN='\033[0;36m'
+readonly BOLD='\033[1m'
+readonly DIM='\033[2m'
+readonly NC='\033[0m' # No Color
+
+# Category order for display
+readonly CATEGORY_ORDER="nav clip edit shell docker java files util"
+
+# Get category display name
+get_category_name() {
+    case "$1" in
+        nav)    echo "Navigation" ;;
+        clip)   echo "Clipboard" ;;
+        edit)   echo "Editing" ;;
+        shell)  echo "Shell" ;;
+        docker) echo "Docker & K8s" ;;
+        java)   echo "Java/Maven" ;;
+        files)  echo "Files & Listing" ;;
+        util)   echo "Utilities" ;;
+        *)      echo "$1" ;;
+    esac
+}
+
+# Check if category is valid
+is_valid_category() {
+    case "$1" in
+        nav|clip|edit|shell|docker|java|files|util) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+# Help entries format: "category|command|description"
+# Add new entries here - they'll automatically appear in the right category
+HELP_ENTRIES="
+nav|j <query>|jump to directory (zoxide)
+nav|jj|interactive directory jump
+nav|-|go to previous directory
+nav|dir|show directory stack
+nav|gwf|cd to .github/workflows
+clip|cpwd|copy current directory to clipboard
+clip|cpwd -r|copy relative path (from ~)
+clip|cpd|copy directory path (alias)
+clip|cpf <file>|copy file contents
+clip|copy <file>|copy file to clipboard (pbcopy)
+clip|pbpaste|paste from clipboard
+edit|vimrc|edit neovim config + reload
+edit|zshrc|edit zsh config + reload
+edit|ali|edit aliases file
+edit|brewfile|edit Brewfile
+edit|gitconfig|edit git config
+edit|vm|edit Makefile in cwd
+edit|vp|edit package.json in cwd
+edit|vr|edit README.md in cwd
+shell|reload|source ~/.zshrc
+shell|path|show PATH entries (one per line)
+shell|fali|fuzzy search aliases
+shell|which <cmd>|show command location
+shell|type <cmd>|show what command resolves to
+docker|kubectl|kubecolor (colored kubectl)
+docker|k9s|Manage Your Clusters In Style
+java|mvn / mvnd|maven daemon (faster)
+java|fmt|run spotify fmt plugin
+java|deps|check maven dependencies (fzf)
+files|tt|tree with colors
+files|fd|find replacement
+files|rg|ripgrep (fast grep)
+util|idea / videa|eureka idea capture / view
+util|backup|backup file with timestamp
+util|starship-theme|manage prompt themes
+util|system-monitor|system monitoring dashboard
+"
+
+show_header() {
+    echo -e "${BOLD}${CYAN}"
+    echo "╔═══════════════════════════════════════════════════════════════╗"
+    echo "║                     COMMAND QUICK REFERENCE                   ║"
+    echo "╚═══════════════════════════════════════════════════════════════╝"
+    echo -e "${NC}"
+}
+
+show_usage() {
+    echo -e "${BOLD}Usage:${NC}"
+    echo "  help              Show all commands"
+    echo "  help <category>   Show commands in category"
+    echo "  help search <q>   Search commands"
+    echo "  help add          How to add new entries"
+    echo ""
+    echo -e "${BOLD}Categories:${NC} ${CATEGORY_ORDER}"
+}
+
+show_category() {
+    local category="$1"
+    local category_name
+    category_name=$(get_category_name "$category")
+
+    echo -e "\n${BOLD}${MAGENTA}▸ ${category_name}${NC}"
+    echo -e "${DIM}$(printf '%.0s─' {1..50})${NC}"
+
+    echo "$HELP_ENTRIES" | while IFS='|' read -r cat cmd desc; do
+        if [[ -n "$cat" && "$cat" == "$category" ]]; then
+            printf "  ${GREEN}%-22s${NC} ${DIM}%s${NC}\n" "$cmd" "$desc"
+        fi
+    done
+}
+
+show_all() {
+    show_header
+    for category in $CATEGORY_ORDER; do
+        show_category "$category"
+    done
+    echo ""
+}
+
+search_entries() {
+    local query="$1"
+
+    echo -e "${BOLD}${CYAN}Search results for '${query}':${NC}\n"
+
+    echo "$HELP_ENTRIES" | while IFS='|' read -r cat cmd desc; do
+        if [[ -n "$cat" ]]; then
+            # Case-insensitive search in command and description
+            if echo "$cmd $desc" | grep -qi "$query"; then
+                local category_name
+                category_name=$(get_category_name "$cat")
+                printf "  ${YELLOW}[%s]${NC} ${GREEN}%-20s${NC} ${DIM}%s${NC}\n" \
+                    "$category_name" "$cmd" "$desc"
+            fi
+        fi
+    done
+
+    # Check if anything was found (hacky but works in subshell)
+    if ! echo "$HELP_ENTRIES" | grep -qi "$query"; then
+        echo -e "  ${RED}No matches found${NC}"
+    fi
+}
+
+# Paths to check for aliases and functions
+ALIASES_FILE="$HOME/.config/zsh/aliases.zsh"
+ZSHRC_FILE="$HOME/.zshrc"
+FUNCTIONS_DIR="$HOME/.config/zsh"
+
+# Commands that are shell builtins or special and should be skipped
+SKIP_COMMANDS=" - type which pbpaste "
+
+# Cached config content (loaded once on validation)
+CACHED_CONFIG=""
+
+# Extract individual commands from an entry (handles "cmd1 / cmd2" format)
+extract_commands() {
+    local cmd_field="$1"
+    # Remove <args> placeholders, split on " / ", get first word of each
+    echo "$cmd_field" | sed 's/<[^>]*>//g' | tr '/' '\n' | while read -r part; do
+        echo "$part" | awk '{print $1}' | tr -d ' '
+    done | grep -v '^$'
+}
+
+# Check if a command exists (binary, alias, or function)
+command_exists() {
+    local cmd="$1"
+
+    # Skip special commands
+    if [[ "$SKIP_COMMANDS" == *" $cmd "* ]]; then
+        return 0
+    fi
+
+    # Check if it's a binary in PATH
+    if command -v "$cmd" >/dev/null 2>&1; then
+        return 0
+    fi
+
+    # Check cached config for alias or function definition
+    if echo "$CACHED_CONFIG" | grep -qE "^alias $cmd=|^$cmd\(\)|^function $cmd "; then
+        return 0
+    fi
+
+    return 1
+}
+
+# Validate all help entries
+validate_entries() {
+    local error_count=0
+
+    echo -e "${BOLD}${CYAN}Validating help entries...${NC}\n"
+
+    # Load config cache once (read all zsh files into memory)
+    CACHED_CONFIG=$(cat "$ALIASES_FILE" "$ZSHRC_FILE" "$FUNCTIONS_DIR"/*.zsh 2>/dev/null || true)
+
+    # Use process substitution to avoid subshell variable scoping
+    while IFS='|' read -r cat cmd desc; do
+        if [[ -n "$cat" && -n "$cmd" ]]; then
+            for c in $(extract_commands "$cmd"); do
+                if ! command_exists "$c"; then
+                    echo -e "  ${RED}✗${NC} ${YELLOW}$c${NC} ${DIM}(from: $cmd)${NC}"
+                    ((error_count++))
+                fi
+            done
+        fi
+    done <<< "$HELP_ENTRIES"
+
+    if [[ $error_count -gt 0 ]]; then
+        echo ""
+        echo -e "${RED}Found $error_count missing command(s)${NC}"
+        return 1
+    else
+        echo -e "  ${GREEN}✓ All commands verified${NC}"
+        return 0
+    fi
+}
+
+show_add_instructions() {
+    echo -e "${BOLD}${CYAN}How to add new help entries:${NC}\n"
+    echo "1. Edit this script:"
+    echo -e "   ${GREEN}nvim ~/repos/dotfiles/bin/help${NC}\n"
+    echo "2. Add entries to HELP_ENTRIES variable:"
+    echo -e "   ${DIM}category|command|description${NC}\n"
+    echo "3. Available categories:"
+    for cat in $CATEGORY_ORDER; do
+        local name
+        name=$(get_category_name "$cat")
+        echo -e "   ${YELLOW}$cat${NC} - $name"
+    done
+    echo ""
+    echo "4. To add a new category, update:"
+    echo "   - CATEGORY_ORDER variable"
+    echo "   - get_category_name() function"
+    echo "   - is_valid_category() function"
+}
+
+# Main
+case "${1:-}" in
+    "")
+        show_all
+        ;;
+    -h|--help)
+        show_usage
+        ;;
+    search|s|find|f)
+        if [[ -z "${2:-}" ]]; then
+            echo -e "${RED}Error: search requires a query${NC}"
+            echo "Usage: help search <query>"
+            exit 1
+        fi
+        search_entries "$2"
+        ;;
+    add)
+        show_add_instructions
+        ;;
+    validate|check)
+        validate_entries
+        ;;
+    *)
+        # Check if it's a valid category
+        if is_valid_category "$1"; then
+            show_header
+            show_category "$1"
+            echo ""
+        else
+            # Try searching instead
+            echo -e "${DIM}Category '$1' not found, searching instead...${NC}\n"
+            search_entries "$1"
+        fi
+        ;;
+esac

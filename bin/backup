@@ -22,7 +22,7 @@ show_usage() {
     echo "Examples:"
     echo "  $0 config.txt                    # Creates config.txt.bak.TIMESTAMP"
     echo "  $0 -d /tmp file1.txt file2.txt   # Backup multiple files to /tmp"
-    echo "  $0 -v important.doc               # Verbose backup"
+    echo "  $0 -v important.doc              # Verbose backup"
 }
 
 # Parse command line arguments
@@ -103,7 +103,7 @@ for file in "$@"; do
     if $VERBOSE; then
         echo "Backing up '$file' to '$backup_file'..."
     fi
-    
+
     if cp -- "$file" "$backup_file"; then
         echo "✅ Backup created: $backup_file"
     else

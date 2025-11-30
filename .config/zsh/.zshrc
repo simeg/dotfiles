@@ -46,10 +46,10 @@ export GCLOUD_CREDENTIALS="$HOME/.config/gcloud/credentials"
 ########################################
 # ☕ Java
 ########################################
-if [[ -z "$JAVA_HOME" || "$JAVA_HOME" != "/Users/segersand/.sdkman/candidates/java/current" ]]; then
-  export JAVA_HOME="$("/usr/libexec/java_home" -v 21)"
-fi
-
+  # Eagerly initialize sdkman to set JAVA_HOME correctly
+  if [[ -f "$HOME/.sdkman/bin/sdkman-init.sh" ]]; then
+    source "$HOME/.sdkman/bin/sdkman-init.sh"
+  fi
 
 ########################################
 # 🐍 Python
