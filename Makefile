@@ -175,6 +175,7 @@ clean:
 	@rm -f ~/.zshrc ~/.znap-plugins.zsh ~/.gitconfig ~/.gitignore ~/.ideavimrc ~/.bin
 	@rm -f ~/.config/nvim ~/.config/starship ~/.config/atuin
 	@rm -f ~/.config/zsh/aliases.zsh ~/.config/zsh/exports.zsh ~/.config/zsh/functions.zsh ~/.config/zsh/misc.zsh ~/.config/zsh/path.zsh ~/.config/zsh/completions
+	@rm -f ~/.claude/commands/*.md
 	@echo "Cleanup completed. If things broke, run 'make setup'"
 
 # Comprehensive package management: analyze, sync, and install

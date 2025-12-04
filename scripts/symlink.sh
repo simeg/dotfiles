@@ -96,6 +96,10 @@ fi
 echo "Setting up bin directory"
 safe_ln "$(pwd)/bin" "$HOME/.bin"
 
+# Symlink Claude commands
+echo "Setting up Claude slash commands"
+symlink_dir_contents "$(pwd)/commands" "$HOME/.claude/commands" "Claude slash commands"
+
 # Handle special files that don't follow the pattern
 echo "Setting up special configuration files"
 
@@ -131,6 +135,7 @@ echo "  ~/.config/starship   ← .config/starship"
 echo "  ~/.config/atuin      ← .config/atuin"
 echo "  ~/.config/zsh        ← .config/zsh"
 echo "  ~/.bin               ← bin"
+echo "  ~/.claude/commands   ← commands (slash commands)"
 echo "  ~/.gitconfig         ← git/.gitconfig"
 echo "  ~/.gitignore         ← git/.gitignore"
 echo ""
