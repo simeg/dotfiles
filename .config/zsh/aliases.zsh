@@ -173,4 +173,3 @@ alias jj="zi"
 
 alias h="help"
 alias cl="claude --dangerously-skip-permissions"
-alias claude="cl"
