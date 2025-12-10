@@ -241,16 +241,6 @@ make test-advanced                           # Run all advanced tests
 ./scripts/tests/test_advanced.sh baseline
 ```
 
-### Legacy Validation
-
-The original `validate.sh` script provides basic checks:
-- ✅ All symlinks are correctly created
-- ✅ Required tools are installed
-- ✅ Zsh plugins are loaded
-- ✅ Git configuration is set
-- ✅ Neovim configuration is working
-- ✅ PATH includes custom bin directory
-
 ### Common Issues
 
 **Symlinks not working?**
