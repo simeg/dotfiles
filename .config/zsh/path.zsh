@@ -52,3 +52,7 @@ for util_dir in "$HOME/.bin" "$HOME/bin" "/usr/local/opt/coreutils/libexec/gnubi
     path+=("$util_dir")
   fi
 done
+
+# make "idea" command available
+path+=("/Applications/IntelliJ IDEA.app/Contents/MacOS")
+

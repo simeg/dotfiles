@@ -1,7 +1,4 @@
--- LSP Configuration
-
-local ok_lsp, lspconfig = pcall(require, 'lspconfig')
-if not ok_lsp then return end
+-- LSP Configuration (Neovim 0.11+ native API)
 
 -- Capabilities (nvim-cmp -> LSP)
 local capabilities = vim.lsp.protocol.make_client_capabilities()
@@ -26,17 +23,17 @@ local on_attach = function(_, bufnr)
   map('gr', vim.lsp.buf.references,        'LSP: References')
   map('<leader>rf', function() vim.lsp.buf.format({ async = true }) end, 'LSP: Format')
 
-  -- Optional: inlay hints if your Neovim supports it
+  -- Inlay hints toggle
   if vim.lsp.inlay_hint then
     vim.keymap.set('n', '<leader>ih', function()
-      local enabled = vim.lsp.inlay_hint.is_enabled(bufnr)
-      vim.lsp.inlay_hint.enable(bufnr, not enabled)
+      local enabled = vim.lsp.inlay_hint.is_enabled({ bufnr = bufnr })
+      vim.lsp.inlay_hint.enable(not enabled, { bufnr = bufnr })
     end, { buffer = bufnr, desc = 'LSP: Toggle Inlay Hints' })
   end
 end
 
--- Per-server overrides
-local servers = {
+-- Per-server settings
+local server_settings = {
   lua_ls = {
     settings = {
       Lua = {
@@ -50,10 +47,9 @@ local servers = {
   yamlls = {
     settings = { yaml = { keyOrdering = false } },
   },
-  -- Add server-specific settings here if you want (pyright, jsonls, etc.)
 }
 
--- Mason bootstrap + mason-lspconfig
+-- Mason setup
 require('mason').setup({})
 require('mason-lspconfig').setup({
   ensure_installed = {
@@ -65,22 +61,22 @@ require('mason-lspconfig').setup({
     'taplo',
     'lua_ls',
   },
-  automatic_installation = true, -- this one exists
+  automatic_installation = true,
 })
 
--- Set up each server manually
+-- Configure LSP servers using new vim.lsp.config API
 local mason_lspconfig = require('mason-lspconfig')
 local installed_servers = mason_lspconfig.get_installed_servers()
 
 for _, server_name in ipairs(installed_servers) do
-  local opts = {
+  local config = {
     on_attach = on_attach,
     capabilities = capabilities,
   }
-  if servers[server_name] then
-    for k, v in pairs(servers[server_name]) do
-      opts[k] = v
-    end
+  -- Merge server-specific settings
+  if server_settings[server_name] then
+    config = vim.tbl_deep_extend('force', config, server_settings[server_name])
   end
-  lspconfig[server_name].setup(opts)
+  vim.lsp.config(server_name, config)
+  vim.lsp.enable(server_name)
 end
