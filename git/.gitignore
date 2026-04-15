@@ -109,4 +109,3 @@ config/secrets
 # Claude #
 #########
 CLAUDE.local.md
-.claude/
