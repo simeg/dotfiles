@@ -49,34 +49,20 @@ local server_settings = {
   },
 }
 
--- Mason setup
+-- Mason installs the LSP binaries; run :Mason to install/update.
 require('mason').setup({})
-require('mason-lspconfig').setup({
-  ensure_installed = {
-    'pyright',
-    'bashls',
-    'yamlls',
-    'jsonls',
-    'marksman',
-    'taplo',
-    'lua_ls',
-  },
-  automatic_installation = true,
-})
 
--- Configure LSP servers using new vim.lsp.config API
-local mason_lspconfig = require('mason-lspconfig')
-local installed_servers = mason_lspconfig.get_installed_servers()
+-- LSP servers to enable. Install the corresponding binaries via :Mason.
+local servers = { 'pyright', 'bashls', 'yamlls', 'jsonls', 'marksman', 'taplo', 'lua_ls' }
 
-for _, server_name in ipairs(installed_servers) do
+for _, name in ipairs(servers) do
   local config = {
     on_attach = on_attach,
     capabilities = capabilities,
   }
-  -- Merge server-specific settings
-  if server_settings[server_name] then
-    config = vim.tbl_deep_extend('force', config, server_settings[server_name])
+  if server_settings[name] then
+    config = vim.tbl_deep_extend('force', config, server_settings[name])
   end
-  vim.lsp.config(server_name, config)
-  vim.lsp.enable(server_name)
+  vim.lsp.config(name, config)
+  vim.lsp.enable(name)
 end
