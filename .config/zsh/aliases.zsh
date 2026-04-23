@@ -66,7 +66,7 @@ alias videa="eureka --view"
 # 🧪 Custom CLI scripts
 ########################################
 
-alias urlencode='python -c "import sys, urllib as ul; print ul.quote_plus(sys.argv[1]);"'
+alias urlencode='python3 -c "import sys, urllib.parse as ul; print(ul.quote_plus(sys.argv[1]))"'
 
 ########################################
 # 🌱 Java / Maven / Deps

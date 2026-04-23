@@ -96,15 +96,6 @@ fabric.properties
 ##############
 ._*
 
-# Vim-specific files #
-######################
-vim/.netrwhist
-vim/bundle
-vim/swaps
-vim/vim
-vim/_plugins
-vim/autoload
-
 # Neovim backup/undo files #
 #############################
 nvim/backups/

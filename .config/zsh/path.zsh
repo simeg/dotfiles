@@ -37,10 +37,7 @@ fi
 # ☁️ Cloud SDKs
 ############################################
 
-path+=("/opt/homebrew/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/bin")
-[[ -f "$HOME/google-cloud-sdk/path.zsh.inc" ]] && source "$HOME/google-cloud-sdk/path.zsh.inc"
-path+=("/opt/homebrew/share/google-cloud-sdk/bin/gcloud")
-path+=("/opt/homebrew/share/google-cloud-sdk/bin/docker-credential-gcloud")
+[[ -f "/opt/homebrew/share/google-cloud-sdk/path.zsh.inc" ]] && source "/opt/homebrew/share/google-cloud-sdk/path.zsh.inc"
 
 ############################################
 # 🧰 Utilities & Custom Tools
