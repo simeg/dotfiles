@@ -44,21 +44,6 @@ require('lazy').setup({
     end,
   },
 
-  {
-    'morhetz/gruvbox',
-    priority = 1000,
-    config = function()
-      vim.g.gruvbox_contrast_dark = 'medium'
-      vim.g.gruvbox_improved_strings = 1
-      vim.g.gruvbox_improved_warnings = 1
-    end,
-  },
-
-  {
-    'junegunn/seoul256.vim',
-    priority = 1000,
-  },
-
   -- File explorer (NERDTree replacement)
   {
     'nvim-tree/nvim-tree.lua',

@@ -23,6 +23,12 @@ vim.g.loaded_netrwPlugin = 1
 vim.g.loaded_netrwSettings = 1
 vim.g.loaded_netrwFileHandlers = 1
 
+-- Disable unused language providers (silences :checkhealth warnings)
+vim.g.loaded_perl_provider = 0
+vim.g.loaded_ruby_provider = 0
+vim.g.loaded_node_provider = 0
+vim.g.loaded_python3_provider = 0
+
 -- General
 opt.compatible = false         -- Disable vi compatibility
 opt.hidden = true              -- Leave hidden buffers open
