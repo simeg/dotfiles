@@ -290,6 +290,9 @@ require('lazy').setup({
   ui = {
     border = 'rounded',
   },
+  rocks = {
+    enabled = false, -- No plugins need luarocks; silences hererocks warnings
+  },
   performance = {
     rtp = {
       disabled_plugins = {
