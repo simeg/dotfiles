@@ -2,7 +2,7 @@
 -- Modern replacement for vim-plug
 
 local lazypath = vim.fn.stdpath('data') .. '/lazy/lazy.nvim'
-if not vim.loop.fs_stat(lazypath) then
+if not vim.uv.fs_stat(lazypath) then
   vim.fn.system({
     'git',
     'clone',
@@ -89,12 +89,19 @@ require('lazy').setup({
   {
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
-    lazy = false,
-    priority = 900,
+    event = { 'BufReadPost', 'BufNewFile' },
     config = function()
       require('nvim-treesitter.configs').setup({
-        ensure_installed = { 'lua','vim','vimdoc','html','css','javascript','python','bash','json','yaml','markdown','markdown_inline','toml' },
-        sync_install = false,
+        ensure_installed = {
+          -- Web
+          'html', 'css', 'javascript', 'typescript', 'tsx', 'json',
+          -- Backend / Systems
+          'lua', 'python', 'rust', 'go', 'bash', 'c', 'cpp', 'java', 'ruby',
+          -- Config / Markup
+          'yaml', 'toml', 'ini', 'markdown', 'markdown_inline', 'regex',
+          -- Extras
+          'vim', 'vimdoc', 'make', 'dockerfile', 'gitcommit', 'gitignore',
+        },
         auto_install = true,
         highlight = {
           enable = true,
@@ -104,6 +111,8 @@ require('lazy').setup({
           enable = true,
         },
       })
+
+      vim.treesitter.language.register('bash', 'zsh')
     end,
   },
 

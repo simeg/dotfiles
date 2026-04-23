@@ -21,8 +21,9 @@ autocmd('BufWritePre', {
   group = general,
   pattern = '*',
   callback = function()
+    if not vim.bo.modifiable or vim.bo.readonly then return end
     local save_cursor = vim.fn.getpos('.')
-    vim.cmd([[%s/\s\+$//e]])
+    vim.cmd([[keepjumps keeppatterns %s/\s\+$//e]])
     vim.fn.setpos('.', save_cursor)
   end,
 })
@@ -37,46 +38,11 @@ autocmd('BufEnter', {
 -- File type specific settings
 local filetype = augroup('FileType', { clear = true })
 
--- Force syntax highlighting (from your vim config)
+-- .html.twig isn't detected by default; nvim's builtin ftdetect handles .js/.py/.md/.json
 autocmd({'BufNewFile', 'BufRead'}, {
   group = filetype,
   pattern = '*.html.twig',
-  command = 'set syntax=html',
-})
-
-autocmd({'BufNewFile', 'BufRead'}, {
-  group = filetype,
-  pattern = '*.js',
-  command = 'set syntax=javascript',
-})
-
-autocmd({'BufNewFile', 'BufRead'}, {
-  group = filetype,
-  pattern = '*.py',
-  command = 'set syntax=python',
-})
-
-autocmd({'BufNewFile', 'BufRead'}, {
-  group = filetype,
-  pattern = '*.md',
-  command = 'set filetype=markdown',
-})
-
-autocmd({'BufNewFile', 'BufRead'}, {
-  group = filetype,
-  pattern = '*.json',
-  command = 'setfiletype json | set syntax=javascript',
-})
-
--- Format JSON files when opening (from your vim config)
-autocmd('FileType', {
-  group = filetype,
-  pattern = 'json',
-  callback = function()
-    if vim.fn.executable('jq') == 1 then
-      vim.cmd('silent %!jq .')
-    end
-  end,
+  command = 'set filetype=html',
 })
 
 -- Resize splits when window is resized
