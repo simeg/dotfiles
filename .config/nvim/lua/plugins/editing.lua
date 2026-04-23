@@ -1,12 +1,6 @@
 -- Editing Enhancements
 -- Configuration for various editing plugins
 
--- Comment.nvim setup (replacement for vim-commentary)
-local status_ok, comment = pcall(require, 'Comment')
-if status_ok then
-  comment.setup()
-end
-
 -- nvim-autopairs setup (replacement for delimitMate)
 local autopairs_ok, autopairs = pcall(require, 'nvim-autopairs')
 if autopairs_ok then
@@ -36,12 +30,6 @@ if autopairs_ok then
   if cmp_status_ok then
     cmp.event:on('confirm_done', cmp_autopairs.on_confirm_done())
   end
-end
-
--- Rainbow delimiters setup (replacement for rainbow_parentheses.vim)
-local rainbow_ok, rainbow = pcall(require, 'rainbow-delimiters.setup')
-if rainbow_ok then
-  -- Configuration is handled automatically
 end
 
 -- Which-key setup (helpful for discovering keybindings)

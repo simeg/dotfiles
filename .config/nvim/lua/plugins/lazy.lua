@@ -104,11 +104,15 @@ require('lazy').setup({
   -- Git integration (gitgutter replacement)
   {
     'lewis6991/gitsigns.nvim',
+    event = 'BufReadPre',
+    config = function() require('plugins.git') end,
   },
 
-  -- Comments (vim-commentary replacement)
+  -- Comments (vim-commentary replacement): loaded on-demand via require('Comment.api') in keymaps.lua
   {
     'numToStr/Comment.nvim',
+    lazy = true,
+    opts = {},
   },
 
   -- Auto pairs (delimitMate replacement)
@@ -120,11 +124,13 @@ require('lazy').setup({
   -- Rainbow parentheses
   {
     'HiPhish/rainbow-delimiters.nvim',
+    event = { 'BufReadPost', 'BufNewFile' },
   },
 
   -- Better whitespace handling
   {
     'ntpeters/vim-better-whitespace',
+    event = 'VeryLazy',
   },
 
   -- LSP Configuration
@@ -184,6 +190,7 @@ require('lazy').setup({
 
   {
     'lukas-reineke/indent-blankline.nvim', -- Show indentation lines
+    event = 'BufReadPost',
     main = 'ibl',
     opts = {},
   },
@@ -192,12 +199,14 @@ require('lazy').setup({
   {
     'akinsho/toggleterm.nvim',
     version = '*',
+    cmd = { 'ToggleTerm', 'TermExec', 'ToggleTermToggleAll' },
     config = true,
   },
 
   -- Smooth scrolling
   {
     'karb94/neoscroll.nvim',
+    event = 'VeryLazy',
     config = function()
       require('neoscroll').setup({
         hide_cursor = true,
@@ -214,6 +223,7 @@ require('lazy').setup({
   -- Better notifications
   {
     'rcarriga/nvim-notify',
+    event = 'VeryLazy',
     config = function()
       require('notify').setup({
         background_colour = '#000000',
@@ -261,33 +271,17 @@ require('lazy').setup({
   {
     'smoka7/hop.nvim',
     version = '*',
-    config = function()
-      require('hop').setup({
-        keys = 'etovxqpdygfblzhckisuran',
-        jump_on_sole_occurrence = true,
-        case_insensitive = true,
-        create_hl_autocmd = true,
-      })
-
-      -- Set up keymaps
-      local hop = require('hop')
-      local directions = require('hop.hint').HintDirection
-
-      -- Jump to any word (using 'f' as requested)
-      vim.keymap.set('', 'f', function()
-        hop.hint_words()
-      end, { desc = 'Hop to word' })
-
-      -- Jump to any character
-      vim.keymap.set('', '<leader>c', function()
-        hop.hint_char1()
-      end, { desc = 'Hop to character' })
-
-      -- Jump to any line
-      vim.keymap.set('', '<leader>l', function()
-        hop.hint_lines()
-      end, { desc = 'Hop to line' })
-    end,
+    keys = {
+      { 'f', function() require('hop').hint_words() end, mode = { 'n', 'v', 'o' }, desc = 'Hop to word' },
+      { '<leader>c', function() require('hop').hint_char1() end, mode = { 'n', 'v', 'o' }, desc = 'Hop to character' },
+      { '<leader>l', function() require('hop').hint_lines() end, mode = { 'n', 'v', 'o' }, desc = 'Hop to line' },
+    },
+    opts = {
+      keys = 'etovxqpdygfblzhckisuran',
+      jump_on_sole_occurrence = true,
+      case_insensitive = true,
+      create_hl_autocmd = true,
+    },
   },
 
   { 'rafamadriz/friendly-snippets' },
