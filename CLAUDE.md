@@ -6,36 +6,29 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Primary Commands (via Makefile)
 ```bash
-# Essential Commands
+# Essential
 make setup                 # Complete dotfiles setup (symlinks, packages, validation)
+make setup-minimal         # Essential setup only (faster)
 make update                # Update all components (git, packages, plugins)
 make validate              # Verify all configurations are working correctly
-make test                  # Run complete Bats test suite
-make test-quick            # Quick configuration validation tests
-make test-advanced         # Advanced tests (performance + security)
-make test-ci               # CI-compatible tests
+make symlink               # Create symlinks only
 make packages              # Install and sync packages from Brewfile
-make health                # System diagnostics and health checks
 make clean                 # Remove broken symlinks and temporary files
 make deps                  # Check all dependencies are installed
 make lint                  # Run shellcheck on all shell scripts
-make help                  # Show available commands
+make help                  # Show all available commands
 
-# Advanced Usage Examples
-make test-quick            # Quick validation tests only
+# Tests (Bats)
+make test                  # Run the local Bats suite
 make test-advanced         # Advanced tests (performance + security)
 make test-ci               # CI-compatible tests (no symlink dependencies)
+
+# Health diagnostics
+make health                # System diagnostics and health checks
 make health-monitor        # Real-time system monitoring dashboard
 make health-analytics      # Package usage and performance analytics
 make health-profile        # Shell startup performance profiling
 make snapshot              # Take system metrics snapshot
-make setup-minimal         # Essential setup only (faster)
-
-# Legacy compatibility (all still supported)
-make test-quick            # Quick validation tests
-make test-advanced         # Advanced tests (performance + security)
-make analytics             # → make health-analytics
-make profile               # → make health-profile
 ```
 
 ### Direct Script Usage

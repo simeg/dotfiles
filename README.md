@@ -51,7 +51,7 @@ make help                     # Show all available commands
 ### Advanced Usage
 ```bash
 # Test variants
-make test-quick               # Quick validation tests only
+make test                     # Run the local Bats test suite
 make test-advanced            # Advanced tests (performance + security)
 make test-ci                  # CI-compatible tests (no symlink dependencies)
 
@@ -63,14 +63,7 @@ make snapshot                 # Take system metrics snapshot
 
 # Setup variants
 make setup-minimal            # Essential setup only (faster)
-```
-
-### Legacy Commands (Still Supported)
-```bash
-make install                  # → make packages
 make symlink                  # Create symlinks only
-make analytics                # → make health-analytics
-make profile                  # → make health-profile
 ```
 
 ## 📁 Directory Structure
@@ -196,14 +189,14 @@ configuration integrity, performance monitoring, and security compliance.
 ### Quick Testing
 
 ```bash
-# Run essential validation tests (recommended for development)
-make test-quick
+# Run the local Bats test suite
+make test
 
 # Pre-commit validation (syntax + configuration checks)
 make lint
 
-# Full test suite (basic + CI + advanced tests)
-make test
+# Advanced tests (performance + security)
+make test-advanced
 ```
 
 ### Advanced Testing Framework
@@ -231,14 +224,8 @@ The advanced testing system provides three categories of validation:
 - Dependency source security analysis
 
 ```bash
-# Individual test categories
-make test-advanced                           # Run all advanced tests
-./scripts/tests/test_advanced.sh config      # Configuration validation only
-./scripts/tests/test_advanced.sh performance # Performance regression tests
-./scripts/tests/test_advanced.sh security    # Security compliance checks
-
-# Create performance baselines for future regression testing
-./scripts/tests/test_advanced.sh baseline
+# Run all advanced tests (config + performance + security via Bats)
+make test-advanced
 ```
 
 ### Common Issues

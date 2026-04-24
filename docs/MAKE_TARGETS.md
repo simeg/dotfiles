@@ -10,8 +10,7 @@ make setup                   # Complete setup for new installations (recommended
 make setup-minimal           # Essential setup only (faster)
 make update                  # Update all components
 make validate                # Verify configuration is working
-make test                    # Run complete test suite
-make test-quick              # Quick validation tests only
+make test                    # Run the local Bats suite
 make test-advanced           # Advanced tests (performance + security)
 make test-ci                 # CI-compatible tests (no symlink dependencies)
 make lint                    # Check code quality
@@ -39,16 +38,6 @@ make clean                   # Remove broken symlinks and temporary files
 
 **When to use**: First time setting up dotfiles on a new machine
 
-### `make install`
-**Purpose**: Install packages and dependencies
-**Alias for**: `make packages`
-**What it does**:
-- Analyzes package differences between installed and configured
-- Installs packages from Brewfile via Homebrew
-- Checks for Homebrew installation first
-
-**When to use**: When you need to install missing packages or after adding new packages to Brewfile
-
 ### `make symlink`
 **Purpose**: Create symbolic links only
 **What it does**:
@@ -57,16 +46,6 @@ make clean                   # Remove broken symlinks and temporary files
 - Does NOT install packages or validate configuration
 
 **When to use**: When you only need to recreate symlinks (e.g., after accidental deletion)
-
-### `make uninstall`
-**Purpose**: Remove dotfiles installation
-**Alias for**: `make clean`
-**What it does**:
-- Removes all symbolic links created by the dotfiles
-- Preserves your original configuration files
-- Cleans up temporary files and broken symlinks
-
-**When to use**: When you want to remove dotfiles and restore original system state
 
 ## Updates & Maintenance
 
@@ -124,23 +103,6 @@ make clean                   # Remove broken symlinks and temporary files
 
 **When to use**: Before releasing changes or when validating major modifications
 
-### `make test-quick`
-**Purpose**: Run essential validation tests
-**What it does**:
-- Executes core functionality tests for rapid feedback
-- Tests syntax validation and basic configuration
-- Skips time-intensive performance and security scans
-- Ideal for development workflow
-
-**When to use**: During development for quick validation
-
-### `make test-precommit`
-**Purpose**: Run pre-commit validation tests
-**What it does**:
-- Fast syntax and configuration validation
-- CI tests plus configuration validation
-- Optimized for pre-commit hook usage
-- Catches common issues before committing
 
 **When to use**: In pre-commit hooks or before committing changes
 
@@ -259,20 +221,6 @@ make clean                   # Remove broken symlinks and temporary files
 
 **When to use**: Regular package maintenance, installing missing packages, or setting up new machine
 
-## Analytics & Performance Monitoring
-
-### Legacy Target: `make analytics`
-**Purpose**: Comprehensive analytics and performance monitoring
-**Alias for**: `make health-analytics`
-**What it does**:
-- Runs package usage analysis to identify optimization opportunities
-- Analyzes command usage patterns and identifies unused packages
-- Performs comprehensive performance analysis of shell and commands
-- Provides system performance insights and trends
-- Generates actionable recommendations for improvements
-
-**When to use**: Regular system optimization, usage analysis, and performance troubleshooting
-
 ## Common Workflows
 
 ### New Machine Setup
@@ -327,8 +275,7 @@ make snapshot          # Create performance baseline
 | `snapshot` | System snapshot | Baseline creation |
 | `deps` | Check dependencies | Troubleshooting |
 | `packages` | Manage packages | Package maintenance |
-| `test` | Run test suite | Development |
-| `test-quick` | Quick tests | Development |
+| `test` | Run the local Bats suite | Development |
 | `test-advanced` | Advanced tests | Security/performance |
 | `test-ci` | CI tests | Continuous integration |
 | `lint` | Code quality check | Development |
