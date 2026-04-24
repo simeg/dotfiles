@@ -4,16 +4,8 @@
 # Lazy-loaded completions for better startup performance
 ########################################
 
-# Add custom completions to fpath (consolidate to avoid duplicate compinit)
-fpath=(~/.local/share/zsh/completions ~/.config/zsh/completions $fpath)
-
-# Add completions for git-x
-if [[ -d ~/.local/share/zsh/site-functions ]]; then
-  fpath=(~/.local/share/zsh/site-functions $fpath)
-fi
-
-# Single compinit call after all fpath modifications (skip security checks for speed)
-autoload -U compinit && compinit -C
+# Note: fpath additions and compinit are handled in .znap-plugins.zsh so
+# that fzf-tab loads against a populated fpath. Per-tool lazy loaders below.
 
 # ☸️ kubectl completions (lazy load on first use)
 if command -v kubectl &>/dev/null; then

@@ -5,6 +5,18 @@
 # These plugins are loaded for essential functionality
 ########################################
 
+# Custom completion paths must be on fpath BEFORE compinit runs.
+fpath=(~/.local/share/zsh/completions ~/.config/zsh/completions $fpath)
+[[ -d ~/.local/share/zsh/site-functions ]] && fpath=(~/.local/share/zsh/site-functions $fpath)
+
+# Initialize completion system (skip security checks for speed).
+# Must run before fzf-tab. -C uses cached zcompdump if available.
+autoload -U compinit && compinit -C
+
+# 🔍 fzf-powered tab completion. Must load AFTER compinit and BEFORE
+# widget-wrapping plugins (autosuggestions, syntax-highlighting).
+znap source Aloxaf/fzf-tab
+
 # 🔤 Syntax & Highlighting (order matters for these)
 
 # Adds real-time syntax highlighting as you type commands
@@ -17,6 +29,12 @@ znap source zsh-users/zsh-autosuggestions
 if command -v atuin &>/dev/null; then
   znap eval atuin 'atuin init zsh'
 fi
+
+# fzf-tab styling
+zstyle ':completion:*:descriptions' format '[%d]'
+zstyle ':completion:*:git-checkout:*' sort false
+zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always --icons $realpath'
+zstyle ':fzf-tab:*' use-fzf-default-opts yes
 
 # Node/Python/etc. version management is now handled by mise (see .zshrc).
 # Replaced lukechilds/zsh-nvm (abandoned upstream since 2023) and pyenv.

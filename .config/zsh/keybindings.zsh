@@ -9,6 +9,13 @@ autoload -Uz edit-command-line
 zle -N edit-command-line
 bindkey '^X^E' edit-command-line
 
+# fzf shell integration (Ctrl-T file picker, Alt-C cd picker).
+# Atuin owns Ctrl-R; fzf init binds it too, so restore atuin after.
+if command -v fzf &>/dev/null; then
+  source <(fzf --zsh)
+  bindkey '^R' atuin-search 2>/dev/null
+fi
+
 # (Optional) ensure Meta+Backspace maps to backward-kill-word
 # Only add if you've customized keymaps; most setups don't need this.
 #bindkey -M emacs '^[^?' backward-kill-word
