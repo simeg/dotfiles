@@ -38,6 +38,43 @@ make snapshot              # Take system metrics snapshot
 ./scripts/update.sh --brew-only  # Update only Homebrew packages
 ```
 
+## Gotchas
+
+Things that have surprised contributors (you and me both) — read these first:
+
+- **Starship git timeout warnings**: `/opt/spotify-devex/bin/git` is an OTel
+  shim added by Spotify's dev-env-instrumentation that adds ~40ms per
+  invocation. Starship calls git ~10x per prompt and trips the 500ms
+  command_timeout. Fix lives in `.config/zsh/starship-fast-git.zsh` — it
+  rewrites `PROMPT`/`RPROMPT` after `starship init` to route through a
+  wrapper that prepends real git and silences timeout WARNs.
+  Massive repos (e.g. services-pilot, ~325k files) still drop
+  git_status because the underlying `git status --porcelain=2 --branch`
+  takes seconds; this is intentional, not a bug.
+- **Tests are Bats, not shell scripts**: live under `tests/bats/`, not
+  `scripts/tests/`. Run `make test` / `make test-advanced`. The old
+  `test_*.sh` files referenced in some docs were removed long ago.
+- **Symlinks are per-file, not per-dir**: `scripts/symlink.sh` walks
+  `.config/zsh/*` and links each file individually to `~/.config/zsh/`.
+  Adding a new zsh module file is enough — the next `make setup` (or
+  re-run of `symlink.sh`) picks it up automatically.
+- **Language-runtime split**: `mise` manages node + python (replaces
+  abandoned zsh-nvm and slow pyenv). `sdkman` keeps managing JVM
+  ecosystem (Java, Scala, Maven, etc.). `rustup` manages Rust. Don't
+  reinvent any of these splits.
+- **`kubectl` formula = `kubernetes-cli`**: brew aliases them. Adding
+  both to Brewfile triggers a duplicate warning.
+- **Active Starship theme**: managed by `bin/starship-theme` (a wrapper
+  that symlinks the chosen `.config/starship/themes/*.toml` to
+  `~/.config/starship.toml`). To change themes, run `starship-theme set
+  <name>`, not edit the symlink directly.
+- **Pre-commit runs gitleaks on every commit**: don't bypass with
+  `--no-verify` casually — the user's CLAUDE.md elsewhere explicitly
+  bans this.
+- **Many casks auto-update themselves** (notion, gcloud-cli,
+  docker-desktop). `brew outdated --cask --greedy` will report stale
+  metadata even when the running app is current. Don't blindly upgrade.
+
 ## Architecture Overview
 
 ### Core Structure
