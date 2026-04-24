@@ -53,11 +53,10 @@ export GCLOUD_CREDENTIALS="$HOME/.config/gcloud/credentials"
   fi
 
 ########################################
-# 🐍 Python
+# 🐍 Python (virtualenvwrapper paths)
 ########################################
 export WORKON_HOME="$HOME/.virtualenvs"
 export PROJECT_HOME="$HOME/Devel"
-export PYENV_ROOT="$HOME/.pyenv"
 
 
 ########################################
@@ -65,6 +64,13 @@ export PYENV_ROOT="$HOME/.pyenv"
 ########################################
 # Should not be lazy loaded
 eval "$(zoxide init zsh)"
+
+########################################
+# 🛠️  mise (node, python, etc. version manager)
+########################################
+if command -v mise &>/dev/null; then
+  eval "$(mise activate zsh)"
+fi
 
 ########################################
 # 📁 direnv (per-project env vars)

@@ -18,10 +18,8 @@ if command -v atuin &>/dev/null; then
   znap eval atuin 'atuin init zsh'
 fi
 
-# 📦 NVM - Node.js version manager (with lazy loading for performance)
-export NVM_LAZY_LOAD=true
-export NVM_COMPLETION=true
-znap source lukechilds/zsh-nvm
+# Node/Python/etc. version management is now handled by mise (see .zshrc).
+# Replaced lukechilds/zsh-nvm (abandoned upstream since 2023) and pyenv.
 
 ########################################
 # ❌ Disabled Plugins (Performance Optimization)

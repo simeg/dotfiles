@@ -21,9 +21,7 @@ brew "pre-commit"             # Git pre-commit hook framework
 brew "lazygit"                # Terminal UI for git
 
 # Languages & Runtimes
-brew "node"                   # Node.js
 brew "pnpm"                   # pnpm
-brew "python@3.13"            # Python 3.13
 brew "go"                     # Go programming language
 brew "ruby"                   # Ruby programming language
 brew "lua"                    # Lua programming language
@@ -98,7 +96,7 @@ brew "atuin"                  # Improved shell history
 brew "neovim"                 # Modern vim replacement
 
 # Version Managers
-brew "pyenv"                  # Python version manager
+brew "mise"                   # Polyglot runtime manager (node, python, etc.)
 brew "direnv"                 # Per-directory environment loader
 
 # Package Managers
