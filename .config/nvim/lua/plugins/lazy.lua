@@ -15,6 +15,19 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require('lazy').setup({
+  -- Folke meta-pack: bigfile/quickfile speed-ups, indent guides, notifier
+  {
+    'folke/snacks.nvim',
+    priority = 1000,
+    lazy = false,
+    opts = {
+      bigfile = {},
+      quickfile = {},
+      indent = {},
+      notifier = {},
+    },
+  },
+
   -- Color schemes
   {
     'catppuccin/nvim',
@@ -55,6 +68,19 @@ require('lazy').setup({
         },
       })
     end,
+  },
+
+  -- Edit the filesystem like a buffer (batch rename/move)
+  {
+    'stevearc/oil.nvim',
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    lazy = false,
+    opts = {
+      view_options = { show_hidden = true },
+    },
+    keys = {
+      { '-', '<cmd>Oil<cr>', desc = 'Open parent directory in Oil' },
+    },
   },
 
   -- Statusline (airline replacement)
@@ -111,11 +137,37 @@ require('lazy').setup({
     config = function() require('plugins.git') end,
   },
 
-  -- Comments (vim-commentary replacement): loaded on-demand via require('Comment.api') in keymaps.lua
+  -- Comments are now provided by Neovim 0.10+ builtin (gc/gcc).
+  -- See keymaps.lua for the <leader>i remap onto gcc/gc.
+
+  -- Format-on-save orchestration
   {
-    'numToStr/Comment.nvim',
-    lazy = true,
+    'stevearc/conform.nvim',
+    event = 'BufWritePre',
+    cmd = 'ConformInfo',
+    opts = {
+      format_on_save = { timeout_ms = 1000, lsp_format = 'fallback' },
+      formatters_by_ft = {
+        lua = { 'stylua' },
+        python = { 'ruff_format' },
+        javascript = { 'prettierd' },
+        typescript = { 'prettierd' },
+        go = { 'gofmt' },
+        rust = { 'rustfmt' },
+      },
+    },
+  },
+
+  -- Pretty diagnostics, references, quickfix list
+  {
+    'folke/trouble.nvim',
+    cmd = 'Trouble',
     opts = {},
+    keys = {
+      { '<leader>xx', '<cmd>Trouble diagnostics toggle<cr>',          desc = 'Diagnostics' },
+      { '<leader>xr', '<cmd>Trouble lsp_references toggle<cr>',       desc = 'LSP references' },
+      { '<leader>xs', '<cmd>Trouble symbols toggle focus=false<cr>',  desc = 'Symbols' },
+    },
   },
 
   -- Auto pairs (delimitMate replacement)

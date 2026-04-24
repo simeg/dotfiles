@@ -112,16 +112,10 @@ keymap('n', '<leader>q', vim.diagnostic.setloclist, opts)
 keymap('n', '<leader>gp', ':Gitsigns preview_hunk<CR>', opts)
 keymap('n', '<leader>gt', ':Gitsigns toggle_current_line_blame<CR>', opts)
 
--- Comments (using Comment.nvim, similar to vim-commentary)
-keymap('n', '<leader>i', function()
-  require('Comment.api').toggle.linewise.current()
-end, opts)
-
-keymap('x', '<leader>i', function()
-  local esc = vim.api.nvim_replace_termcodes('<ESC>', true, false, true)
-  vim.api.nvim_feedkeys(esc, 'nx', false)
-  require('Comment.api').toggle.linewise(vim.fn.visualmode())
-end, opts)
+-- Comments via Neovim 0.10+ builtin. <leader>i remaps to the standard
+-- gcc (linewise toggle) / gc (visual selection) bindings.
+keymap('n', '<leader>i', 'gcc', { remap = true })
+keymap('x', '<leader>i', 'gc', { remap = true })
 
 -- Terminal
 keymap('n', '<leader>t', ':terminal<CR>', opts)
