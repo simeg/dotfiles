@@ -99,6 +99,7 @@ brew "neovim"                 # Modern vim replacement
 
 # Version Managers
 brew "pyenv"                  # Python version manager
+brew "direnv"                 # Per-directory environment loader
 
 # Package Managers
 brew "pipenv"                 # Python package manager

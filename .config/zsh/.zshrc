@@ -66,6 +66,13 @@ export PYENV_ROOT="$HOME/.pyenv"
 # Should not be lazy loaded
 eval "$(zoxide init zsh)"
 
+########################################
+# 📁 direnv (per-project env vars)
+########################################
+if command -v direnv &>/dev/null; then
+  eval "$(direnv hook zsh)"
+fi
+
 
 ########################################
 # ⚡️ Quality-of-Life Tweaks
