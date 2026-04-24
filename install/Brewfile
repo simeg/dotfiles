@@ -131,6 +131,7 @@ cask "notion"                 # Note-taking and productivity
 # Development Utilities
 cask "devtoys"                # Developer utilities
 cask "db-browser-for-sqlite"  # SQLite browser
+cask "1password-cli"          # 1Password CLI (op) — secret injection, SSH signing
 brew "avro-tools"             # Apache Avro tools
 brew "protobuf"               # Protocol buffers
 brew "graphviz"               # Graph visualization software

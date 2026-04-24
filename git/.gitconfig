@@ -1,6 +1,17 @@
 [user]
 	name = Simon Egersand
 	email = segersand@spotify.com
+	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIO3Gjajrz116sS9rqrtO/zPwTsQgSoginxXIasZepXS
+[gpg]
+	format = ssh
+[gpg "ssh"]
+	program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
+; To enable signed commits (verified badge on GitHub):
+;   1. Open 1Password → Settings → Developer → "Use the SSH agent"
+;   2. Verify with: ssh-add -L (should list your ed25519 key)
+;   3. Flip gpgsign below to true (and add it under [tag] too)
+[commit]
+	gpgsign = false
 [core]
 	excludesfile = ~/.gitignore
 	editor = nvim
