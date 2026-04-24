@@ -18,6 +18,7 @@ brew "gh"                     # GitHub CLI
 brew "git-filter-repo"        # Git repo filtering tool
 brew "git-lfs"                # Git Large File Storage
 brew "pre-commit"             # Git pre-commit hook framework
+brew "lazygit"                # Terminal UI for git
 
 # Languages & Runtimes
 brew "node"                   # Node.js
@@ -57,6 +58,7 @@ brew "git-delta"              # Enhanced git diff viewer (better than diff-so-fa
 brew "gawk"                   # GNU awk with advanced features
 brew "findutils"              # gives you gfind, gxargs, etc.
 brew "gnu-sed"                # gsed for consistent -i behavior
+brew "sd"                     # Intuitive find/replace (interactive sed)
 
 # File Management
 brew "zoxide"                 # Smart cd command
@@ -66,12 +68,16 @@ brew "entr"                   # File watcher
 brew "wget"                   # Web file downloader
 brew "nmap"                   # Network discovery
 brew "wifi-password"          # Get WiFi password
+brew "xh"                     # Friendly httpie-like HTTP client (Rust)
+brew "doggo"                  # Modern dig with color output
+brew "bandwhich"              # Per-process network usage TUI
 
 # System Tools
 brew "coreutils"              # GNU core utilities
 brew "shellcheck"             # Shell script linter
 brew "mas"                    # Mac App Store CLI
 brew "btop"                   # Beautiful process viewer
+brew "dust"                   # Visual du replacement
 brew "tlrc"                   # Simplified man pages (tldr in Rust)
 brew "readline"               # GNU readline library
 brew "sqlite"                 # SQL database engine

@@ -81,7 +81,10 @@ alias deps='check_maven_deps "$(list_maven_modules | fzf)"'
 ########################################
 
 # Note: if using GNU coreutils
-alias ls="eza"  # Better modern ls alternative
+alias ls="eza"   # Better modern ls alternative
+alias du="dust"  # Visual disk-usage tree
+alias dig="doggo"  # Color dig with sane defaults
+alias http="xh"  # httpie UX in a Rust binary
 
 ########################################
 # 🐙 Git & Git Helpers
@@ -152,6 +155,7 @@ alias gap="git add --patch"
 alias gs="git-show"
 alias gf!="super-amend"
 alias fixup!="super-amend"
+alias lg="lazygit"
 
 ########################################
 # ☸️ Kubernetes
