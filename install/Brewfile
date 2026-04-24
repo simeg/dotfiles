@@ -19,6 +19,7 @@ brew "git-filter-repo"        # Git repo filtering tool
 brew "git-lfs"                # Git Large File Storage
 brew "pre-commit"             # Git pre-commit hook framework
 brew "lazygit"                # Terminal UI for git
+brew "gitleaks"               # Detect secrets in commits
 
 # Languages & Runtimes
 brew "pnpm"                   # pnpm
