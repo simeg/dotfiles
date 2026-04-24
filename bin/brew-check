@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Batch brew presence check. One `brew list` call, not N. Usage:
+#   brew-check ripgrep fd bat starship
+
+set -e
+
+if (( $# == 0 )); then
+  echo "Usage: brew-check <package> [package...]" >&2
+  exit 64
+fi
+
+installed=$(brew list --versions 2>/dev/null)
+
+for pkg in "$@"; do
+  line=$(printf '%s\n' "$installed" | rg "^${pkg} " 2>/dev/null || true)
+  if [[ -n "$line" ]]; then
+    printf '%-20s %s\n' "$pkg" "${line#"$pkg "}"
+  else
+    printf '%-20s MISSING\n' "$pkg"
+  fi
+done

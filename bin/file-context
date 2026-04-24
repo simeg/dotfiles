@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# File contents (bat) + git blame, in one view. Optional line range.
+# Usage:
+#   file-context path/to/file
+#   file-context path/to/file 50:80
+
+set -e
+file="${1:?usage: file-context <path> [start:end]}"
+range="${2:-}"
+
+if [[ -n "$range" ]]; then
+  bat --style=numbers,header --color=always --line-range "$range" "$file"
+else
+  bat --style=numbers,header --color=always "$file"
+fi
+
+if git -C "$(dirname "$file")" rev-parse --git-dir >/dev/null 2>&1; then
+  printf '\n=== BLAME (author, date, sha per line) ===\n'
+  if [[ -n "$range" ]]; then
+    git blame --date=short -e -L "${range/:/,}" "$file"
+  else
+    git blame --date=short -e "$file"
+  fi
+fi

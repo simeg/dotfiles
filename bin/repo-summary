@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# One-shot repo state for fast orientation: branch, status, recent commits,
+# diffstat, and unpushed commits. Pass a path or run from inside a repo.
+
+set -e
+cd "${1:-.}"
+
+if ! git rev-parse --git-dir >/dev/null 2>&1; then
+  echo "Not a git repository: $(pwd)" >&2
+  exit 1
+fi
+
+printf '=== BRANCH ===\n'
+git status --short --branch | head -1
+
+printf '\n=== STATUS ===\n'
+status=$(git status --short)
+[[ -n "$status" ]] && echo "$status" | head -30 || echo '(clean)'
+
+printf '\n=== RECENT COMMITS ===\n'
+git log --oneline --decorate -5
+
+printf '\n=== UNPUSHED ===\n'
+git log '@{u}..HEAD' --oneline 2>/dev/null || echo '(no upstream)'
+
+printf '\n=== DIFFSTAT (unstaged) ===\n'
+unstaged=$(git diff --stat)
+[[ -n "$unstaged" ]] && echo "$unstaged" || echo '(none)'
+
+printf '\n=== DIFFSTAT (staged) ===\n'
+staged=$(git diff --cached --stat)
+[[ -n "$staged" ]] && echo "$staged" || echo '(none)'
+
+printf '\n=== STASHES ===\n'
+stashes=$(git stash list | head -5)
+[[ -n "$stashes" ]] && echo "$stashes" || echo '(none)'

@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Batch which + version. Usage: wv git nvim rg fd
+# Prints absolute path and --version output for each command in one call.
+
+set -e
+
+if (( $# == 0 )); then
+  echo "Usage: wv <command> [command...]" >&2
+  exit 64
+fi
+
+for cmd in "$@"; do
+  path=$(command -v "$cmd" 2>/dev/null) || { printf '%-15s MISSING\n' "$cmd"; continue; }
+  ver=$("$cmd" --version 2>&1 | head -1)
+  printf '%-15s %s\n%-15s %s\n' "$cmd" "$path" '' "$ver"
+done
