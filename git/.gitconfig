@@ -5,6 +5,8 @@
 	excludesfile = ~/.gitignore
 	editor = nvim
 	pager = delta
+	fsmonitor = true
+	untrackedCache = true
 [interactive]
 	diffFilter = delta --color-only
 
@@ -25,6 +27,26 @@
 	conflictstyle = diff3
 [diff]
 	colorMoved = default
+	algorithm = histogram
+[push]
+	autoSetupRemote = true
+[fetch]
+	prune = true
+	pruneTags = true
+[pull]
+	rebase = true
+[rebase]
+	autoStash = true
+	autoSquash = true
+[rerere]
+	enabled = true
+	autoUpdate = true
+[branch]
+	sort = -committerdate
+[column]
+	ui = auto
+[help]
+	autocorrect = prompt
 [url "ssh://git@github.com/"]
 	insteadOf = https://github.com/
 [url "ssh://git@ghe.spotify.net/"]
