@@ -16,6 +16,8 @@ tap "mvndaemon/mvnd"            # Maven daemon tap
 brew "git"
 brew "gh"                     # GitHub CLI
 brew "git-filter-repo"        # Git repo filtering tool
+brew "git-lfs"                # Git Large File Storage
+brew "pre-commit"             # Git pre-commit hook framework
 
 # Languages & Runtimes
 brew "node"                   # Node.js

@@ -73,6 +73,9 @@ require('lazy').setup({
   -- Treesitter (better syntax highlighting)
   {
     'nvim-treesitter/nvim-treesitter',
+    -- Repo archived 2026-04-03; the new `main` branch is an incompatible
+    -- rewrite. Pin to `master` to stay on the frozen-but-working version.
+    branch = 'master',
     build = ':TSUpdate',
     event = { 'BufReadPost', 'BufNewFile' },
     config = function()
@@ -268,18 +271,13 @@ require('lazy').setup({
 
   -- Fast navigation (jump to any location)
   {
-    'smoka7/hop.nvim',
-    version = '*',
+    'folke/flash.nvim',
+    event = 'VeryLazy',
+    opts = {},
     keys = {
-      { 'f', function() require('hop').hint_words() end, mode = { 'n', 'v', 'o' }, desc = 'Hop to word' },
-      { '<leader>c', function() require('hop').hint_char1() end, mode = { 'n', 'v', 'o' }, desc = 'Hop to character' },
-      { '<leader>l', function() require('hop').hint_lines() end, mode = { 'n', 'v', 'o' }, desc = 'Hop to line' },
-    },
-    opts = {
-      keys = 'etovxqpdygfblzhckisuran',
-      jump_on_sole_occurrence = true,
-      case_insensitive = true,
-      create_hl_autocmd = true,
+      { 'f', mode = { 'n', 'x', 'o' }, function() require('flash').jump() end, desc = 'Flash jump' },
+      { '<leader>c', mode = { 'n', 'x', 'o' }, function() require('flash').jump() end, desc = 'Flash jump' },
+      { '<leader>l', mode = { 'n', 'x', 'o' }, function() require('flash').treesitter() end, desc = 'Flash treesitter' },
     },
   },
 
