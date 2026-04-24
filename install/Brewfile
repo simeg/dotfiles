@@ -58,10 +58,13 @@ brew "gawk"                   # GNU awk with advanced features
 brew "findutils"              # gives you gfind, gxargs, etc.
 brew "gnu-sed"                # gsed for consistent -i behavior
 brew "sd"                     # Intuitive find/replace (interactive sed)
+brew "ast-grep"               # Structural code search/replace via AST patterns
+brew "yq"                     # jq-style query/edit for YAML/TOML/XML
 
 # File Management
 brew "zoxide"                 # Smart cd command
 brew "entr"                   # File watcher
+brew "watchexec"              # Modern file watcher (better entr UX)
 
 # Network & HTTP
 brew "wget"                   # Web file downloader
@@ -77,6 +80,7 @@ brew "shellcheck"             # Shell script linter
 brew "mas"                    # Mac App Store CLI
 brew "btop"                   # Beautiful process viewer
 brew "dust"                   # Visual du replacement
+brew "tokei"                  # Fast LOC + language stats
 brew "tlrc"                   # Simplified man pages (tldr in Rust)
 brew "readline"               # GNU readline library
 brew "sqlite"                 # SQL database engine
