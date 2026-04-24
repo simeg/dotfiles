@@ -32,6 +32,7 @@ source "${HOME}/.znap-plugins.zsh"
 # 💻 Prompt (fast init)
 ########################################
 eval "$(starship init zsh)"
+[[ -f "${HOME}/.config/zsh/starship-fast-git.zsh" ]] && source "${HOME}/.config/zsh/starship-fast-git.zsh"
 
 ########################################
 # 🌍 Google Cloud
