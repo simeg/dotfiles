@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p ~/.claude/hooks)",
+      "Read(//Users/segersand/.claude/**)",
+      "Bash(chmod +x ~/.claude/hooks/*.sh)",
+      "Bash(mkdir -p ~/.claude/logs)",
+      "Bash(bash -c 'echo \"x  =  1\" > /tmp/_test_format.lua && bash ~/.claude/hooks/format-on-write.sh && cat /tmp/_test_format.lua && rm /tmp/_test_format.lua')",
+      "Bash(CLAUDE_PROJECT_DIR=/Users/segersand/repos/dotfiles bash ~/.claude/hooks/precompact-snapshot.sh)",
+      "Bash(bash ~/.claude/hooks/log-bash-failure.sh)",
+      "Bash(bash ~/.claude/hooks/stop-notify.sh)",
+      "Bash(cp /Users/segersand/repos/dotfiles/.config/zsh/.zshrc /tmp/zshrc.bak)",
+      "Bash(cp /Users/segersand/repos/dotfiles/.config/zsh/.znap-plugins.zsh /tmp/znap-plugins.bak)",
+      "Bash(cp /Users/segersand/repos/dotfiles/.config/zsh/keybindings.zsh /tmp/keybindings.bak)",
+      "Bash(cp /Users/segersand/repos/dotfiles/.config/zsh/starship-fast-git.zsh /tmp/starship-fast-git.bak)",
+      "Read(//tmp/**)"
+    ]
+  }
+}

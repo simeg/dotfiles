@@ -66,6 +66,10 @@
 	defaultBranch = main
 [alias]
 	x = !git-x
+	; Remove worktrees that git already considers prunable, plus prune metadata.
+	wtprune = !git worktree list --porcelain | awk '/^worktree/{p=$2} /^prunable/{print p}' | xargs -I{} rm -rf {} && git worktree prune
+	; One-shot pre-PR sanity: list new commits + per-file size of the diff.
+	preflight = !git log --oneline origin/master..HEAD && echo && git diff --stat origin/master...HEAD
 [filter "lfs"]
 	required = true
 	clean = git-lfs clean -- %f

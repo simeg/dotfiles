@@ -11,6 +11,7 @@ $username\
 $directory\
 [](bg:yellow fg:peach)\
 $git_branch\
+${custom.worktree}\
 $git_status\
 [](fg:yellow bg:green)\
 $c\
@@ -81,7 +82,18 @@ truncation_symbol = "…/"
 [git_branch]
 symbol = ""
 style = "bg:yellow"
+# Branch name is enough — when inside a worktree, the [custom.worktree]
+# segment below appends a marker so worktree work is visible at a glance.
 format = '[[ $symbol $branch ](fg:crust bg:yellow)]($style)'
+
+[custom.worktree]
+description = "Marks when CWD is a git worktree (not the main checkout)"
+# True when `git rev-parse --git-dir` returns a path that isn't plain .git
+# (worktrees use linked dirs like .git/worktrees/<name>).
+when = """test -n "$(git rev-parse --git-dir 2>/dev/null | grep -v '^\\.git$')" """
+command = "echo wt"
+style = "bg:yellow"
+format = '[[ ⎇$output ](fg:crust bg:yellow)]($style)'
 
 [git_status]
 style = "bg:yellow"

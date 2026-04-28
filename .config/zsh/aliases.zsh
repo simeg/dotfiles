@@ -27,9 +27,14 @@ alias copy='pbcopy <'
 # 🧰 Core CLI Enhancements
 ########################################
 
-alias mv="mv -i -v"
-alias cp="cp -i -v"
-alias cat="smart-cat"
+# Interactive-only: scripts (and Claude Code Bash tool) get plain coreutils.
+# The -i flag prompted on overwrite, which deadlocks any non-interactive
+# `mv`/`cp`. smart-cat similarly breaks heredoc-style `cat <<EOF` output.
+if [[ -o interactive ]]; then
+  alias mv="mv -i -v"
+  alias cp="cp -i -v"
+  alias cat="smart-cat"
+fi
 alias tt="tree -C"
 alias path='echo -e ${PATH//:/\\n}'
 alias l="ls -lah"
@@ -80,7 +85,8 @@ alias deps='check_maven_deps "$(list_maven_modules | fzf)"'
 # 🔧 GNU Coreutils Overrides
 ########################################
 
-# Note: if using GNU coreutils
+# These can stay non-interactive — they don't change argument semantics
+# in ways that break scripts. eza handles common ls flags transparently.
 alias ls="eza"   # Better modern ls alternative
 alias du="dust"  # Visual disk-usage tree
 alias dig="doggo"  # Color dig with sane defaults
