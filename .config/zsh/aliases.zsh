@@ -54,20 +54,6 @@ alias fali="alias | fzf"
 alias ali="nvim ~/.config/zsh/aliases.zsh"
 
 ########################################
-# 💾 CLI Utilities
-########################################
-
-alias cpd="copydir"
-alias cpf="copyfile"
-
-########################################
-# 💡 Eureka Commands
-########################################
-
-alias idea="eureka"
-alias videa="eureka --view"
-
-########################################
 # 🧪 Custom CLI scripts
 ########################################
 

@@ -16,9 +16,6 @@ export LC_ALL="en_US.UTF-8"
 # Enable completion dots when waiting
 export COMPLETION_WAITING_DOTS=true
 
-# Skip global compinit to speed up shell startup
-export skip_global_compinit=1
-
 # Shell history size
 export SAVEHIST=10000000
 

@@ -98,9 +98,6 @@ pastefinish() {
 zstyle :bracketed-paste-magic paste-init pasteinit
 zstyle :bracketed-paste-magic paste-finish pastefinish
 
-# Something adds this for me, just let it be
-export PATH=/opt/spotify-devex/bin:$PATH
-
 # Performance optimizations
 # Enable profiling (uncomment for debugging)
 # zmodload zsh/zprof
@@ -121,4 +118,4 @@ fi
 vim() { nvim "$@"; }
 v() { nvim "$@"; }
 vi() { nvim "$@"; }
-
+export PATH=/opt/spotify-devex/bin:$PATH

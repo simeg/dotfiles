@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env zsh
 
 ############################################
 # 💻 Language Toolchains
@@ -44,7 +44,7 @@ fi
 ############################################
 
 # Custom utilities (only add existing directories)
-for util_dir in "$HOME/.bin" "$HOME/bin" "/usr/local/opt/coreutils/libexec/gnubin" "/opt/spotify-devex/bin"; do
+for util_dir in "$HOME/.bin" "$HOME/bin" "$HOME/.local/bin" "/usr/local/opt/coreutils/libexec/gnubin" "/opt/spotify-devex/bin"; do
   if [[ -d "$util_dir" ]]; then
     path+=("$util_dir")
   fi
