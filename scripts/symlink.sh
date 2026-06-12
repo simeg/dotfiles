@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 # New streamlined symlink script for reorganized dotfiles structure
 # This works with the new .config/ organization
 
