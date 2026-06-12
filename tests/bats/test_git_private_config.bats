@@ -1,7 +1,7 @@
 #!/usr/bin/env bats
 
 # Test suite for git private configuration functionality
-# Tests gcl and use-private-git integration with dynamic branch detection
+# Destructive use-private-git tests live in test_gcl_integration_ci.bats (CI only)
 
 load setup_suite
 
@@ -56,36 +56,4 @@ teardown() {
     # Check that problematic sections are not present
     run grep -E "\[init\]|\[remote|\[submodule" "$TEMP_DOTFILES/git/.gitconfig.private.base"
     [ "$status" -ne 0 ]
-}
-
-@test "use-private-git detects default branch correctly - main branch repo" {
-    skip "Destructive test - runs in CI only"
-}
-
-@test "use-private-git detects default branch correctly - master branch repo" {
-    skip "Destructive test - runs in CI only"
-}
-
-@test "use-private-git creates local config file not symlink" {
-    skip "Destructive test - runs in CI only"
-}
-
-@test "use-private-git includes base configuration settings" {
-    skip "Destructive test - runs in CI only"
-}
-
-@test "use-private-git backs up existing local config" {
-    skip "Destructive test - runs in CI only"
-}
-
-@test "use-private-git --remove functionality works" {
-    skip "Destructive test - runs in CI only"
-}
-
-@test "use-private-git handles repos without remote gracefully" {
-    skip "Destructive test - runs in CI only"
-}
-
-@test "use-private-git --status shows correct information" {
-    skip "Destructive test - runs in CI only"
 }

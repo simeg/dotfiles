@@ -25,7 +25,6 @@ TEST_ADVANCED := $(BATS_TESTS_DIR)/test_advanced_config.bats
 TEST_PERFORMANCE := $(BATS_TESTS_DIR)/test_performance.bats
 TEST_SECURITY := $(BATS_TESTS_DIR)/test_security.bats
 TEST_CONFIG := $(BATS_TESTS_DIR)/test_configuration.bats
-TEST_INTEGRATION := $(TESTS_DIR)/test_integration_local.sh
 
 # Analytics and monitoring scripts
 ANALYTICS_PACKAGE := $(SCRIPTS_DIR)/analyze-package-usage.sh

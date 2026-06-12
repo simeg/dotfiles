@@ -24,8 +24,7 @@ Comprehensive automation system for dotfiles installation, updates, and maintena
 - `scripts/install/rust.sh` - Rust toolchain installation
 
 ### Testing and Quality
-- `scripts/tests/test_dotfiles.sh` - Complete test suite
-- `scripts/tests/test_ci.sh` - CI-compatible tests
+- `tests/bats/` - Bats test suite (run via `make test`)
 - `scripts/tests/test_integration_local.sh` - Local integration testing
 - `scripts/shellcheck.sh` - Shell script linting
 

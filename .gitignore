@@ -44,6 +44,12 @@ dump.rdb
 *.sql
 *.sqlite
 
+# Backup and temp files #
+##########################
+*.bak
+*.bak.*
+*~
+
 # OS generated files #
 ######################
 .DS_Store
