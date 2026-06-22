@@ -118,4 +118,28 @@ fi
 vim() { nvim "$@"; }
 v() { nvim "$@"; }
 vi() { nvim "$@"; }
+
+# bun completions
+[ -s "/Users/segersand/.bun/_bun" ] && source "/Users/segersand/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
 export PATH=/opt/spotify-devex/bin:$PATH
+
+# cw - Claude write mode (use -e/--exp for experimental)
+cw() {
+    local kb_path
+    kb_path=$(grep '^knowledge_base:' ~/.config/gwork/config.yaml 2>/dev/null | cut -d' ' -f2-)
+    if [[ -z "$kb_path" ]]; then
+        echo "Error: gwork config not found. Run setup.sh first."
+        return 1
+    fi
+    cd "$kb_path" || return
+    if [[ "$1" == "-e" || "$1" == "--exp" ]]; then
+        claude "Load write-experimental, google-workspace, slides, and brainstorming skills."
+    else
+        claude "Load write, google-workspace, slides, and brainstorming skills."
+    fi
+}
+
