@@ -32,8 +32,8 @@ starship-theme set <TAB>
 
 ## How It Works
 
-1. Completion files are symlinked to `~/.config/zsh/completions/`
-2. The `.zshrc` adds this directory to `$fpath`
+1. This directory is symlinked to `~/.config/zsh/completions/`
+2. `.znap-plugins.zsh` adds this directory to `$fpath` before compinit
 3. Zsh automatically loads completions with the `_command_name` format
 4. The `_starship-theme` function provides context-aware completion
 
@@ -43,5 +43,7 @@ To add completion for a new command:
 
 1. Create `_command-name` file in this directory
 2. Follow zsh completion format (see `_starship-theme` as example)
-3. Update `scripts/symlink.sh` to include the new completion
-4. Update Makefile clean target to remove it
+
+No script changes needed: `scripts/symlink.sh` links this whole directory
+(and `make clean` removes that single symlink), so new files are picked up
+automatically. Clear `~/.zcompdump*` to see the new completion.

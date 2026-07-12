@@ -25,13 +25,12 @@ if command -v kubectl &>/dev/null; then
 fi
 
 # ☁️ Google Cloud SDK (lazy load completions on first use)
-if [[ -f "$(brew --prefix)/share/google-cloud-sdk/path.zsh.inc" ]]; then
-  source "$(brew --prefix)/share/google-cloud-sdk/path.zsh.inc"
-
-  # Lazy load completions
+# path.zsh.inc is already sourced in path.zsh. Hardcode the Homebrew prefix
+# like path.zsh does — `$(brew --prefix)` costs a subshell per startup.
+if [[ -f "/opt/homebrew/share/google-cloud-sdk/completion.zsh.inc" ]]; then
   gcloud() {
     unset -f gcloud
-    source "$(brew --prefix)/share/google-cloud-sdk/completion.zsh.inc"
+    source "/opt/homebrew/share/google-cloud-sdk/completion.zsh.inc"
     gcloud "$@"
   }
 fi

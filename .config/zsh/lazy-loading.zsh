@@ -4,34 +4,9 @@
 # Defers initialization of slow tools until first use
 ########################################
 
-# 🐍 Python - pyenv
-if command -v pyenv &>/dev/null; then
-  pyenv() {
-    unset -f pyenv
-    eval "$(command pyenv init -)"
-    pyenv "$@"
-  }
-fi
-
-# 📦 SDKMAN - Java/Scala version management
-if [[ -f "$HOME/.sdkman/bin/sdkman-init.sh" ]]; then
-  # Always create sdk wrapper, and only create others if not in PATH
-  sdk() {
-    unset -f sdk java scala sbt gradle mvn 2>/dev/null
-    source "$HOME/.sdkman/bin/sdkman-init.sh"
-    sdk "$@"
-  }
-
-  # Create wrappers for commands not already in PATH
-  for cmd in java scala sbt gradle mvn; do
-    if ! command -v $cmd &>/dev/null; then
-      eval "$cmd() {
-        unset -f sdk java scala sbt gradle mvn 2>/dev/null
-        source '$HOME/.sdkman/bin/sdkman-init.sh'
-        $cmd \"\$@\"
-      }"
-    fi
-  done
-fi
-
-# 📚 Atuin - shell history sync (now loaded in main plugins, not lazy)
+# Currently empty by design — former lazy loaders were retired:
+# - pyenv: replaced by mise (activated in .zshrc)
+# - sdkman: eagerly initialized in .zshrc so JAVA_HOME is set correctly;
+#   lazy wrappers here shadowed real binaries and re-sourced sdkman-init
+# - atuin: loaded via znap in .znap-plugins.zsh (must load early)
+# - kubectl/gcloud completions: lazy-loaded in completions.zsh

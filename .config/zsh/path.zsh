@@ -28,11 +28,6 @@ path+=("$HOME/.cargo/bin")
 # Node.js
 path+=("/usr/local/bin")
 
-# pyenv fallback
-if ! command -v pyenv >/dev/null && [[ -n "$PYENV_ROOT" ]]; then
-  path+=("$PYENV_ROOT/bin")
-fi
-
 ############################################
 # ☁️ Cloud SDKs
 ############################################

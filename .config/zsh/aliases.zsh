@@ -169,4 +169,6 @@ alias jj="zi"
 
 alias h="help"
 alias cl="claude --dangerously-skip-permissions"
-alias cw="claude --dangerously-skip-permissions"
+# cw is a function in .zshrc (gwork knowledge-base launcher) — don't alias it
+# here: aliases load before .zshrc's function definitions and an alias named
+# cw makes the later `cw()` definition a parse error that aborts .zshrc.

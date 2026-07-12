@@ -60,6 +60,7 @@ brew "gnu-sed"                # gsed for consistent -i behavior
 brew "sd"                     # Intuitive find/replace (interactive sed)
 brew "ast-grep"               # Structural code search/replace via AST patterns
 brew "yq"                     # jq-style query/edit for YAML/TOML/XML
+brew "xmlstarlet"             # XML query/edit CLI (used by list_maven_modules)
 
 # File Management
 brew "zoxide"                 # Smart cd command

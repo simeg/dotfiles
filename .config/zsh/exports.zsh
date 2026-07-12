@@ -13,11 +13,8 @@ export LC_ALL="en_US.UTF-8"
 # ⚙️ Zsh & Shell Behavior
 ########################################
 
-# Enable completion dots when waiting
-export COMPLETION_WAITING_DOTS=true
-
-# Shell history size
-export SAVEHIST=10000000
+# Shell history is owned by atuin (see .znap-plugins.zsh) — no HISTFILE/
+# SAVEHIST here on purpose.
 
 # umask (default macOS value)
 umask 022

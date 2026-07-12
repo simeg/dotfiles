@@ -66,8 +66,13 @@ list_maven_modules() {
     return 1
   fi
 
-  # Find and print artifactIds from pom.xml files
-  find projections refinements -name pom.xml | while read -r pom; do
+  if ! command -v xmlstarlet &>/dev/null; then
+    echo "error: xmlstarlet is required (brew install xmlstarlet)." >&2
+    return 1
+  fi
+
+  # Search from the project root, not $PWD, so this works from subdirectories
+  find "$dir/projections" "$dir/refinements" -name pom.xml | while read -r pom; do
     xmlstarlet sel -t -v '/*[local-name()="project"]/*[local-name()="artifactId"]' "$pom"
     echo
   done

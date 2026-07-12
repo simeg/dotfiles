@@ -3,9 +3,6 @@
 # 🧠 Environment Setup
 ########################################
 
-# Performance monitoring - track startup
-SHELL_STARTUP_START=$(date +%s%N 2>/dev/null || date +%s000000000)
-
 # Load plugin manager znap
 source ~/.zsh/znap/znap.zsh
 
@@ -84,26 +81,8 @@ fi
 # ⚡️ Quality-of-Life Tweaks
 ########################################
 
-# Speed up Git prompt by ignoring untracked files
-DISABLE_UNTRACKED_FILES_DIRTY="true"
-
-# Faster pasting with autosuggestions
-pasteinit() {
-  OLD_SELF_INSERT=${${(s.:.)widgets[self-insert]}[2,3]}
-  zle -N self-insert url-quote-magic
-}
-pastefinish() {
-  zle -N self-insert "$OLD_SELF_INSERT"
-}
-zstyle :bracketed-paste-magic paste-init pasteinit
-zstyle :bracketed-paste-magic paste-finish pastefinish
-
-# Performance optimizations
 # Enable profiling (uncomment for debugging)
 # zmodload zsh/zprof
-
-# Skip global compinit for faster startup
-skip_global_compinit=1
 
 # Let znap compile stuff so it's faster to load
 znap compile ~/.zshrc ~/.znap-plugins.zsh || true
