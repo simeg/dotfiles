@@ -33,11 +33,12 @@ setup_error_handling() {
         log_debug "Error logging enabled: $ERROR_LOG_FILE"
     fi
 
-    # Set up ERR trap
+    # Set up ERR trap ($BASH_COMMAND must be quoted or the handler only
+    # receives the first word of the failing command)
     if [[ "$enable_rollback" == "true" ]]; then
-        trap 'handle_error_with_rollback $? $LINENO $BASH_COMMAND' ERR
+        trap 'handle_error_with_rollback $? $LINENO "$BASH_COMMAND"' ERR
     else
-        trap 'handle_error_simple $? $LINENO $BASH_COMMAND' ERR
+        trap 'handle_error_simple $? $LINENO "$BASH_COMMAND"' ERR
     fi
 
     # Set up EXIT trap for cleanup
@@ -298,7 +299,7 @@ disable_error_handling() {
 # Re-enable error handling
 enable_error_handling() {
     set -e
-    trap 'handle_error_with_rollback $? $LINENO $BASH_COMMAND' ERR
+    trap 'handle_error_with_rollback $? $LINENO "$BASH_COMMAND"' ERR
     log_debug "Error handling re-enabled"
 }
 

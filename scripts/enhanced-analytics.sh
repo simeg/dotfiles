@@ -61,7 +61,7 @@ check_usage_tracking() {
     # Check if we have data within the specified time period
     local cutoff_date recent_entries
     cutoff_date=$(date -d "$days days ago" +%s 2>/dev/null || date -v-"$days"d +%s)
-    recent_entries=$(awk -F',' -v cutoff="$cutoff_date" '$1 >= cutoff && $1 <= '$(date +%s)' {print}' "$USAGE_LOG" | wc -l)
+    recent_entries=$(awk -F',' -v cutoff="$cutoff_date" -v now="$(date +%s)" '$1 >= cutoff && $1 <= now {print}' "$USAGE_LOG" | wc -l)
 
     if [[ $recent_entries -eq 0 ]]; then
         log_warning "No usage data found within last $days days"

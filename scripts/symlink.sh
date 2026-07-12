@@ -5,6 +5,10 @@ set -euo pipefail
 # New streamlined symlink script for reorganized dotfiles structure
 # This works with the new .config/ organization
 
+# All paths below are repo-relative, so anchor to the repo root regardless of
+# where the script is invoked from
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
+
 safe_ln() {
   local src="$1"
   local dst="$2"
@@ -40,6 +44,11 @@ symlink_dir_contents() {
     if [[ -e "$item" ]]; then
       local item_name
       item_name="$(basename "$item")"
+      # Skip docs and editor/OS junk — e.g. a linked README.md would become a
+      # bogus /README Claude command
+      case "$item_name" in
+        README.md|*.bak|*~|.DS_Store) continue ;;
+      esac
       safe_ln "$item" "$dst_dir/$item_name"
     fi
   done
@@ -70,6 +79,10 @@ for config_item in .config/*; do
       echo "Setting up zsh configuration files"
       mkdir -p "$HOME/.config/zsh"
       for zsh_file in .config/zsh/*; do
+        # Skip backup files and OS junk that may sit next to real modules
+        case "$(basename "$zsh_file")" in
+          *.bak|*~|.DS_Store) continue ;;
+        esac
         if [[ -f "$zsh_file" ]]; then
           zsh_filename="$(basename "$zsh_file")"
           safe_ln "$(pwd)/$zsh_file" "$HOME/.config/zsh/$zsh_filename"
@@ -120,14 +133,7 @@ if [[ -f ".config/nvim/.ideavimrc" ]]; then
   safe_ln "$(pwd)/.config/nvim/.ideavimrc" "$HOME/.ideavimrc"
 fi
 
-# Git configuration files
-if [[ -f "git/.gitconfig" ]]; then
-  safe_ln "$(pwd)/git/.gitconfig" "$HOME/.gitconfig"
-fi
-
-if [[ -f "git/.gitignore" ]]; then
-  safe_ln "$(pwd)/git/.gitignore" "$HOME/.gitignore"
-fi
+# Git config files are already linked by the git/.* loop above
 
 echo "✅ All symlinks set with new structure!"
 echo ""

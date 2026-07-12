@@ -297,7 +297,6 @@ show_help() {
     echo "  report [file]     Generate comprehensive usage report"
     echo "  clean [days]      Clean usage data older than X days (default: 90)"
     echo "  mapping           Recreate package-to-command mapping cache"
-    echo "  setup             Set up usage tracking (add hooks to shell)"
     echo ""
     echo "Examples:"
     echo "  $0 analyze 7      # Analyze last 7 days"
@@ -305,25 +304,9 @@ show_help() {
     echo "  $0 clean 60       # Keep only last 60 days of data"
 }
 
-# Set up usage tracking
-setup_tracking() {
-    log_info "Setting up package usage tracking..."
-
-    local zshrc_addition="
-# Package Usage Analytics (added by analyze-package-usage.sh)
-if [[ -f ~/.config/dotfiles/usage-analytics.sh ]]; then
-    source ~/.config/dotfiles/usage-analytics.sh
-fi"
-
-    # Check if already added
-    if grep -q "Package Usage Analytics" ~/.zshrc 2>/dev/null; then
-        log_info "Usage tracking already set up in .zshrc"
-    else
-        echo "$zshrc_addition" >> ~/.zshrc
-        log_success "Added usage tracking to .zshrc"
-        log_info "Please restart your shell or run: source ~/.zshrc"
-    fi
-}
+# Note: the old `setup` command was removed — it appended a source-line for
+# ~/.config/dotfiles/usage-analytics.sh, a file that doesn't exist anywhere
+# in this repo, so it could never enable data collection.
 
 # Main function
 main() {
@@ -341,9 +324,6 @@ main() {
             ;;
         mapping)
             create_package_mapping
-            ;;
-        setup)
-            setup_tracking
             ;;
         --help|help)
             show_help

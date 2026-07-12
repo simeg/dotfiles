@@ -17,6 +17,8 @@ source "$SCRIPT_DIR/lib/brew-utils.sh"
 # Global error handling
 # shellcheck disable=SC2034  # SETUP_FAILED is used in error handler
 SETUP_FAILED=false
+# Set when a non-fatal step failed; setup continues but exits nonzero
+SETUP_DEGRADED=false
 ROLLBACK_COMMANDS=()
 
 # Add command to rollback list
@@ -233,10 +235,10 @@ backup_existing() {
 install_homebrew() {
     log_info "Installing Homebrew..."
 
-    # Only add rollback if Homebrew wasn't already installed
+    # Deliberately no rollback here: uninstalling Homebrew because an
+    # unrelated later step failed is disproportionate and destructive
     if ! command -v brew &> /dev/null; then
-        # shellcheck disable=SC2016  # Single quotes intentional - command evaluated later during rollback
-        add_rollback 'if command -v brew &> /dev/null; then /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)"; fi'
+        log_info "Note: Homebrew will remain installed even if a later setup step fails"
     fi
 
     if ! ./scripts/install/brew.sh; then
@@ -275,6 +277,11 @@ install_packages() {
         # Use shared brew utilities for installation with conflict resolution
         if install_brewfile_with_conflicts "$brewfile"; then
             log_success "Core packages installed from $brewfile"
+        else
+            # Continue setup (missing packages aren't fatal) but make the
+            # failure visible and reflect it in the final exit code
+            log_error "Some packages failed to install from $brewfile"
+            SETUP_DEGRADED=true
         fi
 
         # Install Mac App Store apps using shared utilities
@@ -487,7 +494,7 @@ show_usage() {
     echo "  --no-backup         Skip backing up existing dotfiles"
     echo "  --brew-only         Only install Homebrew and packages"
     echo "  --symlink-only      Only create symlinks"
-    echo "  --deps-only         Only check and install dependencies"
+    echo "  --deps-only         Only check dependencies (no installation)"
     echo "  --minimal           Minimal installation (essential tools only)"
     echo "  --simple            Simple setup without analytics or advanced features"
     echo ""
@@ -535,9 +542,10 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         --minimal)
-            # Set minimal configuration
+            # Minimal configuration; also skip the interactive wizard, which
+            # would otherwise re-ask and overwrite these choices
             INSTALL_PACKAGES=false
-            # INSTALL_VIM removed - using Neovim instead
+            INTERACTIVE_MODE=false
             shift
             ;;
         --simple)
@@ -553,6 +561,13 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
+
+# `make setup-minimal` signals minimal mode via environment rather than a flag
+if [[ "${DOTFILES_MINIMAL:-}" == "true" ]]; then
+    log_info "DOTFILES_MINIMAL=true detected, running minimal non-interactive setup"
+    INSTALL_PACKAGES=false
+    INTERACTIVE_MODE=false
+fi
 
 # Execute based on options
 if [[ "$BREW_ONLY" == true ]]; then
@@ -572,4 +587,11 @@ elif [[ "$DEPS_ONLY" == true ]]; then
 else
     # Run full installation
     main
+fi
+
+# Non-fatal step failures (e.g. some Brewfile packages) still mean a degraded
+# setup — surface that in the exit code for callers like `make setup`
+if [[ "$SETUP_DEGRADED" == true ]]; then
+    log_warning "Setup finished, but some steps failed (see errors above)"
+    exit 1
 fi

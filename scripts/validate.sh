@@ -19,31 +19,25 @@ source "$SCRIPT_DIR/lib/validation-utils.sh"
 source "$SCRIPT_DIR/lib/error-handling.sh"
 
 # Note: Not using error handling setup since we want to continue validation even if some checks fail
-# Initialize validation counters
+# Initialize validation counters (VALIDATIONS_* from validation-utils.sh is the
+# single source of truth — check_symlink_target etc. increment them directly)
 reset_validation_counters
 
-# Legacy counters for backward compatibility
 TOTAL_CHECKS=0
-PASSED_CHECKS=0
-FAILED_CHECKS=0
-WARNING_CHECKS=0
 
-# Enhanced logging functions with counter integration
+# Logging functions with counter integration
 log_success_validate() {
     log_success "$1"
-    ((PASSED_CHECKS++))
     ((VALIDATIONS_PASSED++))
 }
 
 log_warning_validate() {
     log_warning "$1"
-    ((WARNING_CHECKS++))
     ((VALIDATIONS_WARNINGS++))
 }
 
 log_error_validate() {
     log_error "$1"
-    ((FAILED_CHECKS++))
     ((VALIDATIONS_FAILED++))
 }
 
@@ -89,10 +83,10 @@ check_directory_exists() {
     check
 
     if [[ -d "$dir_path" ]]; then
-        log_success "$description: Directory $dir_path exists"
+        log_success_validate "$description: Directory $dir_path exists"
         return 0
     else
-        log_error "$description: Directory $dir_path does not exist"
+        log_error_validate "$description: Directory $dir_path does not exist"
         return 1
     fi
 }
@@ -120,10 +114,10 @@ check_command() {
                 version="Available"
                 ;;
         esac
-        log_success "$description: $command_name is available ($version)"
+        log_success_validate "$description: $command_name is available ($version)"
         return 0
     else
-        log_error "$description: $command_name command not found"
+        log_error_validate "$description: $command_name command not found"
         return 1
     fi
 }
@@ -148,9 +142,9 @@ check_zsh_config() {
     # Check if zsh is the default shell
     check
     if [[ "$SHELL" == *"zsh"* ]]; then
-        log_success "Default shell: Zsh is set as default shell"
+        log_success_validate "Default shell: Zsh is set as default shell"
     else
-        log_warning "Default shell: Current shell is $SHELL, not Zsh"
+        log_warning_validate "Default shell: Current shell is $SHELL, not Zsh"
     fi
 }
 
@@ -170,18 +164,18 @@ check_git_config() {
     local git_name
     git_name=$(git config --global user.name 2>/dev/null || echo "")
     if [[ -n "$git_name" ]]; then
-        log_success "Git user name: '$git_name' is configured"
+        log_success_validate "Git user name: '$git_name' is configured"
     else
-        log_warning "Git user name: Not configured"
+        log_warning_validate "Git user name: Not configured"
     fi
 
     check
     local git_email
     git_email=$(git config --global user.email 2>/dev/null || echo "")
     if [[ -n "$git_email" ]]; then
-        log_success "Git user email: '$git_email' is configured"
+        log_success_validate "Git user email: '$git_email' is configured"
     else
-        log_warning "Git user email: Not configured"
+        log_warning_validate "Git user email: Not configured"
     fi
 }
 
@@ -211,9 +205,9 @@ check_homebrew() {
         if [[ -f "$dotfiles_dir/install/Brewfile" ]]; then
             check
             if brew bundle check --file="$dotfiles_dir/install/Brewfile" >/dev/null 2>&1; then
-                log_success "Homebrew packages: All Brewfile packages are installed"
+                log_success_validate "Homebrew packages: All Brewfile packages are installed"
             else
-                log_warning "Homebrew packages: Some Brewfile packages may be missing"
+                log_warning_validate "Homebrew packages: Some Brewfile packages may be missing"
             fi
         fi
 
@@ -238,9 +232,9 @@ check_bin_directory() {
     # Check if bin is in PATH
     check
     if [[ ":$PATH:" == *":$HOME/.bin:"* ]]; then
-        log_success "PATH: ~/.bin is in PATH"
+        log_success_validate "PATH: ~/.bin is in PATH"
     else
-        log_warning "PATH: ~/.bin is not in PATH"
+        log_warning_validate "PATH: ~/.bin is not in PATH"
     fi
 
     # Check if bin scripts are executable
@@ -254,9 +248,9 @@ check_bin_directory() {
 
         check
         if [[ ${#non_executable[@]} -eq 0 ]]; then
-            log_success "Bin scripts: All scripts are executable"
+            log_success_validate "Bin scripts: All scripts are executable"
         else
-            log_warning "Bin scripts: Non-executable scripts: ${non_executable[*]}"
+            log_warning_validate "Bin scripts: Non-executable scripts: ${non_executable[*]}"
         fi
     fi
 }
@@ -280,9 +274,9 @@ check_modular_config() {
         if [[ -f "$config_file" ]]; then
             check
             if /bin/zsh -n "$config_file" 2>/dev/null; then
-                log_success "Syntax check: $config is valid"
+                log_success_validate "Syntax check: $config is valid"
             else
-                log_error "Syntax check: $config has syntax errors"
+                log_error_validate "Syntax check: $config has syntax errors"
             fi
         fi
     done
@@ -291,72 +285,33 @@ check_modular_config() {
     check
     local private_config="$config_dir/private.zsh"
     if grep -q "private.zsh" "$HOME/.zshrc"; then
-        log_success "Private config: .zshrc sources private.zsh"
+        log_success_validate "Private config: .zshrc sources private.zsh"
 
         if [[ -f "$private_config" ]]; then
             if zsh -n "$private_config" 2>/dev/null; then
-                log_success "Private config: private.zsh syntax is valid"
+                log_success_validate "Private config: private.zsh syntax is valid"
             else
-                log_error "Private config: private.zsh has syntax errors"
+                log_error_validate "Private config: private.zsh has syntax errors"
             fi
         else
-            log_warning "Private config: private.zsh not found (create for sensitive vars)"
+            log_warning_validate "Private config: private.zsh not found (create for sensitive vars)"
         fi
     else
-        log_error "Private config: .zshrc doesn't source private.zsh"
+        log_error_validate "Private config: .zshrc doesn't source private.zsh"
     fi
 
     # Check .gitignore for private files
     check
     local gitignore_file="$config_dir/.gitignore"
     if [[ -f "$gitignore_file" ]] && grep -q "private.zsh" "$gitignore_file"; then
-        log_success "Security: .gitignore excludes private files"
+        log_success_validate "Security: .gitignore excludes private files"
     else
-        log_warning "Security: No .gitignore for private configs"
+        log_warning_validate "Security: No .gitignore for private configs"
     fi
 }
 
-# Check shell performance
-check_shell_performance() {
-    log_info "Checking shell performance..."
-
-    # Measure shell startup time
-    check
-    local startup_times=()
-    for _ in {1..3}; do
-        local time_output
-        time_output=$(time (/bin/zsh -c 'exit') 2>&1 | grep real | awk '{print $2}')
-        startup_times+=("$time_output")
-    done
-
-    log_info "Shell startup times: ${startup_times[*]}"
-
-    # Check if startup is reasonable (average under 1.5 seconds)
-    local total_seconds=0
-    local count=0
-    for time_str in "${startup_times[@]}"; do
-        if [[ "$time_str" =~ ([0-9]+)\.([0-9]+)s ]]; then
-            local seconds=${BASH_REMATCH[1]}
-            local decimals=${BASH_REMATCH[2]}
-            # Convert to milliseconds for easier math
-            local ms=$((seconds * 1000 + 10#$decimals * 10))
-            total_seconds=$((total_seconds + ms))
-            count=$((count + 1))
-        fi
-    done
-
-    if [[ $count -gt 0 ]]; then
-        local avg_ms=$((total_seconds / count))
-        # avg_seconds calculation removed - was unused
-        if [[ $avg_ms -lt 1500 ]]; then
-            log_success "Performance: Shell startup is fast (avg: ${avg_ms}ms)"
-        elif [[ $avg_ms -lt 3000 ]]; then
-            log_warning "Performance: Shell startup is moderate (avg: ${avg_ms}ms)"
-        else
-            log_error "Performance: Shell startup is slow (avg: ${avg_ms}ms)"
-        fi
-    fi
-}
+# Shell startup performance is measured by scripts/profile-shell.sh — the
+# previous check here never captured `time` output and was a permanent no-op.
 
 # Check shell functionality
 check_shell_functionality() {
@@ -366,36 +321,36 @@ check_shell_functionality() {
     check
     if command -v starship >/dev/null 2>&1; then
         if starship print-config &>/dev/null; then
-            log_success "Starship prompt: Available and configured"
+            log_success_validate "Starship prompt: Available and configured"
         else
-            log_warning "Starship prompt: Available but config may be invalid"
+            log_warning_validate "Starship prompt: Available but config may be invalid"
         fi
     else
-        log_warning "Starship prompt: Not found"
+        log_warning_validate "Starship prompt: Not found"
     fi
 
     # Check if zsh plugins are loaded (in a new zsh session)
     check
     if /bin/zsh -c 'autoload -U compinit && compinit -C && echo "Completions working"' >/dev/null 2>&1; then
-        log_success "Zsh completions: Working"
+        log_success_validate "Zsh completions: Working"
     else
-        log_warning "Zsh completions: May not be working properly"
+        log_warning_validate "Zsh completions: May not be working properly"
     fi
 
     # Check znap plugin manager
     check
     if [[ -d "$HOME/.zsh/znap" ]]; then
-        log_success "Plugin manager: znap is installed"
+        log_success_validate "Plugin manager: znap is installed"
     else
-        log_error "Plugin manager: znap not found"
+        log_error_validate "Plugin manager: znap not found"
     fi
 
     # Check essential aliases
     check
     if /bin/zsh -c 'source ~/.zshrc && type l' &>/dev/null; then
-        log_success "Aliases: Basic aliases are loaded"
+        log_success_validate "Aliases: Basic aliases are loaded"
     else
-        log_warning "Aliases: May not be loading properly"
+        log_warning_validate "Aliases: May not be loading properly"
     fi
 }
 
@@ -428,26 +383,23 @@ run_all_checks() {
 
     check_shell_functionality
     echo
-
-    check_shell_performance
-    echo
 }
 
 # Show summary
 show_summary() {
     echo "==================== VALIDATION SUMMARY ===================="
     echo -e "Total checks: $TOTAL_CHECKS"
-    echo -e "${GREEN}Passed: $PASSED_CHECKS${NC}"
-    echo -e "${YELLOW}Warnings: $WARNING_CHECKS${NC}"
-    echo -e "${RED}Failed: $FAILED_CHECKS${NC}"
+    echo -e "${GREEN}Passed: $VALIDATIONS_PASSED${NC}"
+    echo -e "${YELLOW}Warnings: $VALIDATIONS_WARNINGS${NC}"
+    echo -e "${RED}Failed: $VALIDATIONS_FAILED${NC}"
     echo "=============================================================="
 
-    if [[ $FAILED_CHECKS -gt 0 ]]; then
+    if [[ $VALIDATIONS_FAILED -gt 0 ]]; then
         echo
         log_error "Some critical checks failed. Please review the output above."
-        echo "You may need to run './setup.sh' or './symlink.sh' to fix issues."
+        echo "You may need to run './scripts/setup.sh' or './scripts/symlink.sh' to fix issues."
         return 1
-    elif [[ $WARNING_CHECKS -gt 0 ]]; then
+    elif [[ $VALIDATIONS_WARNINGS -gt 0 ]]; then
         echo
         log_warning "Some checks returned warnings. Your setup should work but may not be optimal."
         return 0
@@ -470,7 +422,6 @@ show_usage() {
     echo "  --brew         Only check Homebrew"
     echo "  --bin          Only check bin directory"
     echo "  --shell        Only check shell functionality"
-    echo "  --perf         Only check shell performance"
     echo ""
 }
 
@@ -483,7 +434,7 @@ while [[ $# -gt 0 ]]; do
             show_usage
             exit 0
             ;;
-        --zsh|--modular|--git|--brew|--bin|--shell|--perf)
+        --zsh|--modular|--git|--brew|--bin|--shell)
             CHECK_ALL=false
             break
             ;;
@@ -516,9 +467,6 @@ if [[ "$CHECK_ALL" == false ]]; then
                 ;;
             --shell)
                 check_shell_functionality
-                ;;
-            --perf)
-                check_shell_performance
                 ;;
         esac
         shift

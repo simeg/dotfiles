@@ -36,6 +36,12 @@ log_error() {
 analyze_startup_performance() {
     log_info "Analyzing shell startup performance..."
 
+    # The percentile stats below use asort, a gawk extension
+    if ! command -v gawk >/dev/null 2>&1; then
+        log_warning "gawk not found, skipping startup analysis (install with: brew install gawk)"
+        return 1
+    fi
+
     if [[ ! -f "$PERF_DATA" ]]; then
         log_warning "No performance data found"
         return 1

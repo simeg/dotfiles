@@ -14,12 +14,9 @@ source "$SCRIPT_DIR/lib/brew-utils.sh"
 # shellcheck source=scripts/lib/validation-utils.sh
 # shellcheck disable=SC1091
 source "$SCRIPT_DIR/lib/validation-utils.sh"
-# shellcheck source=scripts/lib/error-handling.sh
-# shellcheck disable=SC1091
-source "$SCRIPT_DIR/lib/error-handling.sh"
 
-# Initialize error handling
-setup_error_handling "check-deps.sh" false
+# Deliberately no set -e / ERR trap here: a dependency checker must keep
+# going past the first missing dependency and report a full summary.
 
 # Counters
 DEPS_CHECKED=0

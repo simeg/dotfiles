@@ -53,6 +53,17 @@ run_check() {
     fi
 }
 
+# Current time in milliseconds; BSD date doesn't support %N (prints a literal
+# "N"), so fall back to whole seconds rather than feeding "...N" into arithmetic
+now_ms() {
+    local t
+    t=$(gdate +%s%3N 2>/dev/null || date +%s%3N)
+    if [[ "$t" == *[!0-9]* ]]; then
+        t=$(( $(date +%s) * 1000 ))
+    fi
+    echo "$t"
+}
+
 # Performance health checks
 check_shell_startup_performance() {
     local startup_times=()
@@ -61,10 +72,10 @@ check_shell_startup_performance() {
     # Run multiple tests for accuracy
     for _ in {1..3}; do
         local start_time
-        start_time=$(gdate +%s%3N 2>/dev/null || date +%s%3N)
+        start_time=$(now_ms)
         zsh -c 'exit' 2>/dev/null
         local end_time
-        end_time=$(gdate +%s%3N 2>/dev/null || date +%s%3N)
+        end_time=$(now_ms)
         local duration=$((end_time - start_time))
 
         startup_times+=("${duration}ms")
@@ -149,9 +160,10 @@ check_plugin_health() {
         return 1
     fi
 
-    # Count plugins
+    # Count plugins (grep -c prints 0 itself on no match; a `|| echo 0` here
+    # would emit a second line and break the arithmetic below)
     local plugin_count
-    plugin_count=$(grep -c "znap source" "$HOME/.znap-plugins.zsh" 2>/dev/null || echo 0)
+    plugin_count=$(grep -c "znap source" "$HOME/.znap-plugins.zsh" 2>/dev/null) || plugin_count=0
 
     if [[ $plugin_count -gt 0 ]]; then
         log_success "Plugin system healthy ($plugin_count plugins configured)"
@@ -178,8 +190,12 @@ check_security_health() {
         all_good=false
     fi
 
-    # Check for sensitive data in tracked files
-    if git log --all -p -S "password\|secret\|token\|key" --grep="password\|secret\|token\|key" | grep -q "password\|secret\|token\|key"; then
+    # Check for credential-style assignments anywhere in git history.
+    # --pickaxe-regex is required: plain -S matches the pattern literally.
+    # Pin to the dotfiles repo so this doesn't inspect whatever cwd is.
+    local dotfiles_dir="$SCRIPT_DIR/.."
+    if git -C "$dotfiles_dir" log --all --oneline --pickaxe-regex \
+            -S '(password|secret|token)[[:space:]]*=[[:space:]]*["'"'"']?[A-Za-z0-9_-]+' 2>/dev/null | grep -q .; then
         log_error "Potential sensitive data found in git history"
         echo "    Review git history and remove sensitive data"
         all_good=false
@@ -327,34 +343,18 @@ find_path_source() {
         done < <(find "/etc/paths.d" -type f -print0 2>/dev/null)
     fi
 
-    # Check if it might be set by a tool installation
-    local tool_indicators=(
-        "homebrew:brew --prefix"
-        "pyenv:pyenv root"
-        "rbenv:rbenv root"
-        "nvm:NVM_DIR"
-        "cargo:CARGO_HOME"
-        "go:GOPATH"
-        "google-cloud-sdk:gcloud info --format='value(installation.sdk_root)'"
-    )
-
-    for indicator in "${tool_indicators[@]}"; do
-        local tool_name="${indicator%:*}"
-        local check_cmd="${indicator#*:}"
-
-        if command -v "${tool_name}" &>/dev/null || [[ -n "${!tool_name}" ]]; then
-            local tool_path
-            if [[ "$check_cmd" == *"gcloud"* ]]; then
-                tool_path=$(eval "$check_cmd" 2>/dev/null || echo "")
-            else
-                tool_path=$(eval "echo \$${check_cmd}" 2>/dev/null || echo "")
-            fi
-
-            if [[ -n "$tool_path" ]] && [[ "$target_path" == *"$tool_path"* ]]; then
-                possible_sources+=("$tool_name installation")
-            fi
-        fi
-    done
+    # Attribute well-known tool prefixes by path pattern. A static lookup is
+    # honest and avoids eval on indirect variable names (which also broke on
+    # hyphenated names like google-cloud-sdk).
+    case "$target_path" in
+        */homebrew/*|/usr/local/Cellar/*) possible_sources+=("homebrew installation") ;;
+        *.pyenv*) possible_sources+=("pyenv installation") ;;
+        *.rbenv*) possible_sources+=("rbenv installation") ;;
+        *.nvm*) possible_sources+=("nvm installation") ;;
+        *.cargo*) possible_sources+=("rust/cargo installation") ;;
+        *go/bin*) possible_sources+=("go installation") ;;
+        *google-cloud-sdk*) possible_sources+=("google-cloud-sdk installation") ;;
+    esac
 
     printf '%s\n' "${possible_sources[@]}"
 }

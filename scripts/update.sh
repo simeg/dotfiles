@@ -89,6 +89,10 @@ pull_latest() {
 
     local current_branch
     current_branch=$(git branch --show-current)
+    if [[ -z "$current_branch" ]]; then
+        log_error "Repository is in detached HEAD state; check out a branch before updating"
+        exit 1
+    fi
     ORIGINAL_BRANCH="$current_branch"
 
     # Store current commit hash for potential rollback
@@ -104,13 +108,15 @@ pull_latest() {
     fi
 }
 
-# Update Homebrew packages
-update_homebrew() {
+# Update Homebrew and installed packages
+# Named differently from lib/brew-utils.sh's update_homebrew so we can call
+# the library function (plain `brew update`) without shadowing it.
+update_brew_packages() {
     log_info "Updating Homebrew packages..."
 
     if command -v brew >/dev/null 2>&1; then
-        # Update Homebrew using shared utilities
-        if ! update_brew_packages; then
+        # update_homebrew comes from lib/brew-utils.sh
+        if ! update_homebrew; then
             log_warning "Failed to update Homebrew packages"
             return 1
         fi
@@ -242,7 +248,7 @@ main_update() {
 
     # Update components based on flags
     if [[ "$UPDATE_BREW" == true ]]; then
-        update_homebrew
+        update_brew_packages
     fi
 
     if [[ "$UPDATE_NVIM" == true ]]; then
