@@ -34,6 +34,19 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
+# printf on non-numeric awk output ("N/A") emits "0" plus the fallback,
+# producing "0N/A" — validate numerically before formatting instead.
+# Precision comes in as a printf argument (%.*f) to keep the format
+# string constant (SC2059).
+format_number() {
+    local value="$1" decimals="$2"
+    if [[ "$value" =~ ^-?[0-9]*\.?[0-9]+([eE][+-]?[0-9]+)?$ ]]; then
+        printf '%.*f' "$decimals" "$value"
+    else
+        echo "N/A"
+    fi
+}
+
 # Get average shell startup time (last 10 startups)
 get_avg_startup_time() {
     if [[ ! -f "$PERF_DATA" ]]; then
@@ -43,7 +56,7 @@ get_avg_startup_time() {
 
     local avg
     avg=$(grep "shell_startup" "$PERF_DATA" | tail -10 | awk -F',' '{sum+=$3; count++} END {if(count>0) print sum/count/1000000; else print "N/A"}')
-    printf "%.0f" "$avg" 2>/dev/null || echo "N/A"
+    format_number "$avg" 0
 }
 
 # Get plugin load time
@@ -55,7 +68,7 @@ get_plugin_load_time() {
 
     local total
     total=$(grep "plugin_load" "$PERF_DATA" | tail -20 | awk -F',' '{sum+=$3} END {if(NR>0) print sum/1000000; else print "N/A"}')
-    printf "%.0f" "$total" 2>/dev/null || echo "N/A"
+    format_number "$total" 0
 }
 
 # Get memory usage
@@ -67,7 +80,7 @@ get_memory_usage() {
 
     local avg
     avg=$(tail -20 "$PERF_DATA" | awk -F',' 'NF>=4 && $4>0 {sum+=$4; count++} END {if(count>0) print sum/count; else print "N/A"}')
-    printf "%.1f" "$avg" 2>/dev/null || echo "N/A"
+    format_number "$avg" 1
 }
 
 # Show startup trend chart (ASCII art)
@@ -160,7 +173,8 @@ suggest_optimizations() {
     slow_plugins=$(grep "plugin_load" "$PERF_DATA" | tail -20 | awk -F',' '$3/1000000 > 50 {print $5}' | sort | uniq -c | sort -nr)
 
     if [[ -n "$slow_plugins" ]]; then
-        echo "$slow_plugins" | head -3 | while read -r _ plugin; do
+        # Process substitution (not a pipe) so suggestions_made survives the loop
+        while read -r _ plugin; do
             case "$plugin" in
                 *git*)
                     echo "  💡 Consider lazy-loading git plugin"
@@ -177,7 +191,7 @@ suggest_optimizations() {
                     suggestions_made=1
                     ;;
             esac
-        done
+        done < <(echo "$slow_plugins" | head -3)
     fi
 
     # Check startup time trend
@@ -196,19 +210,23 @@ suggest_optimizations() {
     slow_commands=$(grep "command_exec" "$PERF_DATA" | tail -100 | awk -F',' '{print $5}' | sort | uniq -c | sort -nr | head -5)
 
     if [[ -n "$slow_commands" ]]; then
-        echo "$slow_commands" | while read -r _ cmd; do
+        # Process substitution (not a pipe) so suggestions_made survives the loop
+        while read -r _ cmd; do
             case "$cmd" in
                 ls)
                     echo "  💡 Consider using 'eza' instead of 'ls' (already aliased)"
+                    suggestions_made=1
                     ;;
                 grep)
                     echo "  💡 Consider using 'ripgrep' (rg) for better performance"
+                    suggestions_made=1
                     ;;
                 find)
                     echo "  💡 Consider using 'fd' instead of 'find'"
+                    suggestions_made=1
                     ;;
             esac
-        done
+        done < <(echo "$slow_commands")
     fi
 
     # Show final message

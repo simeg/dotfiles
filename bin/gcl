@@ -191,10 +191,14 @@ if "${clone_cmd[@]}"; then
         echo "  Branch: $(git branch --show-current)"
     fi
 
-    # Ask if this is a private repository
-    echo ""
-    echo -n "Is this a private repository? [y/N] "
-    read -r reply
+    # Ask if this is a private repository — only when interactive; an
+    # unconditional read under set -e breaks scripted/piped use (default: no)
+    reply="n"
+    if [[ -t 0 ]]; then
+        echo ""
+        echo -n "Is this a private repository? [y/N] "
+        read -r reply
+    fi
     if [[ $reply =~ ^[Yy]$ ]]; then
         echo "🔧 Setting up private git configuration..."
         if command -v use-private-git >/dev/null 2>&1; then

@@ -67,7 +67,8 @@ fi
 
 # Copy to clipboard with error handling
 if command -v pbcopy >/dev/null 2>&1; then
-    if echo "$path_to_copy" | pbcopy; then
+    # printf '%s' avoids a trailing newline, which would auto-execute on paste
+    if printf '%s' "$path_to_copy" | pbcopy; then
         if ! $QUIET; then
             echo "✅ Copied to clipboard: $path_to_copy"
         fi

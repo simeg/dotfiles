@@ -6,7 +6,8 @@
 set -euo pipefail
 
 # Default values
-SSH_OPTIONS="-o StrictHostKeyChecking=no"
+# pssh's -O takes raw ssh_config options (no "-o" prefix); one option per -O
+SSH_OPTIONS=("StrictHostKeyChecking=no")
 DRY_RUN=false
 TIMEOUT=30
 VERBOSE=false
@@ -50,7 +51,9 @@ while [[ $# -gt 0 ]]; do
                 echo "❌ Error: --ssh-options requires SSH options" >&2
                 exit 1
             fi
-            SSH_OPTIONS="$SSH_OPTIONS $2"
+            # Split on whitespace: each ssh_config option needs its own -O
+            read -ra extra_opts <<< "$2"
+            SSH_OPTIONS+=("${extra_opts[@]}")
             shift 2
             ;;
         --verbose)
@@ -110,8 +113,9 @@ if [[ -z "$hosts_output" ]]; then
     exit 1
 fi
 
-# Clean up hosts (remove trailing dots)
-hosts=${hosts_output%.}
+# Clean up hosts (strip the DNS trailing dot from every host, not just the last)
+hosts=$(echo "$hosts_output" | tr -s '[:space:]' '\n' | sed 's/\.$//' | tr '\n' ' ')
+hosts=${hosts% }
 host_count=$(echo "$hosts" | wc -w | tr -d ' ')
 
 echo "🏥 Found $host_count hosts: $hosts"
@@ -129,7 +133,9 @@ fi
 
 # Build pssh command
 pssh_cmd=("pssh")
-pssh_cmd+=("-O" "$SSH_OPTIONS")
+for ssh_opt in "${SSH_OPTIONS[@]}"; do
+    pssh_cmd+=("-O" "$ssh_opt")
+done
 pssh_cmd+=("-t" "$TIMEOUT")
 pssh_cmd+=("--inline")
 pssh_cmd+=("-H" "$hosts")

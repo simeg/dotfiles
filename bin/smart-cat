@@ -95,10 +95,10 @@ display_file() {
     filename=$(basename "$file")
     local lowercase_name
     lowercase_name=$(echo "$filename" | tr '[:upper:]' '[:lower:]')
-    
+
     # Build common options
     build_bat_opts
-    
+
     case "$lowercase_name" in
         *.md|*.markdown|*.mdown|*.mkd|*.mdwn|*.mdx)
             # Markdown files
@@ -161,7 +161,7 @@ display_directory() {
     local dir="$1"
     echo "📁 Directory: $dir"
     echo ""
-    
+
     if command -v eza &> /dev/null; then
         eza --long --header --git --time-style=relative "$dir"
     elif command -v exa &> /dev/null; then
@@ -181,23 +181,27 @@ if [[ $# -eq 0 ]]; then
         cat
     fi
 else
-    # Process each argument
+    # Process each argument; remember failures so we exit nonzero like cat does
+    exit_status=0
     for item in "$@"; do
         if [[ -d "$item" ]]; then
             if $SHOW_DIRECTORIES; then
                 display_directory "$item"
             else
                 echo "❌ Error: '$item' is a directory. Use -d to show directory contents." >&2
+                exit_status=1
             fi
         elif [[ -f "$item" ]]; then
             display_file "$item"
         else
             echo "❌ Error: '$item': No such file or directory" >&2
+            exit_status=1
         fi
-        
+
         # Add separator between multiple files
         if [[ $# -gt 1 ]]; then
             echo ""
         fi
     done
+    exit "$exit_status"
 fi

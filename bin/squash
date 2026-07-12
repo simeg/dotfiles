@@ -77,7 +77,9 @@ fi
 
 # Handle abort option
 if $ABORT_SQUASH; then
-    if git status --porcelain | grep -q "^UU\|^AA\|^DD"; then
+    # Conflict markers vanish once conflicts are staged — the rebase state
+    # dirs are the reliable in-progress signal
+    if [[ -d "$(git rev-parse --git-path rebase-merge)" ]] || [[ -d "$(git rev-parse --git-path rebase-apply)" ]]; then
         echo "🔄 Aborting ongoing rebase..."
         git rebase --abort
         echo "✅ Rebase aborted"
@@ -101,17 +103,19 @@ if [[ -n "$NUM_COMMITS" ]]; then
         echo "❌ Error: Must squash at least 2 commits" >&2
         exit 1
     fi
-    
+
     # Check if we have enough commits
     total_commits=$(git rev-list --count HEAD 2>/dev/null || echo "0")
     if [[ $NUM_COMMITS -ge $total_commits ]]; then
         echo "❌ Error: Not enough commits (requested: $NUM_COMMITS, available: $total_commits)" >&2
         exit 1
     fi
-    
-    COMMIT_HASH="HEAD~$NUM_COMMITS"
+
+    # HEAD~N as rebase base covers exactly the last N commits
+    REBASE_BASE="HEAD~$NUM_COMMITS"
     echo "🎯 Squashing last $NUM_COMMITS commits"
-    
+
+
 elif [[ -z "${COMMIT_HASH:-}" ]]; then
     # Interactive selection
     if ! command -v fzf >/dev/null 2>&1; then
@@ -126,31 +130,42 @@ elif [[ -z "${COMMIT_HASH:-}" ]]; then
         exit 1
     fi
 
-    selected_line=$(echo "$log_output" | fzf --prompt="Select commit to squash from: " --height=20 --layout=reverse)
-    
+    # fzf exits 130 on cancel — don't let set -e kill us before the empty check
+    selected_line=$(echo "$log_output" | fzf --prompt="Select commit to squash from: " --height=20 --layout=reverse) || true
+
+
     if [[ -z "$selected_line" ]]; then
         echo "ℹ️  No commit selected, exiting"
         exit 0
     fi
 
     COMMIT_HASH=$(echo "$selected_line" | grep -o '\b[a-f0-9]\{7,\}\b' | head -1)
-    
+
     if [[ -z "$COMMIT_HASH" ]]; then
         echo "❌ Error: Could not extract commit hash from selection" >&2
         exit 1
     fi
 fi
 
-# Validate commit hash
-if ! git rev-parse --verify "${COMMIT_HASH}" >/dev/null 2>&1; then
-    echo "❌ Error: Invalid commit hash '${COMMIT_HASH}'" >&2
+# Validate commit hash (count mode sets REBASE_BASE directly instead)
+if [[ -z "${REBASE_BASE:-}" ]]; then
+    if ! git rev-parse --verify "${COMMIT_HASH}" >/dev/null 2>&1; then
+        echo "❌ Error: Invalid commit hash '${COMMIT_HASH}'" >&2
+        exit 1
+    fi
+    # The selected commit itself is part of the squash, so rebase from its parent
+    REBASE_BASE="${COMMIT_HASH}~1"
+fi
+
+if ! git rev-parse --verify "${REBASE_BASE}" >/dev/null 2>&1; then
+    echo "❌ Error: Cannot squash from '${COMMIT_HASH}' — it has no parent" >&2
     exit 1
 fi
 
-# Show what will be squashed
+# Show what will be squashed — the same range the rebase will touch
 echo ""
 echo "📋 Commits to be squashed:"
-git log --oneline "${COMMIT_HASH}..HEAD"
+git log --oneline "${REBASE_BASE}..HEAD"
 echo ""
 
 # Safety confirmation
@@ -166,7 +181,7 @@ echo ""
 echo "🔄 Starting interactive squash..."
 
 if $EDIT_MESSAGE; then
-    if git rebase -i --autosquash "${COMMIT_HASH}~1"; then
+    if git rebase -i --autosquash "${REBASE_BASE}"; then
         echo ""
         echo "✅ Squash completed successfully!"
     else
@@ -181,7 +196,9 @@ if $EDIT_MESSAGE; then
         exit 1
     fi
 else
-    if GIT_SEQUENCE_EDITOR=true git rebase -i --autosquash "${COMMIT_HASH}~1"; then
+    # Rewrite the todo: keep the first pick, fixup the rest into it. fixup
+    # (not squash) keeps the first commit's message so no editor ever opens.
+    if GIT_SEQUENCE_EDITOR="sed -i '' -e '1!s/^pick /fixup /'" git rebase -i --autosquash "${REBASE_BASE}"; then
         echo ""
         echo "✅ Squash completed successfully!"
     else

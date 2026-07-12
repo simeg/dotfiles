@@ -51,8 +51,6 @@ nav|dir|show directory stack
 nav|gwf|cd to .github/workflows
 clip|cpwd|copy current directory to clipboard
 clip|cpwd -r|copy relative path (from ~)
-clip|cpd|copy directory path (alias)
-clip|cpf <file>|copy file contents
 clip|copy <file>|copy file to clipboard (pbcopy)
 clip|pbpaste|paste from clipboard
 edit|vimrc|edit neovim config + reload
@@ -76,7 +74,7 @@ java|deps|check maven dependencies (fzf)
 files|tt|tree with colors
 files|fd|find replacement
 files|rg|ripgrep (fast grep)
-util|idea / videa|eureka idea capture / view
+util|idea|launch IntelliJ IDEA
 util|backup|backup file with timestamp
 util|starship-theme|manage prompt themes
 util|system-monitor|system monitoring dashboard
@@ -203,7 +201,8 @@ validate_entries() {
             for c in $(extract_commands "$cmd"); do
                 if ! command_exists "$c"; then
                     echo -e "  ${RED}✗${NC} ${YELLOW}$c${NC} ${DIM}(from: $cmd)${NC}"
-                    ((error_count++))
+                    # ((var++)) returns 1 when var is 0, which trips set -e
+                    error_count=$((error_count + 1))
                 fi
             done
         fi

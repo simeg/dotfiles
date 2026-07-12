@@ -238,15 +238,17 @@ set_theme() {
     # Ensure config directory exists
     mkdir -p "$(dirname "$CONFIG_PATH")"
 
-    # Backup current config if it exists and no backup exists
-    if [[ -f "$CONFIG_PATH" && ! -f "$CONFIG_PATH.backup" ]]; then
+    # Backup current config if it's a real file (not our theme symlink)
+    # and no backup exists
+    if [[ -f "$CONFIG_PATH" && ! -L "$CONFIG_PATH" && ! -f "$CONFIG_PATH.backup" ]]; then
         log_info "Backing up current configuration..."
         cp "$CONFIG_PATH" "$CONFIG_PATH.backup"
     fi
 
-    # Copy theme to starship config location
+    # Symlink (not copy) so theme edits in the repo take effect immediately —
+    # this is the documented contract ("don't edit the symlink directly")
     log_info "Switching to theme: $theme_name"
-    cp "$theme_file" "$CONFIG_PATH"
+    ln -sfn "$theme_file" "$CONFIG_PATH"
 
     # Save current theme name
     echo "$theme_name" > "$CURRENT_THEME_FILE"
@@ -271,6 +273,9 @@ backup_config() {
 # Restore from backup
 restore_config() {
     if [[ -f "$CONFIG_PATH.backup" ]]; then
+        # Drop the theme symlink first so cp doesn't write through it into
+        # the repo's theme file
+        rm -f "$CONFIG_PATH"
         cp "$CONFIG_PATH.backup" "$CONFIG_PATH"
         log_success "Configuration restored from backup"
         # Clear current theme since we restored from backup

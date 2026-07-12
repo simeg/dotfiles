@@ -54,7 +54,9 @@ fi
 
 # Handle abort option
 if $ABORT_FIXUP; then
-    if git status --porcelain | grep -q "^UU\|^AA\|^DD"; then
+    # Conflict markers vanish once conflicts are staged — the rebase state
+    # dirs are the reliable in-progress signal
+    if [[ -d "$(git rev-parse --git-path rebase-merge)" ]] || [[ -d "$(git rev-parse --git-path rebase-apply)" ]]; then
         echo "🔄 Aborting ongoing rebase..."
         git rebase --abort
         echo "✅ Rebase aborted"
@@ -81,8 +83,10 @@ if [[ -z "${COMMIT_HASH:-}" ]]; then
     fi
 
     # Interactive commit selection
-    selected_line=$(echo "$log_output" | fzf --prompt="Select commit to fixup: " --height=20 --layout=reverse)
-    
+    # fzf exits 130 on cancel — don't let set -e kill us before the empty check
+    selected_line=$(echo "$log_output" | fzf --prompt="Select commit to fixup: " --height=20 --layout=reverse) || true
+
+
     if [[ -z "$selected_line" ]]; then
         echo "ℹ️  No commit selected, exiting"
         exit 0
@@ -91,7 +95,7 @@ if [[ -z "${COMMIT_HASH:-}" ]]; then
     # Extract commit hash from selected line
     # Handle various formats: graph symbols, merge commits, etc.
     COMMIT_HASH=$(echo "$selected_line" | grep -o '\b[a-f0-9]\{7,\}\b' | head -1)
-    
+
     if [[ -z "$COMMIT_HASH" ]]; then
         echo "❌ Error: Could not extract commit hash from selection" >&2
         echo "Selected: $selected_line" >&2

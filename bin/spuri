@@ -42,7 +42,7 @@ def validate_spotify_uri(uri):
     """Validate Spotify URI format"""
     if uri.startswith("spotify:"):
         parts = uri.split(":")
-        return len(parts) >= 3 and parts[1] in ["track", "album", "playlist", "artist"]
+        return len(parts) >= 3 and parts[1] in ["track", "album", "playlist", "artist", "episode", "show"]
     elif uri.startswith("http"):
         return "open.spotify.com" in uri
     else:
@@ -73,13 +73,13 @@ def parse_spotify_input(arg, uri_type="track"):
             if len(hexgid) != 32:
                 raise ValueError("Invalid hex GID length (expected 32 characters)")
             base62id = encode(int(hexgid, 16), BASE62).rjust(22, "0")
-        
+
         # Convert to all formats
         gid = str(uuid.UUID(int=decode(base62id, BASE62)))
         hexgid = gid.replace("-", "")
         uri = f"spotify:{uri_type}:{base62id}"
         url = f"https://open.spotify.com/{uri_type}/{base62id}"
-        
+
         return {
             "gid": gid,
             "hexgid": hexgid,
@@ -110,14 +110,14 @@ def main():
     parser.add_argument("uris", nargs="+", help="Spotify URIs, URLs, or hex GIDs to convert")
     parser.add_argument("--json", action="store_true", help="Output in JSON format")
     parser.add_argument("--clipboard", action="store_true", help="Copy result to clipboard")
-    parser.add_argument("--type", default="track", choices=["track", "album", "playlist", "artist"], 
+    parser.add_argument("--type", default="track", choices=["track", "album", "playlist", "artist", "episode", "show"],
                        help="Default type for hex GID inputs")
-    
+
     args = parser.parse_args()
-    
+
     results = []
     errors = []
-    
+
     for uri_input in args.uris:
         try:
             if not validate_spotify_uri(uri_input):
@@ -126,13 +126,13 @@ def main():
             results.append(result)
         except ValueError as e:
             errors.append(f"❌ Error processing '{uri_input}': {e}")
-    
+
     if errors:
         for error in errors:
             print(error, file=sys.stderr)
         if not results:
             sys.exit(1)
-    
+
     # Output results
     if args.json:
         output = json.dumps(results, indent=2)
@@ -141,9 +141,9 @@ def main():
         for result in results:
             output_lines.append(f"{result['gid']} {result['hexgid']} {result['base62id']} {result['uri']} {result['url']}")
         output = "\n".join(output_lines)
-    
+
     print(output)
-    
+
     # Copy to clipboard if requested
     if args.clipboard:
         if copy_to_clipboard(output):

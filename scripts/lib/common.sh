@@ -17,8 +17,10 @@ readonly BLUE='\033[0;34m'
 readonly PURPLE='\033[0;35m'
 # shellcheck disable=SC2034  # Used in other scripts
 readonly CYAN='\033[0;36m'
-# readonly WHITE='\033[1;37m'  # Unused - keeping for potential future use
-# readonly BOLD='\033[1m'  # Unused - keeping for potential future use
+# shellcheck disable=SC2034  # Used in other scripts
+readonly WHITE='\033[1;37m'
+# shellcheck disable=SC2034  # Used in other scripts
+readonly BOLD='\033[1m'
 readonly DIM='\033[2m'
 readonly NC='\033[0m'
 

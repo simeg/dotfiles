@@ -618,21 +618,28 @@ take_snapshot() {
         echo -e "${BLUE}📸 Taking system metrics snapshot...${NC}"
     fi
 
+    # Unique temp files: fixed /tmp names collide between concurrent runs
+    # and are a symlink-clobbering hazard on a shared /tmp
+    local sys_tmp dot_tmp health_tmp
+    sys_tmp=$(mktemp)
+    dot_tmp=$(mktemp)
+    health_tmp=$(mktemp)
+
     # Collect metrics with spinner
     (
-        get_system_metrics > "/tmp/system_metrics.json"
-        get_dotfiles_metrics > "/tmp/dotfiles_metrics.json"
-        get_health_status > "/tmp/health_status.json"
+        get_system_metrics > "$sys_tmp"
+        get_dotfiles_metrics > "$dot_tmp"
+        get_health_status > "$health_tmp"
     ) &
     show_spinner $! "Analyzing system state..."
 
     # Read collected metrics
-    system_metrics=$(cat "/tmp/system_metrics.json" 2>/dev/null)
-    dotfiles_metrics=$(cat "/tmp/dotfiles_metrics.json" 2>/dev/null)
-    health_status=$(cat "/tmp/health_status.json" 2>/dev/null)
+    system_metrics=$(cat "$sys_tmp" 2>/dev/null)
+    dotfiles_metrics=$(cat "$dot_tmp" 2>/dev/null)
+    health_status=$(cat "$health_tmp" 2>/dev/null)
 
     # Cleanup temp files
-    rm -f "/tmp/system_metrics.json" "/tmp/dotfiles_metrics.json" "/tmp/health_status.json" 2>/dev/null
+    rm -f "$sys_tmp" "$dot_tmp" "$health_tmp" 2>/dev/null
 
     # Display results
     echo -e "${BOLD}${CYAN}📸 System Snapshot - $(date)${NC}"
