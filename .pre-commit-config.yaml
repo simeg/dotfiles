@@ -1,5 +1,28 @@
+# Local system hooks: pip/go-based pre-commit repos can't build their
+# environments off-VPN (pip is pinned to Spotify artifactory), so run
+# the brew-installed tools directly. gitleaks and shellcheck come from
+# install/Brewfile.
 repos:
-  - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.21.2
+  - repo: local
     hooks:
       - id: gitleaks
+        name: gitleaks (staged)
+        entry: gitleaks git --pre-commit --staged --redact --verbose
+        language: system
+        pass_filenames: false
+      - id: shellcheck
+        name: shellcheck
+        entry: shellcheck
+        language: system
+        types: [shell]
+        exclude_types: [zsh]
+      - id: trailing-whitespace
+        name: trailing whitespace
+        entry: bash -c 'if grep -nE " +$" "$@"; then echo "Trailing whitespace found"; exit 1; fi' --
+        language: system
+        types: [text]
+      - id: end-of-file
+        name: file ends with one newline
+        entry: bash -c 'st=0; for f in "$@"; do if [ -s "$f" ] && [ -n "$(tail -c1 "$f")" ]; then echo "missing trailing newline in $f"; st=1; fi; done; exit $st' --
+        language: system
+        types: [text]
