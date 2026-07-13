@@ -18,19 +18,19 @@ Modern Neovim configuration with Lua-based setup, using lazy.nvim for plugin man
 - `.config/nvim/lua/core/autocmds.lua` - Auto commands and events
 
 ### Plugin Management
-- `.config/nvim/lua/plugins/lazy.lua` - Plugin definitions and lazy.nvim setup
+- `.config/nvim/lua/plugins/lazy.lua` - Plugin definitions and lazy.nvim setup;
+  treesitter and the catppuccin colorscheme are configured inline here
 - `.config/nvim/lua/plugins/lsp.lua` - Language Server Protocol configuration
-- `.config/nvim/lua/plugins/completion.lua` - Code completion setup
-- `.config/nvim/lua/plugins/treesitter.lua` - Syntax highlighting and parsing
+- `.config/nvim/lua/plugins/completion.lua` - Code completion setup (runs as
+  nvim-cmp's config callback on InsertEnter, not at startup)
 
 ### UI and Navigation
 - `.config/nvim/lua/plugins/telescope.lua` - Fuzzy finder configuration
 - `.config/nvim/lua/plugins/nvim-tree.lua` - File explorer setup
 - `.config/nvim/lua/plugins/lualine.lua` - Status line configuration
-- `.config/nvim/lua/plugins/colorscheme.lua` - Theme configuration
 
 ### Development Tools
-- `.config/nvim/lua/plugins/git.lua` - Git integration (gitsigns, fugitive)
+- `.config/nvim/lua/plugins/git.lua` - Git integration (gitsigns)
 - `.config/nvim/lua/plugins/editing.lua` - Text editing enhancements
 
 ## Key Features
@@ -53,8 +53,7 @@ Modern Neovim configuration with Lua-based setup, using lazy.nvim for plugin man
 - **Buffer Navigation**: Smart buffer switching and management
 
 ### Git Integration
-- **Gitsigns**: Git diff indicators in gutter
-- **Fugitive**: Comprehensive git commands within Neovim
+- **Gitsigns**: Git diff indicators in gutter, hunk actions, line blame
 - **Git Status**: Visual indicators for file changes
 
 ### UI Enhancements
@@ -79,7 +78,7 @@ Modern Neovim configuration with Lua-based setup, using lazy.nvim for plugin man
 1. **Core**: lazy.nvim, plenary (utilities)
 2. **UI**: colorscheme, lualine, nvim-tree, telescope
 3. **Editing**: treesitter, LSP, completion, snippets
-4. **Git**: gitsigns, fugitive
+4. **Git**: gitsigns
 5. **Utilities**: various text editing enhancements
 
 ## Integration Points

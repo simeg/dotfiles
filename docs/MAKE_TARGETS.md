@@ -12,7 +12,7 @@ make update                  # Update all components
 make validate                # Verify configuration is working
 make test                    # Run the local Bats suite
 make test-advanced           # Advanced tests (performance + security)
-make test-ci                 # CI-compatible tests (no symlink dependencies)
+make test-ci                 # Run entire tests/bats suite (including CI-only tests)
 make lint                    # Check code quality
 make health                  # System health check
 make health-monitor          # Real-time system monitoring dashboard
@@ -94,17 +94,12 @@ make clean                   # Remove broken symlinks and temporary files
 **When to use**: Before committing changes or when developing new scripts
 
 ### `make test`
-**Purpose**: Run complete test suite (basic + CI + advanced)
+**Purpose**: Run the local Bats suite (safe, non-destructive)
 **What it does**:
-- Executes comprehensive test suite including all test categories
-- Validates basic functionality, configuration, performance, and security
-- Includes regression testing and compliance checks
-- Provides detailed reporting on all aspects
+- Runs all Bats tests under `tests/bats/` except CI-only files (`*_ci.bats`)
+- Validates scripts, configuration, and shell setup without touching the system
 
-**When to use**: Before releasing changes or when validating major modifications
-
-
-**When to use**: In pre-commit hooks or before committing changes
+**When to use**: During development, in pre-commit hooks, or before committing changes
 
 ### `make test-advanced`
 **Purpose**: Run advanced validation tests
@@ -117,13 +112,12 @@ make clean                   # Remove broken symlinks and temporary files
 **When to use**: Weekly validation, security audits, or performance monitoring
 
 ### `make test-ci`
-**Purpose**: Run CI-friendly tests
+**Purpose**: Run the complete Bats suite
 **What it does**:
-- Executes tests compatible with Continuous Integration environments
-- Avoids tests requiring symlink dependencies or system modifications
-- Focuses on portable functionality
+- Runs every test file under `tests/bats/`, including the CI-only
+  `*_ci.bats` files that `make test` excludes
 
-**When to use**: In GitHub Actions or other CI systems
+**When to use**: In GitHub Actions or before pushing changes that touch tests
 
 ### `make ci`
 **Purpose**: Complete CI pipeline
@@ -248,7 +242,7 @@ make clean && make symlink  # Reset symlinks
 ### Development
 ```bash
 make lint           # Check code quality
-make test           # Full testing
+make test           # Local Bats suite
 make ci             # Complete CI pipeline
 ```
 
@@ -277,7 +271,7 @@ make snapshot          # Create performance baseline
 | `packages` | Manage packages | Package maintenance |
 | `test` | Run the local Bats suite | Development |
 | `test-advanced` | Advanced tests | Security/performance |
-| `test-ci` | CI tests | Continuous integration |
+| `test-ci` | Entire tests/bats suite (incl. CI-only) | Continuous integration |
 | `lint` | Code quality check | Development |
 | `clean` | Clean up files | Troubleshooting |
 | `symlink` | Create links only | Quick fixes |

@@ -12,8 +12,24 @@ workflows.
 
 - `/add-vinyl` - Add a single album to Notion Vinylsamling database
 - `/add-vinyls` - Add multiple albums to Notion Vinylsamling database
-- `/initextra` - Initialize extra development tools and configurations
-- `/update-record-shops-reviews` - Update record shop reviews in Notion
+- `/audit-deps` - Audit freshness of all software in this dotfiles repo
+  (brews, nvim plugins, znap plugins, runtime managers)
+- `/bats-scaffold` - Scaffold a new Bats test file under `tests/bats/`
+  following project conventions
+- `/blame-prompt` - Debug Starship/zsh prompt issues — dump PROMPT, PATH,
+  env, and recent shell config edits
+- `/brewfile-sync` - Audit drift between Brewfile and installed packages in
+  both directions
+- `/initextra` - Initialize project with CLAUDE.md and create comprehensive
+  feature documentation
+- `/new-zsh-module` - Add a new zsh config module wired up end-to-end
+  (file + symlink + sourcing + lint + smoke test)
+- `/profile-shell` - Profile zsh startup and summarize what's slow
+- `/theme-switch` - List, preview, or swap Starship themes
+- `/update-record-shops-reviews` - Update record shop ratings and review
+  counts in Notion
+- `/verify-clean` - Run lint + tests + fresh-shell smoke test; only claims
+  success if every step passes
 
 ## How it works
 

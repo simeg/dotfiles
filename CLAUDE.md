@@ -21,7 +21,7 @@ make help                  # Show all available commands
 # Tests (Bats)
 make test                  # Run the local Bats suite
 make test-advanced         # Advanced tests (performance + security)
-make test-ci               # CI-compatible tests (no symlink dependencies)
+make test-ci               # Run entire tests/bats suite (including CI-only tests)
 
 # Health diagnostics
 make health                # System diagnostics and health checks

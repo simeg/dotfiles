@@ -8,7 +8,9 @@ Track which installed packages you actually use to identify bloat and optimize y
 
 ### Features
 
-- **Command Usage Tracking**: Automatically tracks which commands you run
+- **Command Usage Analysis**: Analyzes command history from
+  `~/.config/dotfiles/command-usage.log` (populate it yourself — there is no
+  automatic shell hook)
 - **Package Mapping**: Correlates commands to their source packages
 - **Usage Analysis**: Identifies unused packages and usage patterns
 - **Size Analysis**: Estimates space savings from removing unused packages
@@ -31,8 +33,8 @@ make health-analytics
 # Clean old usage data
 ./scripts/analyze-package-usage.sh clean 60     # Keep last 60 days
 
-# Set up usage tracking (first time)
-./scripts/analyze-package-usage.sh setup
+# Recreate the command-to-package mapping cache
+./scripts/analyze-package-usage.sh mapping
 ```
 
 ### Sample Output
@@ -140,27 +142,14 @@ make health-analytics
 
 ## 📈 Data Collection
 
-### Automatic Setup
+There is no automatic shell-hook data collection — the analysis tools read
+data files under `~/.config/dotfiles/` and report on whatever is there:
 
-The analytics system automatically sets up data collection when you source your `.zshrc`:
+- `analyze-package-usage.sh` reads `command-usage.log`
+- `performance-report.sh` and `perf-dashboard` read `perf-data.csv`
 
-- **Usage tracking**: Records every command execution
-- **Performance monitoring**: Tracks startup times, plugin loads, and command execution
-- **Data rotation**: Automatically manages data file sizes
-- **Privacy**: All data stays local on your machine
-
-### Manual Setup
-
-If analytics aren't working, set them up manually:
-
-```bash
-# Set up usage tracking
-./scripts/analyze-package-usage.sh setup
-
-# Verify analytics files are loaded
-grep -q "usage-analytics.sh" ~/.zshrc && echo "Usage tracking: ✅"
-grep -q "perf-monitor.sh" ~/.zshrc && echo "Performance monitoring: ✅"
-```
+If those files are missing or empty, the tools warn and skip the
+corresponding analysis. All data stays local on your machine.
 
 ## 📁 Data Storage
 
@@ -225,22 +214,18 @@ make health-analytics                    # Confirm improvements
 ### No Usage Data
 
 ```bash
-# Check if tracking is enabled
-grep "usage-analytics" ~/.zshrc
-
-# Set up tracking if missing
-./scripts/analyze-package-usage.sh setup
-source ~/.zshrc
+# The analyzer reads this file; if it's missing there is nothing to analyze
+ls -la ~/.config/dotfiles/command-usage.log
 ```
 
 ### No Performance Data
 
 ```bash
-# Check if performance monitoring is enabled
-grep "perf-monitor" ~/.zshrc
-
-# Verify data collection
+# The performance tools read this file
 ls -la ~/.config/dotfiles/perf-data.csv
+
+# Startup timings can be captured on demand instead
+make health-profile
 ```
 
 ### Slow Analytics
