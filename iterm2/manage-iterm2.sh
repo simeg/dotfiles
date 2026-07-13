@@ -78,10 +78,9 @@ import_settings() {
         log_info "Current settings backed up to $backup_file"
     fi
 
-    cp "$DOTFILES_PLIST" "$ITERM_PLIST"
-
-    # Reload preferences (this forces macOS to reload the plist)
-    defaults read com.googlecode.iterm2 > /dev/null 2>&1 || true
+    # Import via defaults so cfprefsd picks up the new values; copying the
+    # plist directly leaves cfprefsd serving its stale in-memory cache.
+    defaults import com.googlecode.iterm2 "$DOTFILES_PLIST"
 
     log_success "Settings imported from dotfiles"
     log_warning "Restart iTerm2 for all changes to take effect"

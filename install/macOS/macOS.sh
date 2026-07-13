@@ -11,18 +11,11 @@ sudo -v
 ### Etc ###
 ###########
 
-# Show battery percentage
-defaults write com.apple.menuextra.battery ShowPercent -bool true
-
 # Disable the sound effects on boot
 sudo nvram SystemAudioVolume=" "
 
 # Check for software updates daily, not just once per week
 defaults write com.apple.SoftwareUpdate ScheduleFrequency -int 1
-
-# Use light theme in Chrome
-# NOTE: Should only be used until Chrome supports changing it
-defaults write com.google.Chrome NSRequiresAquaSystemAppearance -bool YES
 
 
 #############
@@ -64,10 +57,15 @@ defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
 defaults write NSGlobalDomain com.apple.swipescrolldirection -bool false
 
 # Use scroll gesture with the Ctrl (^) modifier key to zoom
-defaults write com.apple.universalaccess closeViewScrollWheelToggle -bool true
-defaults write com.apple.universalaccess HIDScrollZoomModifierMask -int 262144
-# Follow the keyboard focus while zoomed in
-defaults write com.apple.universalaccess closeViewZoomFollowsFocus -bool true
+# NOTE: Writing to com.apple.universalaccess requires Full Disk Access for
+# the terminal running this script; skip with a warning if it fails.
+if defaults write com.apple.universalaccess closeViewScrollWheelToggle -bool true 2>/dev/null; then
+	defaults write com.apple.universalaccess HIDScrollZoomModifierMask -int 262144
+	# Follow the keyboard focus while zoomed in
+	defaults write com.apple.universalaccess closeViewZoomFollowsFocus -bool true
+else
+	echo "⚠️  Skipping com.apple.universalaccess settings (grant your terminal Full Disk Access and re-run to apply)"
+fi
 
 # Set a blazingly fast keyboard repeat rate
 defaults write NSGlobalDomain KeyRepeat -int 2
@@ -109,18 +107,15 @@ defaults write com.apple.ActivityMonitor SortDirection -int 0
 defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
 defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
 
-##########################################
-### Dock + Dashboard + Mission Control ###
-##########################################
+###############################
+### Dock + Mission Control ###
+###############################
 
 # Show indicator lights for open applications in the Dock
 defaults write com.apple.dock show-process-indicators -bool true
 
 # Speed up Mission Control animations
 defaults write com.apple.dock expose-animation-duration -float 0.1
-
-# Disable Dashboard
-defaults write com.apple.dashboard mcx-disabled -bool true
 
 
 ##############
@@ -140,9 +135,6 @@ defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebK
 
 # Warn about fraudulent websites
 defaults write com.apple.Safari WarnAboutFraudulentWebsites -bool true
-
-# Enable “Do Not Track”
-defaults write com.apple.Safari SendDoNotTrackHTTPHeader -bool true
 
 # Restart processes to apply changes
 for app in "Activity Monitor" \
