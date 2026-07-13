@@ -97,32 +97,18 @@ load setup_suite
 
 @test "gcl protocol conversion works correctly" {
     ensure_dotfiles_dir
-    # Test HTTPS to SSH conversion (this just tests the logic, doesn't clone)
+    # Test HTTPS to SSH conversion offline: pre-create the target directory
+    # so gcl exits at the directory-exists check AFTER printing the protocol
+    # conversion, without ever attempting a network clone.
     temp_dir=$(mktemp -d)
     cd "$temp_dir"
+    mkdir test-repo
 
-    # This should show the protocol conversion message but fail to clone (expected)
-    run "$DOTFILES_DIR/bin/gcl" --ssh "https://github.com/user/repo.git" test-repo 2>&1 || true
-    [[ "$output" == *"Using ssh protocol"* ]]
+    run "$DOTFILES_DIR/bin/gcl" --ssh "https://github.com/user/repo.git" test-repo
+    [ "$status" -ne 0 ]
+    [[ "$output" == *"Using ssh protocol: git@github.com:user/repo.git"* ]]
+    [[ "$output" == *"already exists"* ]]
 
     cd - >/dev/null
     rm -rf "$temp_dir"
-}
-
-@test "old git private config was properly backed up" {
-    ensure_dotfiles_dir
-    # Check that the old config was moved to .old (if backup exists)
-    if [ -f "$DOTFILES_DIR/git/.gitconfig.private.old" ]; then
-        # Verify it contains the problematic sections we removed
-        run grep -q "\[init\]" "$DOTFILES_DIR/git/.gitconfig.private.old"
-        [ "$status" -eq 0 ]
-
-        run grep -q "\[submodule" "$DOTFILES_DIR/git/.gitconfig.private.old"
-        [ "$status" -eq 0 ]
-
-        run grep -q "\[remote" "$DOTFILES_DIR/git/.gitconfig.private.old"
-        [ "$status" -eq 0 ]
-    else
-        skip "No backup file found - migration already complete"
-    fi
 }

@@ -1,35 +1,99 @@
 #!/usr/bin/env bats
 
-# Security compliance tests migrated from test_advanced.sh
+# Security compliance tests
 # Tests for secrets, permissions, shell security, git security, and dependencies
 
 load setup_suite
 
+# Scan a file for secret-looking VALUES (not just secret-ish words).
+# Prints offending lines; returns 0 if any hit was found.
+scan_file_for_secrets() {
+    local file="$1"
+
+    # Patterns that match actual credential material:
+    # - password/passwd assigned a literal value (not a variable reference)
+    # - api key / secret / token assigned a long literal value
+    local ci_patterns=(
+        '(password|passwd)[[:space:]]*[=:][[:space:]]*["'\'']?[A-Za-z0-9!@#%^&*_+-]{6,}'
+        '(api[_-]?key|client[_-]?secret|access[_-]?token|auth[_-]?token)[[:space:]]*[=:][[:space:]]*["'\'']?[A-Za-z0-9/+_-]{16,}'
+    )
+    # Case-sensitive well-known token formats:
+    # AWS access key IDs, GitHub PATs, Slack tokens, private key blocks
+    local cs_patterns=(
+        'AKIA[0-9A-Z]{16}'
+        'ghp_[A-Za-z0-9]{36}'
+        'github_pat_[A-Za-z0-9_]{22,}'
+        'xox[baprs]-[A-Za-z0-9-]{10,}'
+        '-----BEGIN[[:space:]].*PRIVATE[[:space:]]KEY-----'
+    )
+
+    # Line-level exclusions: comments (#, ;, //) and values that are
+    # shell variable references rather than literals.
+    filter_safe_lines() {
+        grep -vE '^[0-9]+:[[:space:]]*(#|;|//)' \
+            | grep -vE '[=:][[:space:]]*["'\'']?\$' || true
+    }
+
+    local pattern hits found=1
+    for pattern in "${ci_patterns[@]}"; do
+        hits=$(grep -inE "$pattern" "$file" 2>/dev/null | filter_safe_lines)
+        if [[ -n "$hits" ]]; then
+            echo "$file (pattern: $pattern):"
+            echo "$hits"
+            found=0
+        fi
+    done
+    for pattern in "${cs_patterns[@]}"; do
+        hits=$(grep -nE "$pattern" "$file" 2>/dev/null | filter_safe_lines)
+        if [[ -n "$hits" ]]; then
+            echo "$file (pattern: $pattern):"
+            echo "$hits"
+            found=0
+        fi
+    done
+
+    return "$found"
+}
+
 @test "Secrets scanning in configuration files" {
-    local secret_patterns=("password" "secret" "token" "key.*=" "api.*key" "auth.*token")
     local issues=0
 
     echo "Scanning for potential secrets in configuration files" >&3
 
-    # Scan all config files for secret patterns
     while IFS= read -r -d '' file; do
-        for pattern in "${secret_patterns[@]}"; do
-            if grep -iE "$pattern" "$file" >/dev/null 2>&1; then
-                # Exclude common safe patterns and test code patterns
-                if ! grep -iE "(export.*=|alias.*=|#.*$pattern|grep.*$pattern|echo.*$pattern|log.*$pattern)" "$file" >/dev/null 2>&1; then
-                    # Double-check: if it's in a comment or string literal, it's probably safe
-                    local matches
-                    matches=$(grep -iE "$pattern" "$file")
-                    if ! echo "$matches" | grep -qE "(^\s*#|\".*$pattern.*\"|'.*$pattern.*')"; then
-                        echo "Potential secret found in $file: pattern '$pattern'" >&3
-                        issues=$((issues + 1))
-                    fi
-                fi
-            fi
-        done
-    done < <(find "$DOTFILES_DIR" -type f \( -name "*.zsh" -o -name "*.sh" -o -name "*.toml" -o -name ".gitconfig" \) -print0)
+        local report
+        if report=$(scan_file_for_secrets "$file"); then
+            echo "Potential secret found in $report" >&3
+            issues=$((issues + 1))
+        fi
+    done < <(find "$DOTFILES_DIR" -type f \
+        \( -name "*.zsh" -o -name "*.sh" -o -name "*.toml" -o -name ".gitconfig*" \) \
+        -not -path "*/.git/*" -print0)
 
     [ "$issues" -eq 0 ]
+}
+
+@test "Secrets scanner catches a planted secret" {
+    # Self-test: the scanner must be able to fail. Plant a fake credential
+    # in a temp file and verify the scanner flags it.
+    local scratch="$BATS_TEST_TMPDIR/planted.zsh"
+    cat > "$scratch" << 'EOF'
+export DB_PASSWORD="hunter2hunter2"
+aws_key=AKIAIOSFODNN7EXAMPLE
+EOF
+
+    run scan_file_for_secrets "$scratch"
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"AKIA"* ]]
+
+    # And a clean file must NOT be flagged
+    local clean="$BATS_TEST_TMPDIR/clean.zsh"
+    cat > "$clean" << 'EOF'
+# password handling is documented elsewhere
+export GITHUB_TOKEN="$SOME_VAR"
+EOF
+    run scan_file_for_secrets "$clean"
+    [ "$status" -ne 0 ]
 }
 
 @test "File permissions security" {
@@ -37,23 +101,24 @@ load setup_suite
 
     echo "Checking file permissions" >&3
 
-    # Check for overly permissive files
     while IFS= read -r -d '' file; do
         local perms
         perms=$(stat -f "%A" "$file" 2>/dev/null || stat -c "%a" "$file" 2>/dev/null || echo "644")
 
-        # Config files shouldn't be world-writable
-        if [[ "$perms" =~ .*[2367].$ ]]; then
+        # Config files shouldn't be world-writable (last octal digit has the
+        # write bit set: 2, 3, 6, or 7)
+        if [[ "$perms" =~ [2367]$ ]]; then
             echo "Insecure permissions on $file: $perms (world-writable)" >&3
             issues=$((issues + 1))
         fi
 
-        # Executable files should have proper permissions
-        if [[ "$file" == *.sh ]] && [[ ! "$perms" =~ .*[157].$ ]]; then
+        # Shell scripts should be executable by their owner
+        if [[ "$file" == *.sh ]] && [[ ! -x "$file" ]]; then
             echo "Non-executable script: $file ($perms)" >&3
             issues=$((issues + 1))
         fi
-    done < <(find "$DOTFILES_DIR" -type f \( -name "*.zsh" -o -name "*.sh" -o -name "*.toml" \) -print0)
+    done < <(find "$DOTFILES_DIR" -type f \( -name "*.zsh" -o -name "*.sh" -o -name "*.toml" \) \
+        -not -path "*/.git/*" -print0)
 
     [ "$issues" -eq 0 ]
 }
@@ -70,18 +135,6 @@ load setup_suite
         issues=$((issues + 1))
     fi
 
-    # Check for insecure command history settings (warning only)
-    if [[ -z "${HISTFILE:-}" ]]; then
-        echo "History file not explicitly configured" >&3
-        # This is a warning, not a failure for the test
-    fi
-
-    # Check for umask setting (warning only)
-    if ! grep -q "umask" "$zsh_config"/*.zsh 2>/dev/null; then
-        echo "No umask setting found (security best practice)" >&3
-        # This is a warning, not a failure for the test
-    fi
-
     [ "$issues" -eq 0 ]
 }
 
@@ -95,21 +148,10 @@ load setup_suite
         skip "Git config file missing - using global configuration"
     fi
 
-    # Check for secure URL protocols
+    # Check for insecure URL protocols
     if grep -E "url.*http://" "$git_config" >/dev/null 2>&1; then
         echo "Insecure HTTP URLs found in Git config" >&3
         issues=$((issues + 1))
-    fi
-
-    # GPG signing and credential helper are best practices but not requirements
-    if ! grep -q "signingkey\|gpgsign" "$git_config"; then
-        echo "Git commit signing not configured (recommended for security)" >&3
-        # This is informational, not a test failure
-    fi
-
-    if ! grep -q "credential" "$git_config"; then
-        echo "Git credential helper not configured" >&3
-        # This is informational, not a test failure
     fi
 
     [ "$issues" -eq 0 ]
@@ -128,41 +170,7 @@ load setup_suite
             echo "Insecure HTTP tap sources in Brewfile" >&3
             issues=$((issues + 1))
         fi
-
-        # Check for unofficial taps (warning only, not a failure)
-        local unofficial_taps
-        unofficial_taps=$(grep "^tap" "$brewfile" | grep -cv "homebrew/" || echo 0)
-        if [[ $unofficial_taps -gt 5 ]]; then
-            echo "Many unofficial taps detected ($unofficial_taps) - verify sources" >&3
-            # This is informational, not a test failure
-        fi
     fi
 
     [ "$issues" -eq 0 ]
 }
-
-# @test "Security baseline exists or can be created" {
-#     # Ensure ANALYTICS_DIR is set with fallback
-#     ANALYTICS_DIR="${ANALYTICS_DIR:-${HOME:-/tmp}/.config/dotfiles}"
-#     SECURITY_BASELINE="${SECURITY_BASELINE:-$ANALYTICS_DIR/security-baseline.json}"
-#
-#     if [[ ! -f "$SECURITY_BASELINE" ]]; then
-#         echo "Creating security baseline" >&3
-#         mkdir -p "$ANALYTICS_DIR"
-#
-#         local baseline
-#         baseline="{
-#             \"created\": \"$(date -Iseconds)\",
-#             \"file_count\": $(find "$DOTFILES_DIR" -type f | wc -l),
-#             \"script_count\": $(find "$DOTFILES_DIR" -name "*.sh" -type f | wc -l),
-#             \"config_files\": $(find "$DOTFILES_DIR" -name "*.zsh" -o -name "*.toml" | wc -l)
-#         }"
-#
-#         echo "$baseline" > "$SECURITY_BASELINE"
-#         echo "Security baseline created" >&3
-#     else
-#         echo "Security baseline exists" >&3
-#     fi
-#
-#     [ -f "$SECURITY_BASELINE" ]
-# }

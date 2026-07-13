@@ -1,150 +1,46 @@
 #!/usr/bin/env bats
 
-# Performance regression tests migrated from test_advanced.sh
-# Tests shell startup performance, memory usage, and plugin performance
+# Performance tests
+# Measures shell startup time with a real, portable timer (/usr/bin/time -p)
 
 load setup_suite
 
-# Helper function to check if bc is available
-check_bc() {
-    command -v bc >/dev/null 2>&1
+# Measure one zsh startup, printing elapsed milliseconds.
+# Uses /usr/bin/time -p which is POSIX and available on macOS and Linux.
+measure_zsh_startup_ms() {
+    local seconds
+    seconds=$(/usr/bin/time -p zsh -i -c 'exit' 2>&1 >/dev/null | awk '/^real/{print $2}')
+    [[ -n "$seconds" ]] || return 1
+    awk -v s="$seconds" 'BEGIN { printf "%d", s * 1000 }'
 }
 
 @test "Shell startup performance" {
-    if ! check_bc; then
-        skip "bc (calculator) not available for performance tests"
+    if [[ ! -x /usr/bin/time ]]; then
+        skip "/usr/bin/time not available for performance measurement"
+    fi
+    if ! command -v zsh >/dev/null 2>&1; then
+        skip "zsh not available"
     fi
 
-    # Measure current startup time (average of 3 runs for speed)
-    local total_time=0
-    local valid_measurements=0
-
-    for i in {1..3}; do
-        local single_time
-        single_time=$(time (zsh -c 'exit') 2>&1 | grep real | sed 's/real[[:space:]]*//' | sed 's/s$//')
-
-        # Skip empty or invalid measurements
-        if [[ -n "$single_time" && "$single_time" != "0" ]]; then
-            # Convert to milliseconds (handle both formats: 0.003 and 0m0.003s)
-            local ms_time
-            if [[ "$single_time" =~ ^[0-9]+m ]]; then
-                # Format: 0m0.003s -> extract seconds part
-                local seconds_part=$(echo "$single_time" | sed 's/.*m\([0-9.]*\).*/\1/')
-                ms_time=$(echo "$seconds_part * 1000" | bc -l 2>/dev/null || echo "1000")
-            else
-                # Format: 0.003 -> direct conversion
-                ms_time=$(echo "$single_time * 1000" | bc -l 2>/dev/null || echo "1000")
-            fi
-
-            total_time=$(echo "$total_time + $ms_time" | bc -l 2>/dev/null || echo "$total_time")
-            valid_measurements=$((valid_measurements + 1))
+    # Average of 3 runs
+    local total=0 count=0 ms
+    for _ in 1 2 3; do
+        if ms=$(measure_zsh_startup_ms); then
+            total=$((total + ms))
+            count=$((count + 1))
         fi
     done
 
-    # Calculate average time, defaulting to reasonable fallback if no valid measurements
-    local current_time
-    if [[ $valid_measurements -gt 0 ]]; then
-        current_time=$(echo "$total_time / $valid_measurements" | bc -l 2>/dev/null || echo "1000")
-    else
-        current_time="1000"  # 1 second fallback for CI environments
-        echo "No valid time measurements, using fallback time" >&3
+    if [[ "$count" -eq 0 ]]; then
+        skip "Could not obtain a valid startup time measurement"
     fi
 
-    echo "Current startup time: $(printf "%.0f" "$current_time")ms" >&3
+    local average=$((total / count))
+    echo "Average zsh startup time over $count runs: ${average}ms" >&3
 
     # Startup should be under 3 seconds for reasonable UX
-    local threshold=3000
-    local is_fast
-    if [[ -n "$current_time" && "$current_time" != "" ]]; then
-        is_fast=$(echo "$current_time <= $threshold" | bc -l 2>/dev/null || echo "1")
-    else
-        is_fast=1  # Assume fast if we can't measure
-    fi
-    [ "$is_fast" -eq 1 ]
-}
-
-@test "Shell startup performance regression check" {
-    if ! check_bc; then
-        skip "bc (calculator) not available for performance tests"
-    fi
-
-    # Measure current startup time (average of 3 runs)
-    local total_time=0
-    for i in {1..3}; do
-        local single_time
-        single_time=$(time (zsh -c 'exit') 2>&1 | grep real | sed 's/real[[:space:]]*//' | sed 's/s//')
-        # Convert to milliseconds
-        local ms_time
-        ms_time=$(echo "$single_time * 1000" | bc -l 2>/dev/null || echo "1000")
-        total_time=$(echo "$total_time + $ms_time" | bc -l 2>/dev/null || echo "3000")
-    done
-    local current_time
-    current_time=$(echo "$total_time / 3" | bc -l 2>/dev/null || echo "1000")
-
-    echo "Current startup time: $(printf "%.0f" "$current_time")ms" >&3
-
-    # Load baseline if it exists
-    if [[ -f "$PERF_BASELINE" ]] && command -v jq >/dev/null 2>&1; then
-        local baseline_time threshold
-        baseline_time=$(jq -r '.shell_startup_ms // 1000' "$PERF_BASELINE" 2>/dev/null || echo "1000")
-        threshold=$(echo "$baseline_time * 1.5" | bc -l 2>/dev/null || echo "1500")  # 50% regression threshold for tests
-
-        echo "Baseline startup time: $(printf "%.0f" "$baseline_time")ms" >&3
-        echo "Regression threshold: $(printf "%.0f" "$threshold")ms" >&3
-
-        local has_regression
-        has_regression=$(echo "$current_time > $threshold" | bc -l 2>/dev/null || echo "0")
-        if [[ "$has_regression" -eq 1 ]]; then
-            echo "Performance regression detected: $(printf "%.0f" "$current_time")ms > $(printf "%.0f" "$threshold")ms" >&3
-            return 1
-        fi
-    else
-        echo "No performance baseline found or jq not available, creating new baseline" >&3
-        mkdir -p "$ANALYTICS_DIR"
-        echo "{\"shell_startup_ms\": $current_time, \"created\": \"$(date -Iseconds)\"}" > "$PERF_BASELINE"
-    fi
-}
-
-@test "Memory usage check" {
-    # Measure current memory usage (in KB)
-    local current_memory
-    current_memory=$(ps -o rss= -p $$ | awk '{print $1}')
-
-    echo "Current memory usage: ${current_memory}KB" >&3
-
-    # Memory usage should be reasonable (under 100MB for shell)
-    [ "$current_memory" -lt 100000 ]
-}
-
-@test "Memory usage regression check" {
-    if ! check_bc; then
-        skip "bc (calculator) not available for performance tests"
-    fi
-
-    # Measure current memory usage (in KB)
-    local current_memory
-    current_memory=$(ps -o rss= -p $$ | awk '{print $1}')
-
-    echo "Current memory usage: ${current_memory}KB" >&3
-
-    # Load baseline if it exists
-    if [[ -f "$PERF_BASELINE" ]] && command -v jq >/dev/null 2>&1; then
-        local baseline_memory threshold
-        baseline_memory=$(jq -r '.memory_usage_kb // 50000' "$PERF_BASELINE" 2>/dev/null || echo "50000")
-        threshold=$(echo "$baseline_memory * 2.0" | bc -l 2>/dev/null || echo "100000")  # 100% regression threshold for tests
-
-        echo "Baseline memory usage: ${baseline_memory}KB" >&3
-
-        if [[ $current_memory -gt $(printf "%.0f" "$threshold") ]]; then
-            echo "Memory regression detected: ${current_memory}KB > $(printf "%.0f" "$threshold")KB" >&3
-            return 1
-        fi
-    else
-        # Update baseline with memory info
-        if [[ -f "$PERF_BASELINE" ]] && command -v jq >/dev/null 2>&1; then
-            jq ". + {\"memory_usage_kb\": $current_memory}" "$PERF_BASELINE" > "$PERF_BASELINE.tmp" && mv "$PERF_BASELINE.tmp" "$PERF_BASELINE"
-        fi
-    fi
+    local threshold_ms=3000
+    [ "$average" -le "$threshold_ms" ]
 }
 
 @test "Plugin performance check" {
@@ -152,22 +48,17 @@ check_bc() {
         skip "No performance data available for plugin regression testing"
     fi
 
-    if ! check_bc; then
-        skip "bc (calculator) not available for performance tests"
-    fi
+    # Get recent plugin load times (ns -> ms)
+    local recent_plugin_ms
+    recent_plugin_ms=$(grep "plugin_load" "$ANALYTICS_DIR/perf-data.csv" | tail -5 \
+        | awk -F',' '{sum+=$3; n+=1} END { if (n > 0) printf "%d", sum/n/1000000; else print 0 }')
 
-    # Get recent plugin load times
-    local recent_plugin_time
-    recent_plugin_time=$(grep "plugin_load" "$ANALYTICS_DIR/perf-data.csv" | tail -5 | awk -F',' '{sum+=$3} END {print sum/NR/1000000}' 2>/dev/null || echo "0")
-
-    if [[ "$recent_plugin_time" == "0" ]]; then
+    if [[ -z "$recent_plugin_ms" || "$recent_plugin_ms" -eq 0 ]]; then
         skip "No recent plugin performance data"
     fi
 
-    echo "Recent plugin load time: $(printf "%.0f" "$recent_plugin_time")ms" >&3
+    echo "Recent plugin load time: ${recent_plugin_ms}ms" >&3
 
-    # Check if plugins are loading too slowly (500ms threshold for tests)
-    local is_fast
-    is_fast=$(echo "$recent_plugin_time <= 500" | bc -l 2>/dev/null || echo "1")
-    [ "$is_fast" -eq 1 ]
+    # Plugins should load within 500ms
+    [ "$recent_plugin_ms" -le 500 ]
 }

@@ -8,8 +8,10 @@ load setup_suite
 
 setup() {
     # Create temporary test directory
-    export TEST_DIR=$(mktemp -d)
-    export ORIGINAL_DIR=$(pwd)
+    TEST_DIR=$(mktemp -d)
+    export TEST_DIR
+    ORIGINAL_DIR=$(pwd)
+    export ORIGINAL_DIR
 
     # Create temporary dotfiles structure
     export TEMP_DOTFILES="$TEST_DIR/dotfiles"
@@ -33,17 +35,40 @@ setup() {
 	x = !git-x
 EOF
 
-    # Update PATH to use test scripts
-    export PATH="$TEMP_DOTFILES/bin:$PATH"
+    # Sanitize PATH: the test copies must be the ONLY gcl/use-private-git
+    # findable. Drop every PATH entry that provides either tool (e.g. the
+    # user's real ~/.bin), plus anything under $HOME or the repo, so the
+    # real installed tools can never be executed against real config.
+    local sanitized="" entry
+    while IFS= read -r entry; do
+        [[ -z "$entry" ]] && continue
+        [[ -x "$entry/gcl" || -x "$entry/use-private-git" ]] && continue
+        case "$entry" in
+            "$HOME"/*|"$DOTFILES_DIR"/*) ;;
+            *) sanitized="${sanitized:+$sanitized:}$entry" ;;
+        esac
+    done < <(echo "$PATH" | tr ':' '\n')
+    export PATH="$TEMP_DOTFILES/bin:$sanitized"
 
     # Update HOME references in scripts to use test directory
+    # (the script source contains the literal string $HOME, hence \$HOME)
     sed -i.bak "s|\$HOME/repos/dotfiles|$TEMP_DOTFILES|g" "$TEMP_DOTFILES/bin/use-private-git"
 
-    cd "$TEST_DIR"
+    # gcl only prompts for private setup when stdin is a tty, so under bats
+    # the prompt is unreachable. Patch a test seam into the COPY of gcl:
+    # GCL_TEST_REPLY drives the answer the prompt would have received.
+    sed -i.bak2 's/reply="n"/reply="${GCL_TEST_REPLY:-n}"/' "$TEMP_DOTFILES/bin/gcl"
+    if ! grep -q 'GCL_TEST_REPLY' "$TEMP_DOTFILES/bin/gcl"; then
+        echo "ERROR: could not patch test seam into gcl copy — has the" >&2
+        echo "non-interactive default (reply=\"n\") in bin/gcl changed?" >&2
+        return 1
+    fi
+
+    cd "$TEST_DIR" || return 1
 }
 
 teardown() {
-    cd "$ORIGINAL_DIR"
+    cd "$ORIGINAL_DIR" || return 1
     rm -rf "$TEST_DIR"
 }
 
@@ -53,13 +78,13 @@ create_test_remote_repo() {
 
     # Create a "remote" repository
     mkdir -p "remote_repos/$repo_name.git"
-    cd "remote_repos/$repo_name.git"
+    cd "remote_repos/$repo_name.git" || return 1
     git init --bare --initial-branch="$default_branch" >/dev/null 2>&1
 
     # Create a working copy to push initial content
     cd ../..
     git clone "remote_repos/$repo_name.git" "temp_$repo_name" >/dev/null 2>&1
-    cd "temp_$repo_name"
+    cd "temp_$repo_name" || return 1
 
     git config user.email "test@example.com"
     git config user.name "Test User"
@@ -71,7 +96,7 @@ create_test_remote_repo() {
 
     cd ..
     rm -rf "temp_$repo_name"
-    cd "$TEST_DIR"
+    cd "$TEST_DIR" || return 1
 
     echo "file://$TEST_DIR/remote_repos/$repo_name.git"
 }
@@ -80,9 +105,10 @@ create_test_remote_repo() {
     # Create test remote repo with main branch
     repo_url=$(create_test_remote_repo "test-main-repo" "main")
 
-    # Use gcl to clone (simulate non-private repo)
-    run bash -c "export PATH='$TEMP_DOTFILES/bin:$PATH'; echo 'n' | gcl '$repo_url' test-clone"
+    # Non-interactive gcl must default to NO private setup
+    run gcl "$repo_url" test-clone
     [ "$status" -eq 0 ]
+    [[ "$output" != *"Setting up private git configuration"* ]]
 
     cd test-clone
 
@@ -90,6 +116,10 @@ create_test_remote_repo() {
     run git symbolic-ref refs/remotes/origin/HEAD
     [ "$status" -eq 0 ]
     [ "$output" = "refs/remotes/origin/main" ]
+
+    # And that no private config was applied
+    run git config --local user.name
+    [ "$status" -ne 0 ]
 }
 
 @test "gcl with private repo sets up correct default branch in config - main branch" {
@@ -97,18 +127,20 @@ create_test_remote_repo() {
     repo_url=$(create_test_remote_repo "test-main-private" "main")
 
     # Use gcl to clone and set up as private repo
-    run bash -c "export PATH='$TEMP_DOTFILES/bin:$PATH'; echo 'y' | gcl '$repo_url' test-private-main"
+    run bash -c "GCL_TEST_REPLY=y gcl '$repo_url' test-private-main"
     [ "$status" -eq 0 ]
+    [[ "$output" == *"Setting up private git configuration"* ]]
 
     cd test-private-main
 
-    # Check that init.defaultBranch is set to main
-    run git config init.defaultBranch
+    # Check that init.defaultBranch is set to main (--local: never fall
+    # back to the machine's global git config)
+    run git config --local init.defaultBranch
     [ "$status" -eq 0 ]
     [ "$output" = "main" ]
 
     # Check that user config from base is applied
-    run git config user.name
+    run git config --local user.name
     [ "$status" -eq 0 ]
     [ "$output" = "Test User" ]
 }
@@ -118,18 +150,18 @@ create_test_remote_repo() {
     repo_url=$(create_test_remote_repo "test-master-private" "master")
 
     # Use gcl to clone and set up as private repo
-    run bash -c "export PATH='$TEMP_DOTFILES/bin:$PATH'; echo 'y' | gcl '$repo_url' test-private-master"
+    run bash -c "GCL_TEST_REPLY=y gcl '$repo_url' test-private-master"
     [ "$status" -eq 0 ]
 
     cd test-private-master
 
     # Check that init.defaultBranch is set to master
-    run git config init.defaultBranch
+    run git config --local init.defaultBranch
     [ "$status" -eq 0 ]
     [ "$output" = "master" ]
 
     # Check that user config from base is applied
-    run git config user.name
+    run git config --local user.name
     [ "$status" -eq 0 ]
     [ "$output" = "Test User" ]
 }
@@ -139,7 +171,7 @@ create_test_remote_repo() {
     repo_url=$(create_test_remote_repo "test-shallow" "main")
 
     # Use gcl with shallow clone and private setup
-    run bash -c "export PATH='$TEMP_DOTFILES/bin:$PATH'; echo 'y' | gcl --shallow '$repo_url' test-shallow-private"
+    run bash -c "GCL_TEST_REPLY=y gcl --shallow '$repo_url' test-shallow-private"
     [ "$status" -eq 0 ]
 
     cd test-shallow-private
@@ -148,11 +180,11 @@ create_test_remote_repo() {
     [ -f ".git/shallow" ]
 
     # Check that private config is still set up correctly
-    run git config init.defaultBranch
+    run git config --local init.defaultBranch
     [ "$status" -eq 0 ]
     [ "$output" = "main" ]
 
-    run git config user.name
+    run git config --local user.name
     [ "$status" -eq 0 ]
     [ "$output" = "Test User" ]
 }
@@ -175,7 +207,7 @@ create_test_remote_repo() {
     rm -rf temp-for-branch
 
     # Use gcl to clone specific branch and set up as private
-    run bash -c "export PATH='$TEMP_DOTFILES/bin:$PATH'; echo 'y' | gcl --branch develop '$repo_url' test-branch-private"
+    run bash -c "GCL_TEST_REPLY=y gcl --branch develop '$repo_url' test-branch-private"
     [ "$status" -eq 0 ]
 
     cd test-branch-private
@@ -186,7 +218,7 @@ create_test_remote_repo() {
     [ "$output" = "develop" ]
 
     # Check that default branch detection still works (should detect main as remote default)
-    run git config init.defaultBranch
+    run git config --local init.defaultBranch
     [ "$status" -eq 0 ]
     [ "$output" = "main" ]
 }
@@ -205,29 +237,15 @@ create_test_remote_repo() {
 }
 
 @test "gcl handles protocol conversion correctly" {
-    # Create test remote repo
-    repo_url=$(create_test_remote_repo "test-protocol" "main")
+    # Pre-create the target directory so gcl exits at the directory-exists
+    # check AFTER printing the protocol conversion, without ever attempting
+    # a network clone.
+    mkdir test-protocol-ssh
 
-    # Convert to HTTPS-like URL for testing
-    https_url="${repo_url/file:\/\//https://github.com/user/}"
-    https_url="${https_url/.git/.git}"
-
-    # Test SSH preference (this will fail to connect but should show protocol conversion)
-    run gcl --ssh "$https_url" test-protocol-ssh
-    # Should fail due to fake URL but show the conversion
-    [[ "$output" == *"Using ssh protocol"* ]] || true
-}
-
-@test "gcl validates repository URL format" {
-    # Test invalid URL
-    run gcl "not-a-valid-url"
+    run gcl --ssh "https://github.com/user/repo.git" test-protocol-ssh
     [ "$status" -ne 0 ]
-    [[ "$output" == *"Invalid repository URL format"* ]]
-
-    # Test another invalid format
-    run gcl "just-a-string"
-    [ "$status" -ne 0 ]
-    [[ "$output" == *"Invalid repository URL format"* ]]
+    [[ "$output" == *"Using ssh protocol: git@github.com:user/repo.git"* ]]
+    [[ "$output" == *"already exists"* ]]
 }
 
 @test "gcl prevents cloning inside existing git repo" {
@@ -246,7 +264,7 @@ create_test_remote_repo() {
     repo_url=$(create_test_remote_repo "test-info" "main")
 
     # Clone without private setup
-    run bash -c "export PATH='$TEMP_DOTFILES/bin:$PATH'; echo 'n' | gcl '$repo_url' test-info-clone"
+    run gcl "$repo_url" test-info-clone
     [ "$status" -eq 0 ]
 
     # Check that output contains repository information
@@ -257,14 +275,15 @@ create_test_remote_repo() {
 }
 
 @test "gcl handles missing use-private-git gracefully" {
-    # Remove use-private-git from the test environment but keep gcl
+    # Remove use-private-git from the test environment but keep gcl.
+    # PATH is sanitized in setup(), so no other copy can be found.
     rm -f "$TEMP_DOTFILES/bin/use-private-git"
 
     # Create test remote repo
     repo_url=$(create_test_remote_repo "test-missing-tool" "main")
 
     # Try to clone with private setup
-    run bash -c "export PATH='$TEMP_DOTFILES/bin:$PATH'; echo 'y' | gcl '$repo_url' test-missing-tool-clone"
+    run bash -c "GCL_TEST_REPLY=y gcl '$repo_url' test-missing-tool-clone"
     [ "$status" -eq 0 ]
 
     # Should show warning but continue

@@ -35,27 +35,6 @@ load setup_suite
     done
 }
 
-@test "Neovim configuration validation" {
-    ensure_dotfiles_dir
-    local nvim_config="$DOTFILES_DIR/.config/nvim"
-
-    [ -d "$nvim_config" ]
-
-    # Check for required structure
-    local required_dirs=("lua/core" "lua/plugins")
-    for dir in "${required_dirs[@]}"; do
-        [ -d "$nvim_config/$dir" ]
-    done
-
-    # Check init.lua exists
-    [ -f "$nvim_config/init.lua" ]
-
-    # Check that there are Lua files
-    local lua_files
-    lua_files=$(find "$nvim_config" -name "*.lua" -type f | wc -l)
-    [ "$lua_files" -gt 0 ]
-}
-
 @test "Git configuration validation" {
     ensure_dotfiles_dir
     local git_dir="$DOTFILES_DIR/git"
@@ -101,56 +80,5 @@ load setup_suite
     fi
 }
 
-@test "Starship configuration validation" {
-    ensure_dotfiles_dir
-    local starship_dir="$DOTFILES_DIR/.config/starship"
-
-    [ -d "$starship_dir" ]
-
-    # Check for theme files
-    [ -d "$starship_dir/themes" ]
-
-    # Validate TOML syntax in theme files
-    local toml_files=0
-    while IFS= read -r -d '' toml_file; do
-        toml_files=$((toml_files + 1))
-        # Basic TOML validation - check for proper section format
-        run grep -q '\[.*\]' "$toml_file"
-        [ "$status" -eq 0 ]
-    done < <(find "$starship_dir" -name "*.toml" -type f -print0)
-
-    [ "$toml_files" -gt 0 ]
-}
-
-@test "Package configuration validation" {
-    ensure_dotfiles_dir
-    local brewfile="$DOTFILES_DIR/install/Brewfile"
-
-    [ -f "$brewfile" ]
-
-    # Check for essential packages
-    local essential_packages=("git" "zsh" "neovim" "starship")
-    for package in "${essential_packages[@]}"; do
-        run grep -q "brew \"$package\"" "$brewfile"
-        [ "$status" -eq 0 ]
-    done
-
-    # Check for potential package conflicts
-    local conflicting_pairs=("vim:neovim" "bash:zsh")
-    for pair in "${conflicting_pairs[@]}"; do
-        IFS=':' read -r pkg1 pkg2 <<< "$pair"
-        local pkg1_found pkg2_found
-
-        run grep -q "brew \"$pkg1\"" "$brewfile"
-        pkg1_found=$status
-
-        run grep -q "brew \"$pkg2\"" "$brewfile"
-        pkg2_found=$status
-
-        # If both are found, that's a potential conflict
-        if [[ $pkg1_found -eq 0 && $pkg2_found -eq 0 ]]; then
-            echo "Potential package conflict: $pkg1 and $pkg2" >&3
-            return 1
-        fi
-    done
-}
+# Note: Neovim structure, Starship TOML, and Brewfile validation live in
+# test_ci.bats (the portable, canonical home for those checks).

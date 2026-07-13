@@ -8,20 +8,14 @@ load setup_suite
 @test "Zsh syntax validation" {
     local zshrc="$HOME/.zshrc"
 
-    # In CI environment, test the source file instead of symlink
-    if [[ ! -f "$zshrc" ]]; then
-        local source_zshrc="$DOTFILES_DIR/.config/zsh/.zshrc"
-
-        if [[ -f "$source_zshrc" ]]; then
-            echo "Testing source .zshrc (CI environment)" >&3
-            run zsh -n "$source_zshrc"
-            [ "$status" -eq 0 ]
-            return
-        else
-            echo "No .zshrc found at $zshrc or $source_zshrc" >&3
-            return 1
-        fi
+    # In CI (or when dotfiles are not installed), validate the repo copy —
+    # never whatever happens to live in the runner's $HOME.
+    if [[ "${CI:-}" == "true" || ! -f "$zshrc" ]]; then
+        zshrc="$DOTFILES_DIR/.config/zsh/.zshrc"
+        echo "Testing source .zshrc (dotfiles not installed in \$HOME)" >&3
     fi
+
+    [ -f "$zshrc" ]
 
     # Test zsh syntax without executing
     run zsh -n "$zshrc"
@@ -47,30 +41,8 @@ load setup_suite
     done
 }
 
-@test "Modular configs syntax validation" {
-    local config_dir="$HOME/.config/zsh"
-    local configs=("aliases.zsh" "exports.zsh" "functions.zsh" "misc.zsh" "path.zsh")
-    local source_dir="$DOTFILES_DIR/.config/zsh"
-
-    for config in "${configs[@]}"; do
-        local config_file=""
-
-        # Find the config file (prefer installed version)
-        if [[ -f "$config_dir/$config" ]]; then
-            config_file="$config_dir/$config"
-        elif [[ -f "$source_dir/$config" ]]; then
-            config_file="$source_dir/$config"
-            echo "Testing $config from source directory (CI environment)" >&3
-        else
-            echo "Config file not found: $config" >&3
-            return 1
-        fi
-
-        # Test syntax
-        run zsh -n "$config_file"
-        [ "$status" -eq 0 ]
-    done
-}
+# Note: modular config syntax validation and essential-command checks live
+# in test_ci.bats (the portable, canonical home for those checks).
 
 @test "Private config setup" {
     local private_config="$HOME/.config/zsh/private.zsh"
@@ -99,15 +71,6 @@ load setup_suite
         run zsh -n "$private_config"
         [ "$status" -eq 0 ]
     fi
-}
-
-@test "Essential commands available" {
-    local commands=("git" "zsh")
-
-    for cmd in "${commands[@]}"; do
-        run command -v "$cmd"
-        [ "$status" -eq 0 ]
-    done
 }
 
 @test "Zsh plugins configuration" {
@@ -169,7 +132,7 @@ load setup_suite
 @test "Neovim configuration" {
     local ideavimrc="$HOME/.ideavimrc"
     local nvim_config="$HOME/.config/nvim"
-    local source_ideavimrc="$DOTFILES_DIR/.ideavimrc"
+    local source_ideavimrc="$DOTFILES_DIR/.config/nvim/.ideavimrc"
     local source_nvim_config="$DOTFILES_DIR/.config/nvim"
 
     # Check if Neovim config directory exists (installed or source)

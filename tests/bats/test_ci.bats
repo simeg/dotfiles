@@ -68,18 +68,19 @@ load setup_suite
 @test "Starship configuration files are valid" {
     local starship_dir="$DOTFILES_DIR/.config/starship"
 
-    if [[ -d "$starship_dir" ]]; then
-        # Check theme files for basic TOML syntax
-        local toml_files=0
-        while IFS= read -r -d '' toml_file; do
-            toml_files=$((toml_files + 1))
-            # Basic TOML validation - check for proper section format
-            run grep -q '\[.*\]' "$toml_file"
-            [ "$status" -eq 0 ]
-        done < <(find "$starship_dir" -name "*.toml" -type f -print0)
+    [ -d "$starship_dir" ]
+    [ -d "$starship_dir/themes" ]
 
-        [ "$toml_files" -gt 0 ]
-    fi
+    # Check theme files for basic TOML syntax
+    local toml_files=0
+    while IFS= read -r -d '' toml_file; do
+        toml_files=$((toml_files + 1))
+        # Basic TOML validation - check for proper section format
+        run grep -q '\[.*\]' "$toml_file"
+        [ "$status" -eq 0 ]
+    done < <(find "$starship_dir" -name "*.toml" -type f -print0)
+
+    [ "$toml_files" -gt 0 ]
 }
 
 @test "Brewfile is valid" {
@@ -88,10 +89,29 @@ load setup_suite
     [ -f "$brewfile" ]
 
     # Check for essential packages
-    local essential_packages=("git" "zsh" "starship")
+    local essential_packages=("git" "zsh" "neovim" "starship")
     for package in "${essential_packages[@]}"; do
         run grep -q "brew \"$package\"" "$brewfile"
         [ "$status" -eq 0 ]
+    done
+
+    # Check for potential package conflicts
+    local conflicting_pairs=("vim:neovim" "bash:zsh")
+    for pair in "${conflicting_pairs[@]}"; do
+        IFS=':' read -r pkg1 pkg2 <<< "$pair"
+        local pkg1_found pkg2_found
+
+        run grep -q "brew \"$pkg1\"" "$brewfile"
+        pkg1_found=$status
+
+        run grep -q "brew \"$pkg2\"" "$brewfile"
+        pkg2_found=$status
+
+        # If both are found, that's a potential conflict
+        if [[ $pkg1_found -eq 0 && $pkg2_found -eq 0 ]]; then
+            echo "Potential package conflict: $pkg1 and $pkg2" >&3
+            return 1
+        fi
     done
 }
 

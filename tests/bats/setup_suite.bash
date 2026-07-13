@@ -3,30 +3,38 @@
 # Bats test suite setup
 # This file runs once before all tests in the suite
 
-setup_suite() {
-    # Load shared libraries
-    # Determine repository root directory reliably across different environments
+# Locate the repository root without hardcoding any machine-specific path.
+# The relative path from this file is the primary strategy; CI and cwd
+# fallbacks follow.
+find_dotfiles_dir() {
+    local script_dir
+    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
     local search_paths=(
-        "${GITHUB_WORKSPACE}"                                 # CI environment (act sets this)
-        "/Users/segersand/repos/dotfiles"                     # Act container path
-        "$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)" # Standard relative path
-        "$(pwd)"                                               # Current directory
+        "$(cd "$script_dir/../.." && pwd)"      # Relative to this file (primary)
+        "${BATS_TEST_DIRNAME:+$(cd "$BATS_TEST_DIRNAME/../.." 2>/dev/null && pwd)}"
+        "${GITHUB_WORKSPACE:-}"                  # CI environment
+        "$(pwd)"                                 # Current directory
     )
 
-    export DOTFILES_DIR=""
+    local path
     for path in "${search_paths[@]}"; do
         if [[ -n "$path" && -f "$path/Makefile" && -d "$path/bin" && -f "$path/bin/gcl" ]]; then
-            export DOTFILES_DIR="$path"
-            break
+            echo "$path"
+            return 0
         fi
     done
 
-    # If still not found, fail early with helpful error
-    if [[ -z "$DOTFILES_DIR" ]]; then
+    return 1
+}
+
+setup_suite() {
+    export DOTFILES_DIR=""
+    if ! DOTFILES_DIR="$(find_dotfiles_dir)"; then
         echo "ERROR: Could not find repository root with required files (Makefile, bin/gcl)" >&2
-        echo "Searched paths: ${search_paths[*]}" >&2
         exit 1
     fi
+    export DOTFILES_DIR
 
     export SCRIPT_DIR="$DOTFILES_DIR/scripts"
 
@@ -41,42 +49,19 @@ setup_suite() {
         source "$SCRIPT_DIR/lib/validation-utils.sh"
     fi
 
-    # Set test environment variables
-    export TESTS_RUN=0
-    export TESTS_PASSED=0
-    export TESTS_FAILED=0
-    export WARNINGS=0
-
-    # Analytics and baseline paths
+    # Analytics dir is read-only for tests (plugin performance data, if any).
+    # Tests must never create or write to this directory.
     export ANALYTICS_DIR="${HOME:-/tmp}/.config/dotfiles"
-    export PERF_BASELINE="$ANALYTICS_DIR/perf-baseline.json"
-    export SECURITY_BASELINE="$ANALYTICS_DIR/security-baseline.json"
-
-    # Ensure analytics directory exists for baseline tests
-    mkdir -p "$ANALYTICS_DIR"
 }
 
 # Helper function to ensure DOTFILES_DIR is set properly for any test
 ensure_dotfiles_dir() {
-    if [[ -z "$DOTFILES_DIR" ]]; then
-        local search_paths=(
-            "${GITHUB_WORKSPACE}"                                 # CI environment (act sets this)
-            "/Users/segersand/repos/dotfiles"                     # Act container path
-            "$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)" # Standard relative path
-            "$(pwd)"                                               # Current directory
-        )
-
-        for path in "${search_paths[@]}"; do
-            if [[ -n "$path" && -f "$path/Makefile" && -d "$path/bin" && -f "$path/bin/gcl" ]]; then
-                export DOTFILES_DIR="$path"
-                break
-            fi
-        done
-
-        if [[ -z "$DOTFILES_DIR" ]]; then
+    if [[ -z "${DOTFILES_DIR:-}" ]]; then
+        if ! DOTFILES_DIR="$(find_dotfiles_dir)"; then
             echo "ERROR: Could not find repository root with required files (Makefile, bin/gcl)" >&2
             return 1
         fi
+        export DOTFILES_DIR
     fi
     return 0
 }
