@@ -193,7 +193,8 @@ require('lazy').setup({
     'neovim/nvim-lspconfig',
     dependencies = {
       'williamboman/mason.nvim',
-      'hrsh7th/nvim-cmp',
+      -- cmp-nvim-lsp only (for capabilities); depending on nvim-cmp itself
+      -- would drag cmp in at startup and defeat its InsertEnter lazy-load.
       'hrsh7th/cmp-nvim-lsp',
     },
     config = function()
@@ -205,6 +206,12 @@ require('lazy').setup({
   {
     'hrsh7th/nvim-cmp',
     event = 'InsertEnter',
+    -- Setup lives in plugins/completion.lua and must ONLY run from here —
+    -- requiring it at startup (init.lua) would defeat the InsertEnter
+    -- lazy-load via lazy.nvim's module auto-loading.
+    config = function()
+      require('plugins.completion')
+    end,
     dependencies = {
       'hrsh7th/cmp-nvim-lsp',
       'hrsh7th/cmp-buffer',
@@ -242,12 +249,8 @@ require('lazy').setup({
     end,
   },
 
-  {
-    'lukas-reineke/indent-blankline.nvim', -- Show indentation lines
-    event = 'BufReadPost',
-    main = 'ibl',
-    opts = {},
-  },
+  -- Indent guides come from snacks.nvim (indent = {} above); a separate
+  -- indent-blankline spec would just draw duplicate guides.
 
   -- Terminal enhancement
   {
@@ -274,24 +277,8 @@ require('lazy').setup({
     end,
   },
 
-  -- Better notifications
-  {
-    'rcarriga/nvim-notify',
-    event = 'VeryLazy',
-    config = function()
-      require('notify').setup({
-        background_colour = '#000000',
-        fps = 30,
-        level = 2,
-        minimum_width = 50,
-        render = 'default',
-        stages = 'fade_in_slide_out',
-        timeout = 5000,
-        top_down = true
-      })
-      vim.notify = require('notify')
-    end,
-  },
+  -- Notifications come from snacks.nvim (notifier = {} above); nvim-notify
+  -- would fight it for ownership of vim.notify.
 
   -- Rust Cargo.toml helper
   {
@@ -326,10 +313,11 @@ require('lazy').setup({
     'folke/flash.nvim',
     event = 'VeryLazy',
     opts = {},
+    -- Stock-ish bindings: rebinding f or <leader>c here would destroy the
+    -- builtin f/;/, motions and the :nohlsearch map in keymaps.lua.
     keys = {
-      { 'f', mode = { 'n', 'x', 'o' }, function() require('flash').jump() end, desc = 'Flash jump' },
-      { '<leader>c', mode = { 'n', 'x', 'o' }, function() require('flash').jump() end, desc = 'Flash jump' },
-      { '<leader>l', mode = { 'n', 'x', 'o' }, function() require('flash').treesitter() end, desc = 'Flash treesitter' },
+      { 's', mode = { 'n', 'x', 'o' }, function() require('flash').jump() end, desc = 'Flash jump' },
+      { 'S', mode = { 'n', 'x', 'o' }, function() require('flash').treesitter() end, desc = 'Flash treesitter' },
     },
   },
 

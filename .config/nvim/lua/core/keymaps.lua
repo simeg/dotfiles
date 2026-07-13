@@ -103,10 +103,12 @@ keymap('n', '<leader>ca', vim.lsp.buf.code_action, opts)
 keymap('n', '<leader>rf', function() vim.lsp.buf.format { async = true } end, opts)
 
 -- Diagnostic keymaps
-keymap('n', '[d', vim.diagnostic.goto_prev, opts)
-keymap('n', ']d', vim.diagnostic.goto_next, opts)
+keymap('n', '[d', function() vim.diagnostic.jump({ count = -1, float = true }) end, opts)
+keymap('n', ']d', function() vim.diagnostic.jump({ count = 1, float = true }) end, opts)
 keymap('n', '<leader>e', vim.diagnostic.open_float, opts)
-keymap('n', '<leader>q', vim.diagnostic.setloclist, opts)
+-- Loclist lives under <leader>x alongside trouble's diagnostics maps;
+-- <leader>q stays reserved for :q (muscle memory).
+keymap('n', '<leader>xl', vim.diagnostic.setloclist, opts)
 
 -- Git (will be available with git plugins)
 keymap('n', '<leader>gp', ':Gitsigns preview_hunk<CR>', opts)
@@ -117,14 +119,15 @@ keymap('n', '<leader>gt', ':Gitsigns toggle_current_line_blame<CR>', opts)
 keymap('n', '<leader>i', 'gcc', { remap = true })
 keymap('x', '<leader>i', 'gc', { remap = true })
 
--- Terminal
-keymap('n', '<leader>t', ':terminal<CR>', opts)
+-- Terminal (<leader>T, not <leader>t: gitsigns owns <leader>tb/td and a
+-- bare <leader>t map would fire on hesitation)
+keymap('n', '<leader>T', ':terminal<CR>', opts)
 keymap('t', '<Esc>', '<C-\\><C-n>', opts)  -- Exit terminal mode
 
--- Quick save and quit
+-- Quick save and quit. No <leader>x map: it would be a hazardous prefix of
+-- trouble's <leader>xx/xr/xs (hesitating would save-and-quit).
 keymap('n', '<leader>w', ':w<CR>', opts)
 keymap('n', '<leader>q', ':q<CR>', opts)
-keymap('n', '<leader>x', ':x<CR>', opts)
 
 -- Source config
 keymap('n', '<leader><leader>s', ':source ~/.config/nvim/init.lua<CR>', opts)

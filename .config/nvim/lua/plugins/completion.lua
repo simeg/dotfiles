@@ -98,3 +98,10 @@ cmp.setup.cmdline(':', {
     { name = 'cmdline' }
   })
 })
+
+-- Hook autopairs into completion confirm. Done here (not editing.lua) so the
+-- hook registers when cmp actually loads at InsertEnter.
+local autopairs_ok, cmp_autopairs = pcall(require, 'nvim-autopairs.completion.cmp')
+if autopairs_ok then
+  cmp.event:on('confirm_done', cmp_autopairs.on_confirm_done())
+end

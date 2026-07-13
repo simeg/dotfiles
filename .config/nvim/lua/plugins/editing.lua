@@ -24,12 +24,9 @@ if autopairs_ok then
     },
   })
 
-  -- Integration with nvim-cmp
-  local cmp_autopairs = require('nvim-autopairs.completion.cmp')
-  local cmp_status_ok, cmp = pcall(require, 'cmp')
-  if cmp_status_ok then
-    cmp.event:on('confirm_done', cmp_autopairs.on_confirm_done())
-  end
+  -- The nvim-cmp integration lives in plugins/completion.lua: requiring cmp
+  -- here would force-load it at startup (lazy.nvim auto-loads plugins on
+  -- require) and defeat its InsertEnter lazy-load.
 end
 
 -- Which-key setup (helpful for discovering keybindings)
@@ -51,10 +48,11 @@ if which_key_ok then
     { '<leader>gb', desc = 'Blame line' },
     { '<leader>gt', desc = 'Toggle line blame' },
 
-    -- Toggle operations
+    -- Toggle operations (gitsigns buffer-local maps)
     { '<leader>t', group = 'toggle' },
     { '<leader>tb', desc = 'Toggle git blame' },
     { '<leader>td', desc = 'Toggle deleted' },
+    { '<leader>T', desc = 'Open terminal' },
 
     -- Single key operations
     { '<leader>c', desc = 'Clear search highlights' },
@@ -68,7 +66,10 @@ if which_key_ok then
     { '<leader>rf', desc = 'Format code' },
     { '<leader>ca', desc = 'Code actions' },
     { '<leader>e', desc = 'Show diagnostics' },
-    { '<leader>q', desc = 'Diagnostic list' },
+
+    -- Diagnostics lists (shared prefix with trouble's <leader>xx/xr/xs)
+    { '<leader>x', group = 'diagnostics' },
+    { '<leader>xl', desc = 'Diagnostics to loclist' },
 
     -- Navigation
     { 'gd', desc = 'Go to definition' },

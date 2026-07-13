@@ -12,7 +12,7 @@ autocmd('TextYankPost', {
   group = general,
   pattern = '*',
   callback = function()
-    vim.highlight.on_yank({ higroup = 'IncSearch', timeout = 200 })
+    vim.hl.on_yank({ higroup = 'IncSearch', timeout = 200 })
   end,
 })
 
@@ -183,12 +183,12 @@ autocmd('FileType', {
         local line_len = #line
         if line_len > 72 then
           -- Warning: chars 51-72 (over recommended)
-          vim.api.nvim_buf_add_highlight(0, ns_id, 'GitCommitWarning', 0, 50, 72)
+          vim.hl.range(0, ns_id, 'GitCommitWarning', { 0, 50 }, { 0, 72 })
           -- Error: chars 73+ (GitHub truncation)
-          vim.api.nvim_buf_add_highlight(0, ns_id, 'GitCommitError', 0, 72, -1)
+          vim.hl.range(0, ns_id, 'GitCommitError', { 0, 72 }, { 0, line_len })
         elseif line_len > 50 then
           -- Warning: over 50 chars (recommended limit)
-          vim.api.nvim_buf_add_highlight(0, ns_id, 'GitCommitWarning', 0, 50, -1)
+          vim.hl.range(0, ns_id, 'GitCommitWarning', { 0, 50 }, { 0, line_len })
         end
       end
     end
