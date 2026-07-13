@@ -26,7 +26,7 @@ brew "go"
 brew "mas"
 brew "zoxide"
 brew "git-delta"
-brew "pyenv"
+brew "mise"
 brew "kubectl"
 brew "kubecolor"
 

@@ -10,7 +10,6 @@
 
 # Common script paths to reduce duplication
 SCRIPTS_DIR := ./scripts
-TESTS_DIR := $(SCRIPTS_DIR)/tests
 BIN_DIR := ./bin
 
 # Brewfile paths
@@ -19,12 +18,9 @@ BREWFILE_MAS := install/Brewfile.mas
 
 # Test suite configurations (Bats)
 BATS_TESTS_DIR := ./tests/bats
-TEST_COMPREHENSIVE := $(BATS_TESTS_DIR)/test_comprehensive.bats
-TEST_CI := $(BATS_TESTS_DIR)/test_ci.bats
 TEST_ADVANCED := $(BATS_TESTS_DIR)/test_advanced_config.bats
 TEST_PERFORMANCE := $(BATS_TESTS_DIR)/test_performance.bats
 TEST_SECURITY := $(BATS_TESTS_DIR)/test_security.bats
-TEST_CONFIG := $(BATS_TESTS_DIR)/test_configuration.bats
 
 # Analytics and monitoring scripts
 ANALYTICS_PACKAGE := $(SCRIPTS_DIR)/analyze-package-usage.sh
@@ -64,7 +60,7 @@ help:
 	@echo "  update             Update all components (git, packages, plugins)"
 	@echo "  validate           Verify all configurations are working correctly"
 	@echo "  test               Run local test suite (safe, non-destructive)"
-	@echo "  test-ci            Run CI test suite (includes destructive tests)"
+	@echo "  test-ci            Run entire tests/bats suite (including CI-only tests)"
 	@echo "  test-advanced      Advanced tests (performance + security)"
 	@echo "  packages           Install and sync packages from Brewfile"
 	@echo "  health             System diagnostics and health checks"
@@ -84,7 +80,7 @@ help:
 	@echo ""
 	@echo "Advanced Usage Examples:"
 	@echo "  make test               # Local test suite (safe, non-destructive)"
-	@echo "  make test-ci            # CI test suite (includes destructive tests)"
+	@echo "  make test-ci            # Entire tests/bats suite (including CI-only tests)"
 	@echo "  make test-advanced      # Advanced tests (performance + security)"
 	@echo "  make health-monitor     # Real-time system monitoring dashboard"
 	@echo "  make health-analytics   # Package usage and performance analytics"
@@ -94,7 +90,7 @@ help:
 	@echo "  make fix-whitespace     # Remove trailing whitespace from all files"
 	@echo ""
 	@echo "Development & CI:"
-	@echo "  make test-ci            # Run destructive tests (use in CI only)"
+	@echo "  make test-ci            # Run entire tests/bats suite (use in CI only)"
 
 # =============================================================================
 # CORE TARGETS
@@ -124,13 +120,13 @@ validate:
 test:
 	@echo "🧪 Running local test suite with Bats..."
 	@if command -v bats >/dev/null 2>&1; then \
-		find $(BATS_TESTS_DIR) -name "*.bats" ! -name "*_ci.bats" -exec bats {} \;; \
+		find $(BATS_TESTS_DIR) -name "*.bats" ! -name "*_ci.bats" -print0 | xargs -0 bats; \
 	else \
 		echo "❌ Bats not found. Install with: brew install bats-core"; \
 		exit 1; \
 	fi
 
-# CI test suite including destructive tests (for CI environments)
+# Entire tests/bats suite, including CI-only tests (for CI environments)
 test-ci:
 	@echo "🧪 Running complete test suite (including CI-only tests)..."
 	@if command -v bats >/dev/null 2>&1; then \
@@ -200,9 +196,9 @@ packages:
 deps:
 	@echo "🔧 Checking all dependencies..."
 	@if [[ "$${CI:-false}" == "true" ]] || [[ -n "$${GITHUB_ACTIONS:-}" ]] || [[ "$${DOTFILES_CI:-false}" == "true" ]]; then \
-		$(SCRIPTS_DIR)/check-deps.sh --core || (echo "⚠️  Some dependencies are missing. This is normal for new setups."; echo "💡 Run 'make packages' to install missing packages."); \
+		$(SCRIPTS_DIR)/check-deps.sh --core || (echo "⚠️  Some dependencies are missing. This is normal for new setups."; echo "💡 Run 'make packages' to install missing packages."; exit 1); \
 	else \
-		$(SCRIPTS_DIR)/check-deps.sh || (echo "⚠️  Some dependencies are missing. This is normal for new setups."; echo "💡 Run 'make packages' to install missing packages."); \
+		$(SCRIPTS_DIR)/check-deps.sh || (echo "⚠️  Some dependencies are missing. This is normal for new setups."; echo "💡 Run 'make packages' to install missing packages."; exit 1); \
 	fi
 
 # System health and diagnostics

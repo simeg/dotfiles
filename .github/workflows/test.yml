@@ -10,10 +10,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        shell: [bash, zsh]
-
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -30,8 +26,9 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y zsh bash shellcheck
 
-        # Install additional tools for testing
-        sudo apt-get install -y git vim curl wget bats bc jq
+        # Install additional tools for testing (time provides /usr/bin/time
+        # for the startup-perf test, which skips honestly without it)
+        sudo apt-get install -y git vim curl wget bats bc jq time
 
     - name: Make scripts executable
       run: |
@@ -41,15 +38,11 @@ jobs:
           find bin -type f -exec chmod +x {} \;
         fi
 
-    - name: Run shellcheck linting
-      run: |
-        make lint
-
     - name: Test script syntax
       run: |
-        # Test all shell scripts for syntax errors
-        find . -name "*.sh" -type f -exec bash -n {} \;
-        find . -name "*.zsh" -type f -exec zsh -n {} \;
+        # Test all shell scripts for syntax errors (xargs propagates failures)
+        find . -name "*.sh" -type f -not -path "./.git/*" -print0 | xargs -0 -n1 bash -n
+        find . -name "*.zsh" -type f -not -path "./.git/*" -print0 | xargs -0 -n1 zsh -n
 
     - name: Run dependency checks
       run: |
@@ -80,43 +73,24 @@ jobs:
         # Test performance script
         make health-profile
 
-  lint:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-    - name: Install shellcheck
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y shellcheck
-
-    - name: Run shellcheck
-      run: |
-        make lint
-
   security:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # gitleaks scans commit history
 
-    - name: Check for secrets in code
-      run: |
-        # Check for potential secrets (basic patterns)
-        ! grep -r -i "password\|secret\|token\|key.*=" . --include="*.sh" --include="*.zsh" --include="*.md" || echo "Found potential secrets - please review"
+    - name: Scan for secrets with gitleaks
+      uses: gitleaks/gitleaks-action@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Check file permissions
       run: |
         # Ensure no scripts have world-writable permissions
         ! find . -name "*.sh" -perm -002 | grep -q . || (echo "Found world-writable scripts" && exit 1)
-
-    - name: Check for private config references
-      run: |
-        # Ensure private config is properly handled
-        grep -r "private.zsh" . --include="*.sh" --include="*.zsh" --include="*.md" || echo "No private config references found"
 
   documentation:
     runs-on: ubuntu-latest

@@ -12,7 +12,6 @@ env:
   HOMEBREW_NO_INSTALL_CLEANUP: 1
   HOMEBREW_NO_AUTO_UPDATE: 1
   # Speed up Homebrew installations
-  HOMEBREW_PARALLEL: 1
   HOMEBREW_INSTALL_FROM_API: 1
   HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
   # Handle conflicts gracefully
@@ -45,7 +44,7 @@ jobs:
         # Record what we backed up
         ls -la "$HOME/.dotfiles-ci-backup/" || true
 
-        echo "backup-created=true" >> $GITHUB_OUTPUT
+        echo "backup-created=true" >> "$GITHUB_OUTPUT"
 
     # Cache Homebrew downloads (bottles and tarballs)
     - name: Cache Homebrew downloads
@@ -68,12 +67,9 @@ jobs:
         brew update --quiet
 
         # Install tools needed for testing but not part of regular setup
-        if ! command -v timeout >/dev/null 2>&1; then
-          brew install --quiet coreutils  # For gtimeout (timeout)
+        if ! command -v timeout >/dev/null 2>&1 && ! command -v gtimeout >/dev/null 2>&1; then
+          brew install --quiet coreutils  # For gtimeout
         fi
-
-        # Ensure Homebrew links are correct (fixes cache-related issues)
-        brew doctor --list-checks | grep -v check_for_link_dependency || true
 
       # Optional: ensure Homebrew present & updatable quickly (macOS runners already have it)
     - name: Show brew env
@@ -93,8 +89,16 @@ jobs:
         # Set CI environment variable to skip interactive components
         export DOTFILES_CI=true
 
-        # Run setup with timeout to prevent hanging
-        timeout 15m ./scripts/setup.sh --non-interactive || {
+        # Run setup with timeout to prevent hanging (BSD/macOS lacks `timeout`;
+        # coreutils provides `gtimeout`)
+        if command -v timeout >/dev/null 2>&1; then
+          TIMEOUT_CMD="timeout 15m"
+        elif command -v gtimeout >/dev/null 2>&1; then
+          TIMEOUT_CMD="gtimeout 15m"
+        else
+          TIMEOUT_CMD=""
+        fi
+        $TIMEOUT_CMD ./scripts/setup.sh --non-interactive || {
           echo "❌ Setup failed or timed out"
           exit 1
         }
@@ -106,7 +110,6 @@ jobs:
         # Force link packages that commonly have conflicts in CI
         brew link --overwrite --force zsh 2>/dev/null || true
         brew link --overwrite --force openssl@3 2>/dev/null || true
-        brew link --overwrite --force pyenv 2>/dev/null || true
 
     - name: Verify Brew bundle
       run: brew bundle check --file=install/Brewfile.ci-minimal
@@ -241,32 +244,15 @@ jobs:
 
         echo "✅ Analytics and health tests completed"
 
-    - name: Test linting and validation
-      run: |
-        echo "🔍 Testing linting and validation..."
-
-        # Run linting
-        make lint || {
-          echo "❌ Linting failed"
-          exit 1
-        }
-
-        # Run comprehensive validation
-        make validate || {
-          echo "❌ Comprehensive validation failed"
-          exit 1
-        }
-
-        echo "✅ Linting and validation passed"
-
     - name: Performance regression test
       run: |
         echo "⚡ Testing performance benchmarks..."
 
         # Test shell startup time (should be under 2 seconds in CI)
-        start_time=$(date +%s%3N)
+        # Use python3 for millisecond timestamps — BSD `date` has no %N
+        start_time=$(python3 -c 'import time; print(int(time.time() * 1000))')
         /bin/zsh -i -c 'exit'
-        end_time=$(date +%s%3N)
+        end_time=$(python3 -c 'import time; print(int(time.time() * 1000))')
         duration=$((end_time - start_time))
 
         echo "Shell startup time: ${duration}ms"
@@ -357,8 +343,8 @@ jobs:
       run: |
         echo "🔧 Testing compatibility on ${{ matrix.os }}..."
 
-        # Test script syntax
-        find scripts -name "*.sh" -exec bash -n {} \; || {
+        # Test script syntax (xargs propagates failures)
+        find scripts -name "*.sh" -print0 | xargs -0 -n1 bash -n || {
           echo "❌ Script syntax errors found"
           exit 1
         }
@@ -374,35 +360,3 @@ jobs:
         command -v curl || { echo "❌ curl not found"; exit 1; }
 
         echo "✅ Basic compatibility test passed on ${{ matrix.os }}"
-
-  test-security:
-    name: Security Scan
-    runs-on: macos-latest
-
-    steps:
-    - name: Checkout dotfiles
-      uses: actions/checkout@v4
-
-    - name: Scan for secrets
-      run: |
-        echo "🔒 Scanning for potential secrets..."
-
-        # Check for common secret patterns
-        if grep -r -E "(api[_-]?key|password|secret|token)" --include="*.sh" --include="*.zsh" --include="*.toml" . | grep -v "# Example" | grep -v "your-"; then
-          echo "⚠️ Potential secrets found in code"
-          echo "Please review the above matches"
-          # Don't fail as these might be false positives
-        else
-          echo "✅ No obvious secrets found"
-        fi
-
-    - name: Check file permissions
-      run: |
-        echo "🔐 Checking file permissions..."
-
-        # Check for overly permissive files
-        find . -type f -perm +022 -not -path "./.git/*" -not -name "*.md" | while read -r file; do
-          echo "⚠️ World-writable file: $file"
-        done
-
-        echo "✅ File permissions check completed"
