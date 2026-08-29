@@ -316,7 +316,7 @@ require('lazy').setup({
     -- Stock-ish bindings: rebinding f or <leader>c here would destroy the
     -- builtin f/;/, motions and the :nohlsearch map in keymaps.lua.
     keys = {
-      { 's', mode = { 'n', 'x', 'o' }, function() require('flash').jump() end, desc = 'Flash jump' },
+      { '<CR>', mode = { 'n', 'x', 'o' }, function() require('flash').jump() end, desc = 'Flash jump' },
       { 'S', mode = { 'n', 'x', 'o' }, function() require('flash').treesitter() end, desc = 'Flash treesitter' },
     },
   },
