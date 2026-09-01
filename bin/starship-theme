@@ -264,9 +264,10 @@ backup_config() {
         return 1
     fi
 
-    local backup_path
-    backup_path="$CONFIG_PATH.backup.$(date +%Y%m%d_%H%M%S)"
-    cp "$CONFIG_PATH" "$backup_path"
+    local backup_path="$CONFIG_PATH.backup"
+    # -L: dereference symlinks so we capture actual theme content,
+    # not a symlink that goes stale after a theme switch
+    cp -L "$CONFIG_PATH" "$backup_path"
     log_success "Configuration backed up to: $backup_path"
 }
 
