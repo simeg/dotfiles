@@ -106,6 +106,8 @@ alias gst="git status"
 alias gss="git status --short"
 alias grb="git rebase"
 alias grbc="git rebase --continue"
+# `;` not `&&` so one failing repo doesn't stop the rest
+alias update='git -C ~/repos/services-pilot pull; git -C ~/repos/data pull; git -C ~/repos/babylon-wiki pull'
 
 # Branch management
 alias gb="git branch"
